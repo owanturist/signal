@@ -33,3 +33,7 @@ cypress/videos
 # nx
 .nx/cache
 .nx/workspace-data
+
+# docs
+docs/.next
+docs/.source
