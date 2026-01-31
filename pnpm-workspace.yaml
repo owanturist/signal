@@ -1,8 +1,10 @@
 packages:
   - "packages/*"
+  - "docs"
 
 allowBuilds:
   esbuild: true
+  sharp: set this to true or false
 
 # do not require -w flag when installing to the root
 ignoreWorkspaceRootCheck: true
