@@ -237,25 +237,28 @@
           },
 
           "nursery": {
-            "useVueMultiWordComponentNames": "off", // irrelevant
-            "useVueDefineMacrosOrder": "off", // irrelevant
-            "noReactNativeRawText": "off", // irrelevant
+            // Framework-specific rules (irrelevant for this React project)
+            "useQwikMethodUsage": "off",
+            "useQwikValidLexicalScope": "off",
+            "useVueMultiWordComponentNames": "off",
+            "useVueDefineMacrosOrder": "off",
+            "noVueReservedProps": "off",
+            "noVueReservedKeys": "off",
+            "noVueDuplicateKeys": "off",
+            "noVueDataObjectDeclaration": "off",
+
+            // Project-specific overrides
             "noEqualsToNull": "off", // == null is used to check for both null and undefined
             "noLeakedRender": "off", // many false-positives for boolean && JSX expressions
             "noTernary": "off", // ternary is useful in many cases
-
-            "useExplicitType": "off", // it is too much noise to enforce explicit types everywhere, even none module-public exports
-            "useExplicitReturnType": "off", // same reasoning as useExplicitType: too noisy on non module-public exports
+            "noUnresolvedImports": "off", // handled by TS
+            "noUselessUndefined": "off", // explicit undefined values improve readability
+            "useExplicitType": "off", // too noisy for non-public exports
+            "useMaxParams": "off", // common pattern in this codebase
             "useAwaitThenable": "off", // false-positives
-            "noJsxPropsBind": "off", // it is madness to follow this rule
-            "useThisInClassMethods": "off", // false-positives for overridable hooks (e.g. _clone, _getChildren) where subclasses depend on the instance-method shape
+            "noJsxPropsBind": "off", // impractical to follow
 
-            "useConsistentMethodSignatures": {
-              // property-style enables stricter variance checks under strictFunctionTypes
-              "level": "error",
-              "fix": "safe" // promote the unsafe fix to safe so check:fix auto-applies it
-            },
-
+            // Informational hints
             "useDestructuring": "info",
             "noExcessiveLinesPerFile": {
               "level": "info",
