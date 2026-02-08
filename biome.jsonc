@@ -260,13 +260,16 @@
 
             // Informational hints
             "useDestructuring": "info",
-            "noExcessiveLinesPerFile": {
+            "noExcessiveLinesPerFile": "info",
+            "noMultiAssign": "info",
+            // Add cx and cv functions used for className composition.
+            "useSortedClasses": {
               "level": "info",
+              "fix": "safe",
               "options": {
-                "skipBlankLines": true
+                "functions": ["cx"]
               }
-            },
-            "noMultiAssign": "info"
+            }
           }
         }
       }
