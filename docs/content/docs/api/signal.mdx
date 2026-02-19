@@ -3,7 +3,7 @@ title: Signal
 description: API reference for the Signal function and signal types
 ---
 
-The `Signal{:dart}` function creates reactive signals that hold values and notify dependents when changed.
+The `Signal{:dart}` function creates reactive signals that hold values and notify consumers when changed.
 
 ## `Signal(){:dart}` [#empty-factory]
 
@@ -112,7 +112,7 @@ Creates a read-only derived signal from a getter function or another signal.
 
 ---
 
-- `@returns ReadonlySignal<TDerivedValue>{:dart}` A read-only signal that recomputes when dependencies change.
+- `@returns ReadonlySignal<TDerivedValue>{:dart}` A read-only signal that re-computes when dependencies change.
 
 </section>
 
@@ -197,7 +197,7 @@ type Equal<T> = (left: T, right: T) => boolean
 
 <section className="typedef">
 
-- `@param equals?: null | Equal<T>{:dart}` Custom equality function to determine if a value has changed. Pass `null{:ts}` to use the default `Object.is{:ts}`. When the function returns `true{:ts}`, watchers are not notified.
+- `@param equals?: null | Equal<T>{:dart}` Custom equality function to determine if a value has changed. Pass `null{:ts}` to use the default `Object.is{:ts}`. When the function returns `true{:ts}`, consumers are not notified.
 
 </section>
 
@@ -232,9 +232,9 @@ interface ReadableSignal<T> {
 
 Interface for anything that can be read with a Monitor. By implementing this minimal interface on your own classes, you unlock:
 
-- **`useComputed(yourClass){:ts}`** — use your class directly in React components
-- **`untracked(yourClass){:ts}`** — get snapshot values without tracking
-- **`Signal(yourClass){:ts}`** — use as the getter of a derived signal
+- **`useComputed(yourClass){:ts}`** - use your class directly in React components
+- **`untracked(yourClass){:ts}`** - get snapshot values without tracking
+- **`Signal(yourClass){:ts}`** - use as the getter of a derived signal
 
 ```ts twoslash
 import { Signal, untracked, type Monitor, type ReadableSignal } from "@owanturist/signal"
@@ -275,7 +275,7 @@ interface WritableSignal<T> {
 
 Interface for anything that can be written to. By implementing this minimal interface on your own classes, you can use them as **setter targets** for bidirectional derived signals:
 
-- **`Signal(getter, yourClass){:ts}`** — use as the setter of a derived signal
+- **`Signal(getter, yourClass){:ts}`** - use as the setter of a derived signal
 
 ```ts twoslash
 import { Signal, type WritableSignal } from "@owanturist/signal"
@@ -305,11 +305,11 @@ routed.write(10) // calls counter.write(10)
 read(monitor: Monitor): T
 ```
 
-Reads the signal's value and registers the monitor as a watcher.
+Reads the signal's value and registers the monitor as a consumer.
 
 <section className="typedef">
 
-- `@param monitor: Monitor{:dart}` The monitor to register as a dependency watcher.
+- `@param monitor: Monitor{:dart}` The monitor to register as a consumer.
 
 ---
 
@@ -324,7 +324,7 @@ write(value: T): void
 write(transform: (currentValue: T, monitor: Monitor) => T): void
 ```
 
-Updates the signal's value and notifies all watching monitors.
+Updates the signal's value and notifies all consumers.
 
 <section className="typedef">
 

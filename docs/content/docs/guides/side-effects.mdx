@@ -1,13 +1,13 @@
 ---
 title: Side Effects
-description: How to run side effects in response to signal changes using the effect function
+description: How to run side effects in response to Signal changes using the effect function
 ---
 
-The `effect{:dart}` function connects signal changes to external systems like the DOM, network requests, or third-party services. This guide shows how to create effects, clean up resources, and integrate with React's lifecycle.
+The `effect{:dart}` function connects Signal changes to external systems like the DOM, network requests, or third-party services. This guide shows how to create effects, clean up resources, and integrate with React's lifecycle.
 
 ## Creating an Effect [#creating]
 
-To create an effect, pass a listener function to `effect{:dart}`. The listener receives a `Monitor{:dart}` for tracking signal dependencies. It runs immediately on creation, then re-runs whenever any tracked signal changes. The returned function stops the effect.
+To create an effect, pass a listener function to `effect{:dart}`. The listener receives a `Monitor{:dart}` for tracking Signal dependencies. It runs immediately on creation, then re-runs whenever any tracked Signal changes. The returned function stops the effect.
 
 ```ts
 import { Signal, effect } from "@owanturist/signal"
@@ -51,7 +51,7 @@ stop() // Cleanup runs, then the effect disconnects
 
 ### Timer Cleanup [#timer-cleanup]
 
-To restart a timer whenever a signal changes, clear the previous interval in the cleanup function:
+To restart a timer whenever a Signal changes, clear the previous interval in the cleanup function:
 
 ```ts
 import { Signal, effect } from "@owanturist/signal"
@@ -68,7 +68,7 @@ effect((monitor) => {
 
 ### DOM Event Cleanup [#dom-cleanup]
 
-To swap event listeners when a handler signal changes, remove the old listener in cleanup:
+To swap event listeners when a handler Signal changes, remove the old listener in cleanup:
 
 ```ts
 import { Signal, effect } from "@owanturist/signal"
@@ -166,6 +166,6 @@ function Fixed() {
 
 <Cards>
   <Card title="effect API" description="Complete effect API reference" href="/docs/api/effect" />
-  <Card title="Reading and Writing Signals" description="Patterns for signal reads, writes, and batching" href="/docs/guides/reading-and-writing-signals" />
+  <Card title="Reading and Writing Signals" description="Patterns for Signal reads, writes, and batching" href="/docs/guides/reading-and-writing-signals" />
   <Card title="Using Signals in React" description="Signal patterns for React components" href="/docs/guides/using-signals-in-react" />
 </Cards>

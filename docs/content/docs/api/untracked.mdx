@@ -7,7 +7,7 @@ The `untracked{:dart}` function reads signal values without creating reactive de
 
 ## When to Use [#when-to-use]
 
-Reads a signal's value without establishing a reactive dependency. Useful when you need a snapshot of the current value without subscribing to future changes — for example, in event handlers, async operations, or one-off computations.
+Reads a signal's value without establishing a reactive dependency. Useful when you need a snapshot of the current value without subscribing to future changes - for example, in event handlers, async operations, or one-off computations.
 
 See [Reading and Writing Signals](/docs/guides/reading-and-writing-signals#untracked) for common patterns.
 
@@ -17,7 +17,7 @@ See [Reading and Writing Signals](/docs/guides/reading-and-writing-signals#untra
 function untracked<TResult>(factory: (monitor: Monitor) => TResult): TResult
 ```
 
-Executes a function with an untracked Monitor, allowing signal reads that don't establish dependencies.
+Executes a function with an untracked Monitor, allowing signal reads that do not establish dependencies.
 
 <section className="typedef">
 
