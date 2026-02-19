@@ -1,13 +1,13 @@
 ---
 title: Reading and Writing Signals
-description: Patterns for reading signal values with and without tracking, writing updates, and batching changes
+description: Patterns for reading Signal values with and without tracking, writing updates, and batching changes
 ---
 
-This guide covers the essential patterns for interacting with signal values: reading with dependency tracking, writing updates, selectively opting out of tracking, and grouping multiple writes into a single notification.
+This guide covers the essential patterns for interacting with Signal values: reading with dependency tracking, writing updates, selectively opting out of tracking, and grouping multiple writes into a single notification.
 
 ## Reading Signal Values [#reading]
 
-To read a signal's current value and subscribe to future changes, pass a Monitor to `.read(){:ts}`. The monitor records the dependency so that your effect or derived signal re-runs when the value changes.
+To read a Signal's current value and subscribe to future changes, pass a Monitor to `.read(){:ts}`. The monitor records the dependency so that your effect or derived Signal re-runs when the value changes.
 
 ```ts
 import { Signal, effect } from "@owanturist/signal"
@@ -22,11 +22,11 @@ effect((monitor) => {
 count.write(1) // Effect re-runs, logs: 1
 ```
 
-Each monitor tracks its own set of dependencies independently. Changing a signal only notifies monitors that actually read it.
+Each monitor tracks its own set of dependencies independently. Changing a Signal only notifies monitors that actually read it.
 
 ## Writing Signal Values [#writing]
 
-To update a writable signal, call `.write(){:ts}` with either a replacement value or a transform function:
+To update a writable Signal, call `.write(){:ts}` with either a replacement value or a transform function:
 
 ```ts
 import { Signal } from "@owanturist/signal"
@@ -44,7 +44,7 @@ Use the transform function form when the new value depends on the current one. T
 
 ## Reading Without Tracking [#untracked]
 
-Use `untracked(){:ts}` to read a signal's current value without establishing a dependency. The effect or derived signal will not re-run when the untracked signal changes.
+Use `untracked(){:ts}` to read a Signal's current value without establishing a dependency. The effect or derived Signal will not re-run when the untracked Signal changes.
 
 ```ts
 import { Signal, effect, untracked } from "@owanturist/signal"
@@ -72,7 +72,7 @@ See the [untracked API reference](/docs/api/untracked) for the full API surface 
 
 ## Batching Updates [#batching]
 
-Use `batch(){:ts}` to group multiple signal writes into a single notification. Without batching, each `.write(){:ts}` call immediately notifies all dependent monitors. With `batch(){:ts}`, notifications are deferred until the function completes.
+Use `batch(){:ts}` to group multiple Signal writes into a single notification. Without batching, each `.write(){:ts}` call immediately notifies all dependent monitors. With `batch(){:ts}`, notifications are deferred until the function completes.
 
 ```ts
 import { Signal, effect, batch } from "@owanturist/signal"
@@ -91,7 +91,7 @@ batch(() => {
 // Logs once: "Jane Smith"
 ```
 
-Use `batch(){:ts}` when updating multiple related signals together to avoid intermediate states and redundant effect executions. Batches can also be nested - the outermost batch controls when notifications fire.
+Use `batch(){:ts}` when updating multiple related Signals together to avoid intermediate states and redundant effect executions. Batches can also be nested - the outermost batch controls when notifications fire.
 
 See the [batch API reference](/docs/api/batch) for advanced patterns including reading values inside a batch and nested batching.
 
@@ -99,12 +99,12 @@ See the [batch API reference](/docs/api/batch) for advanced patterns including r
 
 | Use Case | Tool |
 |----------|------|
-| Computing a value from other signals | Derived signal |
-| Transforming or filtering data | Derived signal |
+| Computing a value from other Signals | Derived Signal |
+| Transforming or filtering data | Derived Signal |
 | Side effects (DOM, network, logging) | `effect{:dart}` |
 | Syncing with external systems | `effect{:dart}` |
 
-Effects are for **actions**. Derived signals are for **values**.
+Effects are for **actions**. Derived Signals are for **values**.
 
 ## See Also [#see-also]
 

@@ -3,10 +3,10 @@ title: Design Decisions
 description: How signal APIs in Angular, Solid, Preact, Vue, Svelte, and Qwik inspired the design choices behind this library
 ---
 
-Signals are a proven reactive pattern. Angular, Solid, Preact, Vue, Svelte, and Qwik each implement them differently, but the core idea is the same: a value that notifies its dependents when it changes. React is the exception — it has no built-in signal primitive. This library brings signals to React with a small, framework-agnostic core and a thin React bridge.
+Signals are a proven reactive pattern. Angular, Solid, Preact, Vue, Svelte, and Qwik each implement them differently, but the core idea is the same: a value that notifies its consumers when it changes. React is the exception - it has no built-in signal primitive. This library brings signals to React with a small, framework-agnostic core and a thin React bridge.
 
 <Callout>
-This page explains the design decisions behind `@owanturist/signal`'s API by showing how other frameworks solve the same problems. It is not a feature comparison — each framework has its own strengths, ecosystem, and maturity.
+This page explains the design decisions behind `@owanturist/signal`'s API by showing how other frameworks solve the same problems. It is not a feature comparison - each framework has its own strengths, ecosystem, and maturity.
 </Callout>
 
 ## Creating Signals
@@ -60,7 +60,7 @@ const count = useSignal(0)
 const doubled = useComputed$(() => count.value * 2)
 ```
 
-A single `Signal(){:ts}` factory covers all three roles — writable, derived, and bidirectional derived. The first argument determines which kind you get: a plain value creates a writable signal, a function creates a derived one. Most other frameworks use separate functions (`signal{:dart}` + `computed{:dart}`, `createSignal{:dart}` + `createMemo{:dart}`) — two names for what is conceptually a single operation.
+A single `Signal(){:ts}` factory covers all three roles - writable, derived, and bidirectional derived. The first argument determines which kind you get: a plain value creates a writable signal, a function creates a derived one. Most other frameworks use separate functions (`signal{:dart}` + `computed{:dart}`, `createSignal{:dart}` + `createMemo{:dart}`) - two names for what is conceptually a single operation.
 
 ## Reading Values
 
@@ -116,7 +116,7 @@ const count = useSignal(5)
 console.log(count.value) // 5
 ```
 
-Every other framework uses implicit tracking — calling the getter or accessing a property automatically registers the dependency. This library makes tracking explicit through the `Monitor{:dart}` parameter — you can always trace a computation's dependencies. The tradeoff is extra syntax in exchange for explicit dependency tracking.
+Every other framework uses implicit tracking - calling the getter or accessing a property automatically registers the dependency. This library makes tracking explicit through the `Monitor{:dart}` parameter - you can always trace a computation's dependencies. The tradeoff is extra syntax in exchange for explicit dependency tracking.
 
 ## Writing Values
 
@@ -242,11 +242,11 @@ const lastName = useSignal("Freeman")
 const fullName = useComputed$(() => `${firstName.value} ${lastName.value}`)
 ```
 
-All frameworks provide read-only derived signals. The syntax varies, but the goal is identical: declare a computation and the framework keeps it current. `Signal(){:ts}` is reused here — pass a function as the first argument to create a derived signal.
+All frameworks provide read-only derived signals. The syntax varies, but the goal is identical: declare a computation and the framework keeps it current. `Signal(){:ts}` is reused here - pass a function as the first argument to create a derived signal.
 
 ### Bidirectional Derived Signals
 
-Most frameworks only support read-only derived values. This library and Vue also support bidirectional derived signals — computed values you can write to, propagating changes back to their sources.
+Most frameworks only support read-only derived values. This library and Vue also support bidirectional derived signals - computed values you can write to, propagating changes back to their sources.
 
 ```ts title="@owanturist/signal"
 import { Signal } from "@owanturist/signal"
@@ -274,7 +274,7 @@ const fahrenheit = computed({
 fahrenheit.value = 212 // celsius is now 100
 ```
 
-Angular, Solid, Preact, Svelte, and Qwik do not support bidirectional derived signals. Vue's `computed({ get, set }){:ts}` directly inspired this library's `Signal(getter, setter){:ts}` — both create two-way bindings without manual synchronization.
+Angular, Solid, Preact, Svelte, and Qwik do not support bidirectional derived signals. Vue's `computed({ get, set }){:ts}` directly inspired this library's `Signal(getter, setter){:ts}` - both create two-way bindings without manual synchronization.
 
 ## Effects
 
@@ -349,7 +349,7 @@ useTask$(({ track }) => {
 })
 ```
 
-Effects run synchronously and return a dispose function, similar to Preact. Angular and Vue schedule effects as microtasks, Solid and Svelte run them after rendering, and Qwik uses explicit `track(){:ts}` calls inside `useTask$(){:ts}`. The synchronous approach is predictable — you always know when the effect has run.
+Effects run synchronously and return a dispose function, similar to Preact. Angular and Vue schedule effects as microtasks, Solid and Svelte run them after rendering, and Qwik uses explicit `track(){:ts}` calls inside `useTask$(){:ts}`. The synchronous approach is predictable - you always know when the effect has run.
 
 ## Batching
 
@@ -476,7 +476,7 @@ Only Angular, Solid, and this library support custom equality. The default behav
 
 ## Nested Signals
 
-Signals holding other signals — nested composition — works seamlessly when signals are plain values.
+Signals holding other signals - nested composition - works seamlessly when signals are plain values.
 
 ```ts title="@owanturist/signal"
 import { Signal, effect } from "@owanturist/signal"
@@ -547,7 +547,7 @@ const state = useStore({
 state.items[0].text = "updated"
 ```
 
-A `Signal<Array<Signal<string>>>{:ts}` works naturally because signals are plain values that compose freely. Vue and Svelte solve nesting with deep reactivity proxies — convenient, but it obscures which properties are reactive. Angular and Preact require awkward double-unwrapping. With explicit nesting, you control exactly which level of the hierarchy triggers updates.
+A `Signal<Array<Signal<string>>>{:ts}` works naturally because signals are plain values that compose freely. Vue and Svelte solve nesting with deep reactivity proxies - convenient, but it obscures which properties are reactive. Angular and Preact require awkward double-unwrapping. With explicit nesting, you control exactly which level of the hierarchy triggers updates.
 
 ## Untracked Reads
 
@@ -621,20 +621,20 @@ useTask$(({ track }) => {
 })
 ```
 
-Both `untracked(fn){:ts}` for arbitrary code and `untracked(signal){:ts}` for a single signal are supported — inspired by Angular. Most frameworks offer some form of untracked reads, except Vue which has no direct equivalent. Preact uses `.peek(){:ts}` on individual signals instead of a global function — though the name doesn't convey "untracked", which can surprise developers who see it return a value without realizing it skips dependency tracking.
+Both `untracked(fn){:ts}` for arbitrary code and `untracked(signal){:ts}` for a single signal are supported - inspired by Angular. Most frameworks offer some form of untracked reads, except Vue which has no direct equivalent. Preact uses `.peek(){:ts}` on individual signals instead of a global function - though the name does not convey "untracked", which can surprise developers who see it return a value without realizing it skips dependency tracking.
 
 ## What This Library Does Not Do
 
 This library omits several features found in other signal libraries:
 
-- **No compiler magic** — There is no build step that transforms variable access into reactive subscriptions. Svelte's `$state{:dart}` and `$derived{:dart}` runes eliminate boilerplate but require a compiler step. This library runs in any standard JavaScript environment without a build step.
+- **No compiler magic** - There is no build step that transforms variable access into reactive subscriptions. Svelte's `$state{:dart}` and `$derived{:dart}` runes eliminate boilerplate but require a compiler step. This library runs in any standard JavaScript environment without a build step.
 
-- **No JSX auto-unwrapping** — Preact signals can update the DOM directly from JSX, bypassing component re-renders. This library requires `.read(){:ts}` calls inside components, though you can build thin wrapper components that accept a signal as a prop and subscribe to it — effectively achieving fine-grained updates scoped to a small subtree.
+- **No JSX auto-unwrapping** - Preact signals can update the DOM directly from JSX, bypassing component re-renders. This library requires `.read(){:ts}` calls inside components, though you can build thin wrapper components that accept a signal as a prop and subscribe to it - effectively achieving fine-grained updates scoped to a small subtree.
 
-- **No resumability** — Qwik serializes signals into HTML so the client can resume without hydration. This library targets a standard client-side React environment.
+- **No resumability** - Qwik serializes signals into HTML so the client can resume without hydration. This library targets a standard client-side React environment.
 
-- **No implicit scheduling** — Angular and Vue batch updates implicitly through their change detection and async queue systems. This library requires explicit `batch(){:ts}` calls when you need to group multiple writes.
+- **No implicit scheduling** - Angular and Vue batch updates implicitly through their change detection and async queue systems. This library requires explicit `batch(){:ts}` calls when you need to group multiple writes.
 
-- **Immutable data by default** — Signals compare values by reference equality. Mutating an object in place and passing the same reference to `.write(){:ts}` is a no-op unless you set `equals: () => false{:ts}`. This matches React's model — `useState{:dart}`, `useMemo{:dart}`, props, and context all assume immutability — so signals integrate naturally into React's update model.
+- **Immutable data by default** - Signals compare values by reference equality. Mutating an object in place and passing the same reference to `.write(){:ts}` is a no-op unless you set `equals: () => false{:ts}`. This matches React's model - `useState{:dart}`, `useMemo{:dart}`, props, and context all assume immutability - so signals integrate naturally into React's update model.
 
 Some of these follow from React's constraints; others are deliberate choices favoring explicitness and minimal surface area. Every framework on this page has tackled real problems with approaches worth understanding. This library draws from those approaches and adapts them for React.
