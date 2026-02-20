@@ -290,6 +290,7 @@ The following skills are available in [`.claude/skills/`](.claude/skills/):
 | [creating-changesets](.claude/skills/creating-changesets/SKILL.md)             | Changesets workflow - version bumps, release notes, semver decisions                         |
 | [fumadocs](.claude/skills/fumadocs/SKILL.md)                                   | Fumadocs documentation framework - layouts, MDX, source API, theming, components             |
 | [twoslash](.claude/skills/twoslash/SKILL.md)                                   | Twoslash markup for TypeScript code samples - type queries, completions, errors, cut markers |
+| [docs-sandpack](.claude/skills/docs-sandpack/SKILL.md)                         | Interactive code examples in docs using Sandpack                                             |
 
 ### Utility Skills
 
