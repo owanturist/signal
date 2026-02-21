@@ -430,6 +430,9 @@
       "includes": ["docs/src/**/*.{ts,tsx}"],
       "linter": {
         "rules": {
+          "correctness": {
+            "noNodejsModules": "off" // docs are nextjs app - it can use nodejs modules for server code
+          },
           "nursery": {
             "noJsxLiterals": "off" // landing page and docs components use literal strings
           }
