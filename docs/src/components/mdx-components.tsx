@@ -2,7 +2,8 @@ import { Popup, PopupContent, PopupTrigger } from "fumadocs-twoslash/ui"
 import { Accordion, Accordions } from "fumadocs-ui/components/accordion"
 import { TypeTable } from "fumadocs-ui/components/type-table"
 import defaultComponents from "fumadocs-ui/mdx"
-import { SandpackBundle } from "./sandpack-bundle"
+
+import { Sandpack } from "./sandpack-editor"
 
 export const MDXComponents = {
   ...defaultComponents,
@@ -14,6 +15,6 @@ export const MDXComponents = {
   PopupContent,
   PopupTrigger,
   TypeTable,
-  SandpackBundle,
+  Sandpack,
   // biome-ignore-end lint/style/useNamingConvention: components must be PascalCase
 }

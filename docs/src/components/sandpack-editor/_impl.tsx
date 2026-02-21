@@ -1,32 +1,38 @@
 "use client"
-import {
-  SandpackProvider,
-  SandpackLayout,
-  SandpackFileExplorer,
-  SandpackCodeEditor,
-  SandpackPreview,
-  type SandpackFiles,
-} from "@codesandbox/sandpack-react"
 
-interface SandpackEditorProps {
+import {
+  SandpackCodeEditor,
+  SandpackFileExplorer,
+  type SandpackFiles,
+  SandpackLayout,
+  SandpackPreview,
+  SandpackProvider,
+} from "@codesandbox/sandpack-react"
+import { useTheme } from "next-themes"
+
+export interface Props {
   files: SandpackFiles
   entry?: string
+  height?: number
   signalVersion: string
   signalReactVersion: string
 }
 
-export function SandpackEditor({
+export function SandpackImpl({
   files,
   entry,
+  height = 600,
   signalVersion,
   signalReactVersion,
-}: SandpackEditorProps) {
+}: Props) {
+  const { resolvedTheme = "dark" } = useTheme()
+
   return (
     <SandpackProvider
       template="react-ts"
       files={files}
       options={{ activeFile: entry }}
-      theme="dark"
+      theme={resolvedTheme === "dark" ? "dark" : "light"}
       customSetup={{
         dependencies: {
           "@owanturist/signal": signalVersion,
@@ -34,7 +40,7 @@ export function SandpackEditor({
         },
       }}
     >
-      <SandpackLayout style={{ height: 600 }}>
+      <SandpackLayout style={{ height }}>
         <SandpackFileExplorer style={{ height: "100%" }} />
         <div
           style={{
