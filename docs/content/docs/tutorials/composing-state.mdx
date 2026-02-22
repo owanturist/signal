@@ -26,6 +26,7 @@ export type State = ReturnType<typeof initState>
     },
     "/align/index.tsx": {
       code: `import { useComputed } from "@owanturist/signal-react"
+import { RenderBoundary } from "/render-boundary"
 import { type Alignment, type State } from "./state"
 
 const ALIGNMENTS: ReadonlyArray<Alignment> = ["left", "center", "right", "justify"]
@@ -38,7 +39,7 @@ export function Align({ state }: Props) {
   const alignment = useComputed(state.alignment)
 
   return (
-    <div style={{ display: "flex", gap: 4 }}>
+    <RenderBoundary name="Align" style={{ display: "flex", gap: 4 }}>
       {ALIGNMENTS.map((value) => (
         <button
           key={value}
@@ -53,7 +54,7 @@ export function Align({ state }: Props) {
           {value}
         </button>
       ))}
-    </div>
+    </RenderBoundary>
   )
 }
 `
@@ -73,6 +74,7 @@ export type State = ReturnType<typeof initState>
     },
     "/font/index.tsx": {
       code: `import { useMonitor } from "@owanturist/signal-react"
+import { RenderBoundary } from "/render-boundary"
 import type { State } from "./state"
 
 interface Props {
@@ -85,7 +87,7 @@ export function Font({ state }: Props) {
   const size = state.size.read(monitor)
 
   return (
-    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+    <RenderBoundary name="Font" style={{ display: "flex", gap: 8, alignItems: "center" }}>
       <select
         value={family}
         onChange={(e) => state.family.write(e.target.value)}
@@ -104,7 +106,7 @@ export function Font({ state }: Props) {
         style={{ width: 60, border: "1px solid #ccc", padding: "2px 4px" }}
       />
       <span>px</span>
-    </div>
+    </RenderBoundary>
   )
 }
 `
@@ -124,7 +126,8 @@ export type State = ReturnType<typeof initState>
 `
     },
     "/toolbar/index.tsx": {
-      code: `import type { State } from "./state"
+      code: `import { RenderBoundary } from "/render-boundary"
+import type { State } from "./state"
 import { Align } from "../align"
 import { Font } from "../font"
 
@@ -134,16 +137,17 @@ interface Props {
 
 export function Toolbar({ state }: Props) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: 16, border: "1px solid #ccc" }}>
+    <RenderBoundary name="Toolbar" style={{ display: "flex", flexDirection: "row", gap: 8 }}>
       <Align state={state.align} />
       <Font state={state.font} />
-    </div>
+    </RenderBoundary>
   )
 }
 `
     },
     "/text-preview/index.tsx": {
       code: `import { useMonitor } from "@owanturist/signal-react"
+import { RenderBoundary } from "/render-boundary"
 import type { State as ToolbarState } from "../toolbar/state"
 
 interface Props {
@@ -157,25 +161,25 @@ export function TextPreview({ state }: Props) {
   const size = state.font.size.read(monitor)
 
   return (
-    <p
+    <RenderBoundary
+      name="TextPreview"
       style={{
         textAlign: alignment,
         fontFamily: family,
         fontSize: size,
-        padding: 16,
-        border: "1px solid #ccc",
         minHeight: 80,
         margin: 0,
       }}
     >
       The quick brown fox jumps over the lazy dog.
-    </p>
+    </RenderBoundary>
   )
 }
 `
     },
     "/app.tsx": {
       code: `import { useState } from "react"
+import { RenderBoundary } from "/render-boundary"
 import { initState } from "./toolbar/state"
 import { Toolbar } from "./toolbar"
 import { TextPreview } from "./text-preview"
@@ -184,10 +188,10 @@ export default function App() {
   const [state] = useState(initState)
 
   return (
-    <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
+    <RenderBoundary name="App" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <Toolbar state={state} />
       <TextPreview state={state} />
-    </div>
+    </RenderBoundary>
   )
 }
 `
