@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import path from "node:path"
 import process from "node:process"
-import type { SandpackFile } from "@codesandbox/sandpack-react"
+import type { SandpackFile, SandpackFiles } from "@codesandbox/sandpack-react"
 import type { CSSProperties } from "react"
 
 import { isDefined } from "~/tools/is-defined"
@@ -10,8 +10,20 @@ import { Tuple } from "~/tools/tuple"
 
 import { SandpackEditor, type SandpackEditorProps } from "./_editor"
 
+const RE_TS_NOCHECK = /^\/\/ @ts-nocheck\n\n?/
+const RE_REGION_START = /^\/\/#region \w+\n/gm
+const RE_REGION_END = /^\/\/#endregion \w+\n?/gm
+
+/** Strip `// @ts-nocheck` directive and region markers so they don't appear in Sandpack. */
+function stripExampleMeta(code: string): string {
+  return code.replace(RE_TS_NOCHECK, "").replace(RE_REGION_START, "").replace(RE_REGION_END, "")
+}
+
 /** Monorepo root - one level up from the docs directory. */
 const root = path.resolve(process.cwd(), "..")
+
+/** Directory containing this file and the `.example.tsx` Sandpack templates. */
+const sandpackDir = path.resolve(process.cwd(), "src", "components", "sandpack")
 
 /**
  * Normalizes a package.json `exports` field for Sandpack's bundler.
@@ -95,17 +107,64 @@ function readPackage(name: string): Array<[string, SandpackFile]> {
 }
 
 /**
- * Virtual `node_modules` files for all local packages. Built once at module
+ * Virtual `node_modules` files for all local packages, plus the Sandpack
+ * bootstrap entry point and the RenderBoundary helper. Built once at module
  * init so that Sandpack resolves imports from these packages against local
  * dist builds instead of fetching published versions from npm.
  */
-const localFiles = Object.fromEntries([
-  ...readPackage("@owanturist/signal"),
-  ...readPackage("@owanturist/signal-react"),
-])
+const localFiles: SandpackFiles = {
+  "/index.tsx": {
+    hidden: true,
+    code: stripExampleMeta(fs.readFileSync(path.join(sandpackDir, "index.example.tsx"), "utf-8")),
+  },
+  "/render-boundary.tsx": {
+    code: stripExampleMeta(
+      fs.readFileSync(path.join(sandpackDir, "render-boundary.example.tsx"), "utf-8"),
+    ),
+  },
+  ...Object.fromEntries([
+    ...readPackage("@owanturist/signal"),
+    ...readPackage("@owanturist/signal-react"),
+  ]),
+}
 
-interface Props extends Omit<SandpackEditorProps, "localFiles"> {
+/**
+ * Recursively reads `.example.ts` and `.example.tsx` files from a directory
+ * and returns Sandpack-style file entries.
+ *
+ * The `.example` segment is stripped from filenames and paths are made relative
+ * to the given directory with a leading `/`.
+ * E.g. `align/state.example.ts` -> `"/align/state.ts"`.
+ */
+function readExampleDir(dirPath: string, prefix = ""): SandpackFiles {
+  const entries = fs.readdirSync(dirPath, { withFileTypes: true })
+  let files: SandpackFiles = {}
+
+  for (const entry of entries) {
+    if (entry.isDirectory()) {
+      files = {
+        ...files,
+        ...readExampleDir(path.join(dirPath, entry.name), `${prefix}/${entry.name}`),
+      }
+    } else if (entry.name.includes(".example.")) {
+      const sandpackName = `${prefix}/${entry.name.replace(".example", "")}`
+      const code = stripExampleMeta(fs.readFileSync(path.join(dirPath, entry.name), "utf-8"))
+
+      files[sandpackName] = { code }
+    }
+  }
+
+  return files
+}
+
+interface Props extends Omit<SandpackEditorProps, "localFiles" | "files"> {
   height?: number
+  /**
+   * Path to a directory (relative to `docs/content/`) containing `.example.ts`
+   * and `.example.tsx` files to load into Sandpack.
+   */
+  dir?: string
+  files?: SandpackFiles
 }
 
 /**
@@ -113,7 +172,17 @@ interface Props extends Omit<SandpackEditorProps, "localFiles"> {
  * Sandpack's virtual filesystem. User-provided `files` take precedence
  * over the injected `localFiles` via spread order in `_editor.tsx`.
  */
-export function Sandpack({ height = 600, ...props }: Props) {
+export function Sandpack({ height = 600, dir, files: explicitFiles, ...props }: Props) {
+  let files: SandpackFiles = {}
+
+  if (dir) {
+    const absDir = path.resolve(process.cwd(), "content", dir)
+    files = readExampleDir(absDir)
+  }
+
+  // Explicit files override dir-loaded files
+  files = { ...files, ...explicitFiles }
+
   return (
     <div
       className="contents"
@@ -123,7 +192,7 @@ export function Sandpack({ height = 600, ...props }: Props) {
         } as CSSProperties
       }
     >
-      <SandpackEditor localFiles={localFiles} {...props} />
+      <SandpackEditor localFiles={localFiles} files={files} {...props} />
     </div>
   )
 }
