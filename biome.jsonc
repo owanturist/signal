@@ -438,6 +438,24 @@
           }
         }
       }
+    },
+
+    // docs example files - Sandpack examples embedded in tutorial pages
+    {
+      "includes": ["docs/content/**/*.example.{ts,tsx}"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noMagicNumbers": "off" // example code uses inline values for clarity
+          },
+          "correctness": {
+            "noUndeclaredDependencies": "off" // examples import from packages not in docs/package.json
+          },
+          "nursery": {
+            "noJsxLiterals": "off" // example code uses literal strings in JSX
+          }
+        }
+      }
     }
   ]
 }
