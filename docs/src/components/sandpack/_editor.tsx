@@ -12,13 +12,16 @@ export interface SandpackEditorProps {
 
 export const SandpackEditor = dynamic(
   async () => {
-    const {
-      SandpackLayout,
-      SandpackCodeEditor,
-      SandpackFileExplorer,
-      SandpackPreview,
-      SandpackProvider,
-    } = await import("@codesandbox/sandpack-react")
+    const [
+      {
+        SandpackLayout,
+        SandpackCodeEditor,
+        SandpackFileExplorer,
+        SandpackPreview,
+        SandpackProvider,
+      },
+      { Group, Panel, Separator },
+    ] = await Promise.all([import("@codesandbox/sandpack-react"), import("react-resizable-panels")])
 
     return ({ files, entry, localFiles }: SandpackEditorProps) => {
       const { resolvedTheme = "dark" } = useTheme()
@@ -44,19 +47,23 @@ export const SandpackEditor = dynamic(
           }}
         >
           <SandpackLayout className="h-(--sp-height)">
-            <SandpackFileExplorer style={{ height: "100%" }} autoHiddenFiles />
-            <div
-              style={{
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-                height: "100%",
-                overflow: "hidden",
-              }}
-            >
-              <SandpackCodeEditor showLineNumbers style={{ flex: "0 0 65%" }} />
-              <SandpackPreview style={{ flex: "0 0 35%" }} />
-            </div>
+            <Group orientation="horizontal" style={{ height: "100%" }}>
+              <Panel defaultSize="20%" minSize="10%" maxSize="40%">
+                <SandpackFileExplorer style={{ height: "100%" }} autoHiddenFiles />
+              </Panel>
+              <Separator className="w-0.5 shrink-0 grow-0 basis-px bg-fd-border transition-[background] duration-150 data-[separator=active]:bg-fd-primary data-[separator=hover]:bg-fd-primary" />
+              <Panel defaultSize="80%">
+                <Group orientation="vertical" style={{ height: "100%" }}>
+                  <Panel defaultSize="65%" minSize="25%">
+                    <SandpackCodeEditor showLineNumbers style={{ height: "100%" }} />
+                  </Panel>
+                  <Separator className="h-0.5 shrink-0 grow-0 basis-px bg-fd-border transition-[background] duration-150 data-[separator=active]:bg-fd-primary data-[separator=hover]:bg-fd-primary" />
+                  <Panel defaultSize="35%" minSize="15%">
+                    <SandpackPreview style={{ height: "100%" }} />
+                  </Panel>
+                </Group>
+              </Panel>
+            </Group>
           </SandpackLayout>
         </SandpackProvider>
       )
