@@ -253,7 +253,45 @@ API reference pages use these conventions. For fumadocs MDX syntax details see t
 - `<ImageZoom>` -- click-to-zoom images for detailed diagrams
 - `<Cards>`/`<Card>` -- grouped link cards for navigation
 - `<include>./shared.mdx</include>` -- include reusable MDX fragments (fumadocs-mdx only)
+- `<include lang="ts" meta='title="file.ts"'>./path/to/file.example.ts#code</include>` -- include a code file as a syntax-highlighted code block with title; the `#code` region anchor excludes the `// @ts-nocheck` header and region markers
 - Twoslash popup components (`Popup`, `PopupContent`, `PopupTrigger`) are pre-configured for interactive type hovers
+
+### Sandpack Example Files Convention
+
+When a documentation page includes a `<Sandpack>` interactive editor, **example code must live in `.example.ts` / `.example.tsx` files on disk** - never as inline template literals. This ensures a single source of truth: the same files feed both the Sandpack editor and the prose code blocks.
+
+**File structure:**
+- Place example files next to the MDX page in a subdirectory matching the page slug (e.g. `docs/content/docs/tutorials/composing-state/align/state.example.ts` for `composing-state.mdx`)
+- Use the `.example.ts(x)` extension to distinguish example files from real source code
+- Add `// @ts-nocheck` as the first line and wrap the actual code in `//#region code` ... `//#endregion code` markers to suppress VS Code errors while keeping rendered output clean
+
+**Example file template:**
+```ts
+// @ts-nocheck
+
+//#region code
+import { Signal } from "@owanturist/signal"
+
+// ... actual example code ...
+//#endregion code
+```
+
+**Sandpack component (`docs/src/components/sandpack/index.tsx`):**
+- Use the `dir` prop to load all `.example.ts(x)` files from a directory: `<Sandpack dir="docs/tutorials/composing-state" entry="/app.tsx" />`
+- The `dir` path is relative to `docs/content/`
+- The `.example` segment is stripped to produce Sandpack paths (e.g. `align/state.example.ts` -> `/align/state.ts`)
+- `// @ts-nocheck` and region markers are stripped automatically via `stripExampleMeta()`
+- Explicit `files` prop entries override `dir`-loaded files
+
+**Prose code blocks:**
+- Use fumadocs `<include>` with the `#code` region anchor to render the same file as a code block:
+  `<include lang="ts" meta='title="align/state.ts"'>./composing-state/align/state.example.ts#code</include>`
+- The `#code` region excludes the `// @ts-nocheck` line and region markers from rendered output
+- Test-only code blocks that don't appear in Sandpack can remain as inline fenced blocks
+
+**Shared Sandpack infrastructure** (also `.example.tsx` files):
+- `docs/src/components/sandpack/index.example.tsx` -- Sandpack bootstrap entry point (hidden from file explorer)
+- `docs/src/components/sandpack/render-boundary.example.tsx` -- `RenderBoundary` helper that flashes on re-render
 
 ## Code Standards
 
