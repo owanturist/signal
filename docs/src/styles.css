@@ -43,6 +43,10 @@
   .typedef {
     @apply pl-2 border-l border-fd-border;
 
+    > p {
+      @apply mt-0;
+    }
+
     > ul {
       @apply pl-0! list-none!;
     }

@@ -7,17 +7,18 @@ The `Signal{:dart}` function creates reactive signals that hold values and notif
 
 ## `Signal(){:dart}` [#empty-factory]
 
-```ts
-function Signal<TValue = undefined>(): Signal<undefined | TValue>
-```
-
-Creates a writable signal without an initial value.
 
 <section className="typedef">
+
+Creates a writable signal without an initial value.
 
 - `@returns Signal<undefined | TValue>{:dart}` A writable signal initialized to `undefined{:ts}`.
 
 </section>
+
+```ts
+function Signal<TValue = undefined>(): Signal<undefined | TValue>
+```
 
 ```ts twoslash tab="Example"
 import { Signal } from "@owanturist/signal"
