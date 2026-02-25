@@ -75,9 +75,7 @@ When you call `profile.getDisplayName(){:ts}` from a component, will it track de
 
 With explicit monitors, the API makes tracking requirements clear:
 
-```ts twoslash
-import { Signal, type Monitor } from "@owanturist/signal"
-// ---cut---
+```ts
 class UserProfile {
   private name = Signal("Alice")
   private age = Signal(30)
@@ -100,9 +98,7 @@ Traditional state management broadcasts all changes to all consumers, requiring 
 
 Consider the difference in granularity:
 
-```ts twoslash tab="Coarse (single container)"
-import { Signal, effect } from "@owanturist/signal"
-// ---cut---
+```ts tab="Coarse (single container)"
 // Single container: broadcast on any field change
 const state = Signal({
   name: "Alice",
@@ -117,9 +113,7 @@ effect((monitor) => {
 state.write((s) => ({ ...s, age: 31 })) // Effect re-runs unnecessarily
 ```
 
-```ts twoslash tab="Fine (separate signals)"
-import { Signal, effect } from "@owanturist/signal"
-// ---cut---
+```ts tab="Fine (separate signals)"
 // Separate containers: targeted notifications per field
 const user = {
   name: Signal("Alice"),

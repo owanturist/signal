@@ -179,7 +179,7 @@ Do not mix types within a single page. When writing or reviewing documentation, 
 
 ### API Reference docs/ Style Guide
 
-API reference pages use these conventions. For fumadocs MDX syntax details see the [fumadocs skill](.claude/skills/fumadocs/SKILL.md); for twoslash annotations see the [twoslash skill](.claude/skills/twoslash/SKILL.md).
+API reference pages use these conventions. For fumadocs MDX syntax details see the [fumadocs skill](.claude/skills/fumadocs/SKILL.md).
 
 **Page intro:**
 - Every API reference page must open with a single sentence describing the API before the first `##` heading
@@ -210,9 +210,8 @@ API reference pages use these conventions. For fumadocs MDX syntax details see t
 - The `{:lang}` suffix is stripped from rendered output
 
 **Tabbed code blocks:**
-- Add `tab="Tab Name"` to consecutive fenced code blocks to group them into tabs: `` ```ts twoslash tab="Primitive" ``
+- Add `tab="Tab Name"` to consecutive fenced code blocks to group them into tabs: `` ```ts tab="Primitive" ``
 - Tabs are created implicitly by consecutive fenced blocks with `tab` attributes -- no `<Tabs>`/`<Tab>` JSX wrapper needed
-- Use twoslash annotations (`^?`, `// ---cut---`, etc.) for type-checked examples
 
 **Callouts:**
 - `<Callout>` for informational notes (default type is `info`)
@@ -232,15 +231,6 @@ API reference pages use these conventions. For fumadocs MDX syntax details see t
 - `` ```ts lineNumbers `` or `` ```ts lineNumbers=4 `` to show line numbers (optionally starting at N)
 - `` ```package-install `` to auto-generate npm/pnpm/yarn/bun tabbed install commands
 
-**Twoslash in code blocks:**
-- Add `twoslash` meta to fenced blocks for type-checked examples: `` ```ts twoslash ``
-- `^?` under a variable to show its inferred type inline
-- `// ---cut---` to hide setup code above the cut line
-- `// @filename: utils.ts` to create virtual multi-file examples with imports
-- `// @errors: 2304` to expect and display specific TS errors
-- `// @showEmit` / `// @showEmittedFile: index.d.ts` to display compiled output
-- Compiler flags can be overridden per block: `// @target: esnext`, `// @strict: false`
-
 **Heading modifiers:**
 - `## Heading [#custom-id]` for custom anchor IDs
 - `## Heading [!toc]` to hide a heading from the table of contents
@@ -255,7 +245,6 @@ API reference pages use these conventions. For fumadocs MDX syntax details see t
 - `<Cards>`/`<Card>` -- grouped link cards for navigation
 - `<include>./shared.mdx</include>` -- include reusable MDX fragments (fumadocs-mdx only)
 - `<include lang="ts" meta='title="file.ts"'>./path/to/file.example.ts#code</include>` -- include a code file as a syntax-highlighted code block with title; the `#code` region anchor excludes the `// @ts-nocheck` header and region markers
-- Twoslash popup components (`Popup`, `PopupContent`, `PopupTrigger`) are pre-configured for interactive type hovers
 
 ### Sandpack Example Files Convention
 
@@ -328,7 +317,6 @@ The following skills are available in [`.claude/skills/`](.claude/skills/):
 | [biome](.claude/skills/biome/SKILL.md)                                         | Fast all-in-one linting/formatting toolchain (100x faster than ESLint)                       |
 | [creating-changesets](.claude/skills/creating-changesets/SKILL.md)             | Changesets workflow - version bumps, release notes, semver decisions                         |
 | [fumadocs](.claude/skills/fumadocs/SKILL.md)                                   | Fumadocs documentation framework - layouts, MDX, source API, theming, components             |
-| [twoslash](.claude/skills/twoslash/SKILL.md)                                   | Twoslash markup for TypeScript code samples - type queries, completions, errors, cut markers |
 | [docs-sandpack](.claude/skills/docs-sandpack/SKILL.md)                         | Interactive code examples in docs using Sandpack                                             |
 
 ### Utility Skills
