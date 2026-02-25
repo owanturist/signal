@@ -251,7 +251,7 @@ API reference pages use these conventions. For fumadocs MDX syntax details see t
 When a documentation page includes a `<Sandpack>` interactive editor, **example code must live in `.example.ts` / `.example.tsx` files on disk** - never as inline template literals. This ensures a single source of truth: the same files feed both the Sandpack editor and the prose code blocks.
 
 **File structure:**
-- Place example files next to the MDX page in a subdirectory matching the page slug (e.g. `docs/content/docs/tutorials/composing-state/align/state.example.ts` for `composing-state.mdx`)
+- Place example files next to the MDX page in a subdirectory matching the page slug (e.g. `docs/content/docs/tutorials/composing-state/align/state.example.ts` for `composing-state/index.mdx`)
 - Use the `.example.ts(x)` extension to distinguish example files from real source code
 - Add `// @ts-nocheck` as the first line and wrap the actual code in `//#region code` ... `//#endregion code` markers to suppress VS Code errors while keeping rendered output clean
 

@@ -157,7 +157,7 @@ function readExampleDir(dirPath: string, prefix = ""): SandpackFiles {
   return files
 }
 
-interface Props extends Omit<SandpackEditorProps, "localFiles" | "files"> {
+export interface SandpackProps extends Omit<SandpackEditorProps, "localFiles" | "files"> {
   height?: number
   /**
    * Path to a directory (relative to `docs/content/`) containing `.example.ts`
@@ -172,7 +172,7 @@ interface Props extends Omit<SandpackEditorProps, "localFiles" | "files"> {
  * Sandpack's virtual filesystem. User-provided `files` take precedence
  * over the injected `localFiles` via spread order in `_editor.tsx`.
  */
-export function Sandpack({ height = 600, dir, files: explicitFiles, ...props }: Props) {
+export function Sandpack({ height = 600, dir, files: explicitFiles, ...props }: SandpackProps) {
   let files: SandpackFiles = {}
 
   if (dir) {
