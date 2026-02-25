@@ -202,6 +202,7 @@ API reference pages use these conventions. For fumadocs MDX syntax details see t
 - Nested option fields use dot notation: `` - `@param options?.compare?: null | Compare{:dart}` ``
 - A horizontal rule `---` separates parameters from the return value
 - Return value uses `@returns`: `` - `@returns Type{:dart}` Description ``
+- Do **not** leave blank lines between list items — blank lines cause MDX to wrap each item in `<p>` tags, adding unwanted extra spacing
 
 **Inline code language hints** (requires `inline: "tailing-curly-colon"` in rehypeCode config)**:**
 - Use `` `Type{:dart}` `` for parameter/return signatures in prose (Dart-like highlighting for readable type annotations)

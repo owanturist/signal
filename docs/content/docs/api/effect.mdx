@@ -18,9 +18,7 @@ Creates an effect that runs immediately and re-runs when dependencies change.
 <section className="typedef">
 
 - `@param listener: (monitor: Monitor) => Destructor{:dart}` Effect function that receives a Monitor and may return a cleanup callback. The cleanup runs before re-execution and when the effect stops.
-
 ---
-
 - `@returns VoidFunction{:dart}` A function that stops the effect when called.
 
 </section>

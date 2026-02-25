@@ -1,6 +1,6 @@
 ---
 title: Signal
-description: API reference for the Signal function and signal types
+description: API reference for the Signal factory and Signal types
 ---
 
 The `Signal{:dart}` function creates reactive signals that hold values and notify consumers when changed.
@@ -40,9 +40,7 @@ Creates a writable signal with an initial value.
 <section className="typedef">
 
 - `@param initialValue: TValue{:dart}` The initial value of the signal.
-
 - `@param options?: SignalOptions<TValue>{:dart}` Optional configuration.
-
 ---
 
 - `@returns Signal<TValue>{:dart}` A writable signal.
@@ -107,9 +105,7 @@ Creates a read-only derived signal from a getter function or another signal.
 <section className="typedef">
 
 - `@param getter: ReadableSignal<TDerivedValue> | ((monitor: Monitor) => TDerivedValue){:dart}` A function that computes the derived value, or a `ReadableSignal{:dart}` to mirror.
-
 - `@param options?: SignalOptions<TDerivedValue>{:dart}` Optional configuration.
-
 ---
 
 - `@returns ReadonlySignal<TDerivedValue>{:dart}` A read-only signal that re-computes when dependencies change.
@@ -155,11 +151,8 @@ Creates a bidirectional derived signal with both getter and setter.
 <section className="typedef">
 
 - `@param getter: ReadableSignal<TDerivedValue> | ((monitor: Monitor) => TDerivedValue){:dart}` A function that computes the derived value, or a `ReadableSignal{:dart}` to mirror.
-
 - `@param setter: WritableSignal<TDerivedValue> | ((value: TDerivedValue, monitor: Monitor) => void){:dart}` A function to write back to source signals, or a `WritableSignal{:dart}` to write to.
-
 - `@param options?: SignalOptions<TDerivedValue>{:dart}` Optional configuration.
-
 ---
 
 - `@returns Signal<TDerivedValue>{:dart}` A writable signal that syncs with its sources.
@@ -310,7 +303,6 @@ Reads the signal's value and registers the monitor as a consumer.
 <section className="typedef">
 
 - `@param monitor: Monitor{:dart}` The monitor to register as a consumer.
-
 ---
 
 - `@returns T{:dart}` The current value of the signal.
@@ -329,7 +321,6 @@ Updates the signal's value and notifies all consumers.
 <section className="typedef">
 
 - `@param value: T{:dart}` The new value to set.
-
 - `@param transform: (currentValue: T, monitor: Monitor) => T{:dart}` A function that receives the current value and returns the new value. The monitor parameter allows reading other signals without tracking.
 
 </section>
@@ -362,9 +353,7 @@ Creates a new independent signal with the same (or transformed) value.
 <section className="typedef">
 
 - `@param transform?: (value: T, monitor: Monitor) => T{:dart}` Optional function to transform the value during cloning.
-
 - `@param options?: SignalOptions<T>{:dart}` Optional configuration for the new signal.
-
 ---
 
 - `@returns Signal<T>{:dart}` A new independent signal.
@@ -408,11 +397,8 @@ Type guard to check if a value is a signal.
 <section className="typedef">
 
 - `@param input: unknown{:dart}` The value to check.
-
 - `@param monitor?: Monitor{:dart}` Optional monitor for checking the signal's value type.
-
 - `@param check?: (value: unknown) => value is T{:dart}` Optional type guard for the signal's value.
-
 ---
 
 - `@returns boolean{:dart}` `true{:ts}` if the input is a signal.
@@ -446,11 +432,8 @@ Type guard to check if a value is a derived signal.
 <section className="typedef">
 
 - `@param input: unknown{:dart}` The value to check.
-
 - `@param monitor?: Monitor{:dart}` Optional monitor for checking the signal's value type.
-
 - `@param check?: (value: unknown) => value is T{:dart}` Optional type guard for the signal's value.
-
 ---
 
 - `@returns boolean{:dart}` `true{:ts}` if the input is a derived signal.
