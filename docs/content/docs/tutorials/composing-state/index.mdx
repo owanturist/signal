@@ -1,13 +1,14 @@
 ---
 title: Composing State
 description: Learn how to organise signal state into self-contained modules that compose into a tree mirroring your component hierarchy
+collapsible: false
 ---
 
 In this tutorial you'll build the state layer for a text editor toolbar - a real-world example with multiple controls working together. Each control owns its state, and the toolbar composes them into a single tree. A text preview component then consumes that same state to render styled text - without knowing anything about how the controls work. TypeScript infers the complete state type from the factory functions - no manual type declarations needed. When you need to change a control's internals, the rest of the tree stays untouched.
 
 ## What you'll build
 
-<Sandpack dir="docs/tutorials/composing-state" entry="/app.tsx" />
+<Sandpack entry="/app.tsx" />
 
 Explore the file tabs. You'll build these files step by step.
 
@@ -15,7 +16,7 @@ Explore the file tabs. You'll build these files step by step.
 
 The alignment control has a single piece of state: which alignment is currently active.
 
-<include lang="ts" meta='title="align/state.ts"'>./composing-state/align/state.example.ts#code</include>
+<include lang="ts" meta='title="align/state.ts"'>./align/state.example.ts#code</include>
 
 <Callout>`State{:ts}` is derived from `initState{:ts}` via `ReturnType<typeof initState>{:ts}`. Add a field to the return value and the type updates everywhere automatically - no manual sync needed.</Callout>
 
@@ -23,7 +24,7 @@ The alignment control has a single piece of state: which alignment is currently 
 
 The font control tracks two independent values.
 
-<include lang="ts" meta='title="font/state.ts"'>./composing-state/font/state.example.ts#code</include>
+<include lang="ts" meta='title="font/state.ts"'>./font/state.example.ts#code</include>
 
 `State{:ts}` follows the same pattern: TypeScript infers the type from the return value of `initState{:ts}`. The two Signals are independent - changing `family{:ts}` doesn't affect `size{:ts}`, and a component that only reads `size{:ts}` won't re-render when `family{:ts}` changes.
 
@@ -31,7 +32,7 @@ The font control tracks two independent values.
 
 The toolbar owns both controls by composing their state.
 
-<include lang="ts" meta='title="toolbar/state.ts"'>./composing-state/toolbar/state.example.ts#code</include>
+<include lang="ts" meta='title="toolbar/state.ts"'>./toolbar/state.example.ts#code</include>
 
 `toolbar/state.ts{:ts}` only imports factory functions - it never imports types. TypeScript infers the full nested shape of `State{:ts}` from the return values of `initAlignState{:ts}` and `initFontState{:ts}`. Add a field anywhere in the tree and the change propagates up automatically.
 
@@ -66,15 +67,15 @@ With the state layer complete, the React components are thin wrappers that read 
 
 Each component wraps its output in `RenderBoundary{:ts}` - a helper that flashes pink on re-render in the live example above. In your own code you would use a plain element instead.
 
-<include lang="tsx" meta='title="align/index.tsx"'>./composing-state/align/index.example.tsx#code</include>
+<include lang="tsx" meta='title="align/index.tsx"'>./align/index.example.tsx#code</include>
 
-<include lang="tsx" meta='title="font/index.tsx"'>./composing-state/font/index.example.tsx#code</include>
+<include lang="tsx" meta='title="font/index.tsx"'>./font/index.example.tsx#code</include>
 
-<include lang="tsx" meta='title="toolbar/index.tsx"'>./composing-state/toolbar/index.example.tsx#code</include>
+<include lang="tsx" meta='title="toolbar/index.tsx"'>./toolbar/index.example.tsx#code</include>
 
-<include lang="tsx" meta='title="app.tsx"'>./composing-state/app.example.tsx#code</include>
+<include lang="tsx" meta='title="app.tsx"'>./app.example.tsx#code</include>
 
-<include lang="tsx" meta='title="text-preview/index.tsx"'>./composing-state/text-preview/index.example.tsx#code</include>
+<include lang="tsx" meta='title="text-preview/index.tsx"'>./text-preview/index.example.tsx#code</include>
 
 Four things to notice:
 
