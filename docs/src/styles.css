@@ -1,43 +1,7 @@
 @import "tailwindcss";
 @import "fumadocs-ui/css/solar.css";
 @import "fumadocs-ui/css/preset.css";
-@import "fumadocs-twoslash/twoslash.css";
-
 @source "../../node_modules/fumadocs-ui/dist/**/*.js";
-
-.twoslash {
-  /* widen the type popover so long signatures don't wrap ugly */
-  /* hide the trailing empty line */
-  .line:last-child:empty {
-    @apply hidden;
-  }
-
-  /* remove the multiline frame */
-  figure {
-    @apply bg-transparent shadow-none border-none;
-
-    [role="region"] {
-      @apply p-0;
-    }
-
-    pre .line {
-      @apply p-0!;
-    }
-
-    button {
-      @apply hidden;
-    }
-  }
-
-  /* make the popover to take all the code block width */
-  pre {
-    @apply max-w-full;
-  }
-
-  .twoslash-popup-container {
-    @apply w-auto mr-3.5;
-  }
-}
 
 @layer components {
   .typedef {

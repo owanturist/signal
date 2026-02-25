@@ -207,8 +207,6 @@ Types: `info`, `warn`/`warning`, `error`, `success`, `idea`
 
 **Inline code highlighting:** With `inline: "tailing-curly-colon"` in rehypeCode config, use `` `code{:lang}` `` syntax for highlighted inline code (e.g. `` `Array<string>{:ts}` ``). The `{:lang}` suffix is stripped from output.
 
-**Twoslash:** Add `twoslash` meta string to code fences for inline type information (e.g. `` ```ts twoslash ``). Requires `fumadocs-twoslash` package. See the [twoslash skill](../twoslash/SKILL.md) for notation reference (`^?`, `^|`, `@errors`, `---cut---`, etc.).
-
 **Shiki transformers:** `// [!code highlight]`, `// [!code ++]`, `// [!code --]`, `// [!code focus]`
 
 **Custom heading anchor:** `## Heading [#custom-id]`
