@@ -2,7 +2,7 @@ import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "fumadocs-ui/page
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
-import { MDXComponents } from "@/components/mdx-components"
+import { createMDXComponents } from "@/components/mdx-components"
 import { source } from "@/source"
 
 interface PageProps {
@@ -30,7 +30,7 @@ export default async function Page({ params }: PageProps) {
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
-        <MarkdownX components={MDXComponents} />
+        <MarkdownX components={createMDXComponents(`docs/${page.path}`)} />
       </DocsBody>
     </DocsPage>
   )
