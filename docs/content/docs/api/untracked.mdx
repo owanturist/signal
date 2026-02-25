@@ -22,10 +22,9 @@ Executes a function with an untracked Monitor, allowing signal reads that do not
 <section className="typedef">
 
 - `@param factory: (monitor: Monitor) => TResult{:dart}` Function to execute without tracking. Receives an untracked Monitor.
+- `@returns TResult{:dart}` The return value of the factory function.
 
 ---
-
-- `@returns TResult{:dart}` The return value of the factory function.
 
 </section>
 
@@ -64,10 +63,9 @@ Reads a signal's value without establishing a dependency. Shorthand for `untrack
 <section className="typedef">
 
 - `@param signal: ReadableSignal<TValue>{:dart}` Signal to read without tracking.
+- `@returns TValue{:dart}` The current value of the signal.
 
 ---
-
-- `@returns TValue{:dart}` The current value of the signal.
 
 </section>
 

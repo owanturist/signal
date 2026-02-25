@@ -16,9 +16,7 @@ Executes a function that updates signals, deferring notifications until the func
 <section className="typedef">
 
 - `@param execute: (monitor: Monitor) => void{:dart}` Function containing signal updates to batch. Receives an untracked Monitor for reading values without establishing dependencies.
-
 ---
-
 - `@returns void{:dart}` Returns nothing. Use `untracked(){:ts}` if you need to return a value from reading signals.
 
 </section>
