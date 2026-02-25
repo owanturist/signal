@@ -28,7 +28,7 @@ Executes a function with an untracked Monitor, allowing signal reads that do not
 
 </section>
 
-```ts twoslash tab="Example"
+```ts tab="Example"
 import { Signal, effect, untracked } from "@owanturist/signal"
 
 const count = Signal(0)
@@ -69,7 +69,7 @@ Reads a signal's value without establishing a dependency. Shorthand for `untrack
 
 </section>
 
-```ts twoslash tab="Example"
+```ts tab="Example"
 import { Signal, effect, untracked } from "@owanturist/signal"
 
 const count = Signal(0)
@@ -81,7 +81,7 @@ effect((monitor) => {
 })
 ```
 
-```ts twoslash tab="In Derived"
+```ts tab="In Derived"
 import { Signal, untracked } from "@owanturist/signal"
 
 const items = Signal([1, 2, 3])
@@ -100,7 +100,7 @@ const sortedItems = Signal((monitor) => {
 
 Untracked calls can be nested:
 
-```ts twoslash
+```ts
 import { Signal, effect, untracked } from "@owanturist/signal"
 
 const a = Signal(1)

@@ -21,7 +21,7 @@ Executes a function that updates signals, deferring notifications until the func
 
 </section>
 
-```ts twoslash tab="Basic"
+```ts tab="Basic"
 import { Signal, batch, effect } from "@owanturist/signal"
 
 const firstName = Signal("John")
@@ -39,7 +39,7 @@ batch(() => {
 // Logs once: "Jane Smith"
 ```
 
-```ts twoslash tab="Reading Values"
+```ts tab="Reading Values"
 import { Signal, batch } from "@owanturist/signal"
 
 const count = Signal(0)
@@ -50,7 +50,7 @@ batch((monitor) => {
 })
 ```
 
-```ts twoslash tab="Nested"
+```ts tab="Nested"
 import { Signal, batch, effect } from "@owanturist/signal"
 
 const a = Signal(0)
@@ -73,7 +73,7 @@ batch(() => {
 // Logs once: "a=2, b=1"
 ```
 
-```ts twoslash tab="With Derived"
+```ts tab="With Derived"
 import { Signal, batch, effect } from "@owanturist/signal"
 
 const price = Signal(100)

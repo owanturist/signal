@@ -20,11 +20,11 @@ Creates a writable signal without an initial value.
 function Signal<TValue = undefined>(): Signal<undefined | TValue>
 ```
 
-```ts twoslash tab="Example"
+```ts tab="Example"
 import { Signal } from "@owanturist/signal"
 
 const pending = Signal<string>()
-//    ^?
+//    ^? Signal<string | undefined>
 ```
 
 ## `Signal(initialValue, options?){:dart}` [#value-factory]
@@ -48,11 +48,11 @@ Creates a writable signal with an initial value.
 
 </section>
 
-```ts twoslash tab="Primitive"
+```ts tab="Primitive"
 import { Signal, effect } from "@owanturist/signal"
 
 const count = Signal(0)
-//    ^?
+//    ^? Signal<number>
 
 effect((monitor) => {
   console.log(count.read(monitor))
@@ -61,7 +61,7 @@ effect((monitor) => {
 count.write(1)
 ```
 
-```ts twoslash tab="Object"
+```ts tab="Object"
 import { Signal } from "@owanturist/signal"
 
 interface User {
@@ -70,10 +70,10 @@ interface User {
 }
 
 const user = Signal<User | null>(null)
-//    ^?
+// ^? Signal<User | null>
 ```
 
-```ts twoslash tab="Custom Equality"
+```ts tab="Custom Equality"
 import { Signal } from "@owanturist/signal"
 
 interface Point {
@@ -113,14 +113,14 @@ Creates a read-only derived signal from a getter function or another signal.
 
 </section>
 
-```ts twoslash tab="Function Getter"
+```ts tab="Function Getter"
 import { Signal, effect } from "@owanturist/signal"
 
 const price = Signal(100)
 const quantity = Signal(2)
 
 const total = Signal((monitor) => price.read(monitor) * quantity.read(monitor))
-//    ^?
+//    ^? ReadonlySignal<number>
 
 effect((monitor) => {
   console.log(total.read(monitor)) // 200
@@ -129,12 +129,12 @@ effect((monitor) => {
 price.write(150) // logs: 300
 ```
 
-```ts twoslash tab="Signal Getter"
+```ts tab="Signal Getter"
 import { Signal } from "@owanturist/signal"
 
 const source = Signal(42)
 const mirror = Signal(source)
-//    ^?
+//    ^? ReadonlySignal<number>
 ```
 
 ## `Signal(getter, setter, options?){:dart}` [#derived-bidirectional]
@@ -160,7 +160,7 @@ Creates a bidirectional derived signal with both getter and setter.
 
 </section>
 
-```ts twoslash tab="Example"
+```ts tab="Example"
 import { Signal, effect } from "@owanturist/signal"
 
 const celsius = Signal(0)
@@ -230,9 +230,8 @@ Interface for anything that can be read with a Monitor. By implementing this min
 - **`untracked(yourClass){:ts}`** - get snapshot values without tracking
 - **`Signal(yourClass){:ts}`** - use as the getter of a derived signal
 
-```ts twoslash
+```ts
 import { Signal, untracked, type Monitor, type ReadableSignal } from "@owanturist/signal"
-// @noErrors: 2307 2304
 import { useComputed } from "@owanturist/signal-react"
 
 class Counter implements ReadableSignal<number> {
@@ -271,9 +270,8 @@ Interface for anything that can be written to. By implementing this minimal inte
 
 - **`Signal(getter, yourClass){:ts}`** - use as the setter of a derived signal
 
-```ts twoslash
+```ts
 import { Signal, type WritableSignal } from "@owanturist/signal"
-// @noErrors: 2304
 
 class Counter implements WritableSignal<number> {
   private readonly count = Signal(0)
@@ -326,7 +324,7 @@ Updates the signal's value and notifies all consumers.
 
 </section>
 
-```ts twoslash tab="Direct"
+```ts tab="Direct"
 import { Signal } from "@owanturist/signal"
 
 const count = Signal(0)
@@ -334,7 +332,7 @@ const count = Signal(0)
 count.write(5)
 ```
 
-```ts twoslash tab="Transform"
+```ts tab="Transform"
 import { Signal } from "@owanturist/signal"
 
 const count = Signal(0)
@@ -361,7 +359,7 @@ Creates a new independent signal with the same (or transformed) value.
 
 </section>
 
-```ts twoslash tab="Basic"
+```ts tab="Basic"
 import { Signal, effect } from "@owanturist/signal"
 
 const original = Signal({ count: 0 })
@@ -375,7 +373,7 @@ effect((monitor) => {
 })
 ```
 
-```ts twoslash tab="With Transform"
+```ts tab="With Transform"
 import { Signal } from "@owanturist/signal"
 
 const original = Signal({ count: 5 })
@@ -406,7 +404,7 @@ Type guard to check if a value is a signal.
 
 </section>
 
-```ts twoslash
+```ts
 import { Signal, isSignal } from "@owanturist/signal"
 
 const count = Signal(0)
@@ -441,7 +439,7 @@ Type guard to check if a value is a derived signal.
 
 </section>
 
-```ts twoslash
+```ts
 import { Signal, isDerivedSignal } from "@owanturist/signal"
 
 const count = Signal(0)
