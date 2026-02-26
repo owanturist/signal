@@ -178,6 +178,14 @@ icon: IconName              # Optional - requires custom icon handler
 
 The `title` frontmatter field renders as the page heading, so h1 (`# Heading`) is unnecessary.
 
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `title` | string | Yes | Page heading (no `# h1` needed) |
+| `description` | string | No | Meta description |
+| `icon` | string | No | Icon name, resolved via `loader()` icon handler |
+| `full` | boolean | No | Full-width layout; forces TOC into popover. Requires schema extension + manual wiring to `<DocsPage full={page.data.full}>` |
+| `collapsible` | boolean | No | For `index.mdx` pages acting as folder roots: `false` removes the sidebar expand arrow |
+
 ### meta.json Format
 
 Controls folder behavior in page tree:
@@ -200,6 +208,17 @@ Controls folder behavior in page tree:
   ]
 }
 ```
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `title` | string | folder name | Display name in the sidebar |
+| `description` | string | — | Shown below title in sidebar tabs; only meaningful for `root` folders |
+| `icon` | string | — | Icon name resolved via `icon` handler in `loader()` |
+| `root` | boolean | `false` | Marks folder as a root (sidebar tab); only one root visible at a time |
+| `defaultOpen` | boolean | `false` | Opens the folder by default in the sidebar |
+| `collapsible` | boolean | `true` | Controls expand arrow visibility. Set `false` to remove the arrow and disable collapsing. An `index.mdx` folder with `collapsible: false` in its frontmatter renders as a plain link with no expand arrow |
+
+> **Note on `collapsible` in MDX frontmatter:** When a folder contains only `index.mdx` (no child pages), fumadocs reads `collapsible` from the `index.mdx` frontmatter — no separate `meta.json` needed. Add `collapsible: false` to the frontmatter to suppress the expand arrow.
 
 ### Pages Array Syntax
 

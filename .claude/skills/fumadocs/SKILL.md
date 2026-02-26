@@ -139,21 +139,36 @@ icon: IconName             # requires custom icon handler in loader()
 ---
 ```
 
+| Field | Type | Description |
+|-------|------|-------------|
+| `title` | string | Page heading - no need for a separate `# h1` |
+| `description` | string | Meta description shown in search and SEO |
+| `icon` | string | Icon name resolved via `icon` handler in `loader()` |
+| `full` | boolean | Expands page to fill available width; forces TOC into popover mode. Requires adding to `frontmatterSchema` and wiring `page.data.full` to `<DocsPage full={...}>`. |
+| `collapsible` | boolean | For `index.mdx` pages acting as folder roots: `false` removes the sidebar expand arrow |
+
 ### meta.json (folder configuration)
 
 ```json
 {
   "title": "Section Name",
-  "pages": [
-    "index",
-    "getting-started",
-    "---Concepts---",
-    "...concepts",
-    "---API Reference---",
-    "...api"
-  ]
+  "description": "Shown in sidebar tabs (root folders only)",
+  "icon": "IconName",
+  "root": false,
+  "defaultOpen": false,
+  "collapsible": true,
+  "pages": ["index", "getting-started", "---Concepts---", "...concepts"]
 }
 ```
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `title` | string | folder name | Display name in the sidebar |
+| `description` | string | — | Shown below title in sidebar tabs; only meaningful for `root` folders |
+| `icon` | string | — | Icon name resolved via `icon` handler in `loader()` |
+| `root` | boolean | `false` | Marks folder as a root (sidebar tab); only one root visible at a time |
+| `defaultOpen` | boolean | — | Opens the folder by default in the sidebar |
+| `collapsible` | boolean | `true` | When `false`, removes the expand/collapse arrow entirely. Use on `index.mdx` folders with no children to make them render as plain page links |
 
 **Pages array syntax:**
 - `"page-name"` or `"./path/to/page"` - reference page or folder
