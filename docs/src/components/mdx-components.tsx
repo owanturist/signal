@@ -1,5 +1,3 @@
-import path from "node:path"
-
 import { Accordion, Accordions } from "fumadocs-ui/components/accordion"
 import { TypeTable } from "fumadocs-ui/components/type-table"
 import defaultComponents from "fumadocs-ui/mdx"
@@ -20,7 +18,8 @@ export const MDXComponents = {
 
 /** MDX components with Sandpack's dir defaulting to the MDX file's directory. */
 export function createMDXComponents(filePath: string) {
-  const fileDir = path.dirname(filePath)
+  const lastSlash = filePath.lastIndexOf("/")
+  const fileDir = lastSlash >= 0 ? filePath.slice(0, lastSlash) : filePath
 
   return {
     ...MDXComponents,

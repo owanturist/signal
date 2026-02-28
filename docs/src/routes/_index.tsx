@@ -5,8 +5,6 @@ import { HomeLayout } from "fumadocs-ui/layouts/home"
 import { MDXComponents } from "@/components/mdx-components"
 import { ThemeSwitcher } from "@/components/theme-switcher"
 
-import "@/styles.css"
-
 import ComposeExample from "./compose-nested-example.mdx"
 import BothExample from "./reactive-js-both-example.mdx"
 import ReactExample from "./reactive-js-react-example.mdx"

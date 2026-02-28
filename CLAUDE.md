@@ -285,6 +285,7 @@ import { Signal } from "@owanturist/signal"
 
 ## Code Standards
 
+- **Ignore cSpell diagnostics** — cSpell is enabled in the editor but Claude must not treat its spelling warnings as issues to fix.
 - **Biome** for linting and formatting (not ESLint/Prettier)
 - Explicit class member accessibility (public/private/protected)
 - Use `Array<T>` syntax over `T[]`
@@ -352,6 +353,16 @@ The following skills are available in [`.claude/skills/`](.claude/skills/):
 The copywriting skill includes reference materials:
 - [Copy Frameworks](.claude/skills/copywriting/references/copy-frameworks.md) - Headline formulas and page structure templates
 - [Natural Transitions](.claude/skills/copywriting/references/natural-transitions.md) - Transitional phrases for content flow
+
+## Bash Command Paths
+
+When running Bash commands, **always use relative paths** from the project root (or the relevant subdirectory) instead of absolute paths. Absolute paths are long, environment-specific, and harder to read.
+
+- Correct: `cd docs && ls dist/server/`
+- Correct: `pnpm --filter docs build`
+- Wrong: `ls /Users/aovechkin/Projects/react-impulse/docs/dist/server/`
+
+Note: The Read, Edit, Write, and Glob tools still require absolute paths.
 
 ## Configuration Files
 
