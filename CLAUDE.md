@@ -375,3 +375,4 @@ Note: The Read, Edit, Write, and Glob tools still require absolute paths.
 | `.size-limit.mjs`             | Bundle size checking configuration             |
 | `pnpm-workspace.yaml`         | Workspace package definitions                  |
 | `.claude/settings.local.json` | Local Claude Code permissions                  |
+| `.claude/docs-env.md`         | Docs site architecture reference (build system, routing, plugins, integrations) |
