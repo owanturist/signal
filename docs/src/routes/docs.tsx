@@ -1,22 +1,20 @@
 import { DocsLayout } from "fumadocs-ui/layouts/docs"
-import type { PropsWithChildren } from "react"
+import { Outlet } from "react-router"
 
 import { ThemeSwitcher } from "@/components/theme-switcher"
 import { source } from "@/source"
 
-export default function Layout({ children }: PropsWithChildren) {
+export default function DocsLayoutRoute() {
   return (
     <DocsLayout
       tree={source.pageTree}
-      nav={{
-        title: "@owanturist/signal",
-      }}
+      nav={{ title: "@owanturist/signal" }}
       themeSwitch={{
         mode: "light-dark-system",
         component: <ThemeSwitcher className="ms-auto p-0" />,
       }}
     >
-      {children}
+      <Outlet />
     </DocsLayout>
   )
 }
