@@ -321,7 +321,7 @@
 
     // dev env setup
     {
-      "includes": ["./*.{mjs,ts}", "./packages/*/*.{js,ts}"],
+      "includes": ["./*.{mjs,ts}", "./packages/*/*.{js,ts}", "docs/*.{mjs,ts}"],
       "linter": {
         "rules": {
           "style": {
@@ -427,14 +427,29 @@
 
     // docs app
     {
-      "includes": ["docs/src/**/*.{ts,tsx}"],
+      "includes": ["docs/*.{ts,tsx}", "docs/src/**/*.{ts,tsx}"],
       "linter": {
         "rules": {
           "correctness": {
-            "noNodejsModules": "off" // docs are nextjs app - it can use nodejs modules for server code
+            "noNodejsModules": "off" // docs config files and src use Node.js modules
+          },
+          "style": {
+            "noHeadElement": "off" // React Router apps use the native <head> element in root layout
           },
           "nursery": {
             "noJsxLiterals": "off" // landing page and docs components use literal strings
+          }
+        }
+      }
+    },
+
+    // docs routes - React Router uses dots as path separators in filenames (e.g. docs.$.tsx)
+    {
+      "includes": ["docs/src/routes/**/*.{ts,tsx}"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useFilenamingConvention": "off" // React Router file-based routing uses dots as path separators
           }
         }
       }

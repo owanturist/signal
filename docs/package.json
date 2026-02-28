@@ -2,33 +2,33 @@
   "name": "docs",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "react-router dev",
+    "build": "react-router build",
     "typecheck": "tsc --noEmit",
-    "postbuild": "cp -r dist/md/* dist/ && rm -rf dist/md",
-    "start": "next start",
-    "preview": "npx serve dist"
+    "preview": "react-router dev --mode production"
   },
   "dependencies": {
     "@codesandbox/sandpack-react": "^2.19.9",
     "@owanturist/signal": "workspace:*",
     "clsx": "^2.1.1",
-    "fumadocs-core": "^16.5.1",
-    "fumadocs-mdx": "^14.2.6",
-    "fumadocs-ui": "^16.5.1",
-    "lucide-react": "^0.563.0",
-    "next": "^16.1.6",
+    "fumadocs-core": "^16.6.7",
+    "fumadocs-mdx": "14.2.8",
+    "fumadocs-ui": "^16.6.7",
+    "lucide-react": "^0.575.0",
     "next-themes": "^0.4.6",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "react-resizable-panels": "^4.6.5"
+    "react-resizable-panels": "^4.6.5",
+    "react-router": "^7"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.18",
-    "@types/react": "^19.2.13",
+    "@react-router/dev": "^7",
+    "@tailwindcss/vite": "^4.1.18",
+    "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.18"
+    "tailwindcss": "^4.2.1",
+    "vite": "^7"
   }
 }

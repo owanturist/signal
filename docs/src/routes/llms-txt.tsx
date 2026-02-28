@@ -1,8 +1,6 @@
 import { source } from "@/source"
 
-export const revalidate = false
-
-export function GET() {
+export function loader() {
   const pages = source.getPages()
 
   const lines = [
@@ -14,7 +12,6 @@ export function GET() {
     "",
     ...pages.map(({ data, url }) => {
       const description = data.description ? `: ${data.description}` : ""
-
       return `- [${data.title}](${url}.md)${description}`
     }),
     "",
@@ -23,5 +20,7 @@ export function GET() {
     "- [llms-full.txt](/llms-full.txt)",
   ]
 
-  return new Response(lines.join("\n"))
+  return new Response(lines.join("\n"), {
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
+  })
 }
