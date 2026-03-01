@@ -1,6 +1,5 @@
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "fumadocs-ui/page"
-import type { LoaderFunctionArgs } from "react-router"
-import { useParams } from "react-router"
+import { type LoaderFunctionArgs, useParams } from "react-router"
 
 import { createMDXComponents } from "@/components/mdx-components"
 import { source } from "@/source"

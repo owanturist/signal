@@ -28,22 +28,22 @@ Is the task trivial (single file read, quick lookup, one-line fix)?
 
 ### Available Subagent Types
 
-| Subagent Type        | Tools Available                          | Use For                                                          |
-| -------------------- | ---------------------------------------- | ---------------------------------------------------------------- |
-| `Bash`               | Bash only                                | Git operations, command execution, terminal tasks                |
-| `general-purpose`    | All tools                                | Multi-step tasks, code changes, complex research                 |
-| `Explore`            | All except Task, Edit, Write, NotebookEdit | Codebase exploration, file search, keyword search, code reading |
-| `Plan`               | All except Task, Edit, Write, NotebookEdit | Designing implementation plans, architecture decisions          |
+| Subagent Type     | Tools Available                            | Use For                                                         |
+| ----------------- | ------------------------------------------ | --------------------------------------------------------------- |
+| `Bash`            | Bash only                                  | Git operations, command execution, terminal tasks               |
+| `general-purpose` | All tools                                  | Multi-step tasks, code changes, complex research                |
+| `Explore`         | All except Task, Edit, Write, NotebookEdit | Codebase exploration, file search, keyword search, code reading |
+| `Plan`            | All except Task, Edit, Write, NotebookEdit | Designing implementation plans, architecture decisions          |
 
 ### Agent Teams vs Subagents
 
-| Aspect            | Subagents                                    | Agent Teams                                       |
-| :---------------- | :------------------------------------------- | :------------------------------------------------ |
-| **Context**       | Own window; results return to caller         | Own window; fully independent                     |
-| **Communication** | Report results back to main agent only       | Teammates message each other directly             |
-| **Coordination**  | Main agent manages all work                  | Shared task list with self-coordination           |
-| **Best for**      | Focused tasks where only the result matters  | Complex work requiring discussion & collaboration |
-| **Token cost**    | Lower: results summarized back               | Higher: each teammate is a separate instance      |
+| Aspect            | Subagents                                   | Agent Teams                                       |
+| :---------------- | :------------------------------------------ | :------------------------------------------------ |
+| **Context**       | Own window; results return to caller        | Own window; fully independent                     |
+| **Communication** | Report results back to main agent only      | Teammates message each other directly             |
+| **Coordination**  | Main agent manages all work                 | Shared task list with self-coordination           |
+| **Best for**      | Focused tasks where only the result matters | Complex work requiring discussion & collaboration |
+| **Token cost**    | Lower: results summarized back              | Higher: each teammate is a separate instance      |
 
 ## Prerequisites
 
@@ -292,6 +292,7 @@ import { Signal } from "@owanturist/signal"
 - Double quotes, 2-space indentation, trailing commas
 - No default switch clauses (enables TypeScript exhaustiveness checks)
 - Strict TypeScript with `noUncheckedIndexedAccess`, `noImplicitReturns`
+- Consolidate imports from the same module into a single import statement (use inline `type` qualifier instead of separate `import type` statement)
 
 ## React Support
 
@@ -307,18 +308,19 @@ The following skills are available in [`.claude/skills/`](.claude/skills/):
 
 ### Development Skills
 
-| Skill                                                                          | Description                                                                                  |
-| ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
-| [vitest](.claude/skills/vitest/SKILL.md)                                       | Vitest testing framework - Jest-compatible API, mocking, coverage, fixtures                  |
-| [typescript-advanced-types](.claude/skills/typescript-advanced-types/SKILL.md) | Advanced TypeScript type system - generics, conditional types, mapped types                  |
-| [typescript-react-reviewer](.claude/skills/typescript-react-reviewer/SKILL.md) | Code reviewer for TypeScript + React 19 - anti-patterns, state management                    |
-| [tdd-workflow](.claude/skills/tdd-workflow/SKILL.md)                           | Test-Driven Development workflow - RED-GREEN-REFACTOR cycle                                  |
-| [code-quality](.claude/skills/code-quality/SKILL.md)                           | Code correctness rules, avoiding over-engineering                                            |
-| [performance](.claude/skills/performance/SKILL.md)                             | Web performance optimization - Core Web Vitals, loading speed                                |
-| [biome](.claude/skills/biome/SKILL.md)                                         | Fast all-in-one linting/formatting toolchain (100x faster than ESLint)                       |
-| [creating-changesets](.claude/skills/creating-changesets/SKILL.md)             | Changesets workflow - version bumps, release notes, semver decisions                         |
-| [fumadocs](.claude/skills/fumadocs/SKILL.md)                                   | Fumadocs documentation framework - layouts, MDX, source API, theming, components             |
-| [docs-sandpack](.claude/skills/docs-sandpack/SKILL.md)                         | Interactive code examples in docs using Sandpack                                             |
+| Skill                                                                          | Description                                                                                |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| [vitest](.claude/skills/vitest/SKILL.md)                                       | Vitest testing framework - Jest-compatible API, mocking, coverage, fixtures                |
+| [typescript-advanced-types](.claude/skills/typescript-advanced-types/SKILL.md) | Advanced TypeScript type system - generics, conditional types, mapped types                |
+| [typescript-react-reviewer](.claude/skills/typescript-react-reviewer/SKILL.md) | Code reviewer for TypeScript + React 19 - anti-patterns, state management                  |
+| [tdd-workflow](.claude/skills/tdd-workflow/SKILL.md)                           | Test-Driven Development workflow - RED-GREEN-REFACTOR cycle                                |
+| [code-quality](.claude/skills/code-quality/SKILL.md)                           | Code correctness rules, avoiding over-engineering                                          |
+| [performance](.claude/skills/performance/SKILL.md)                             | Web performance optimization - Core Web Vitals, loading speed                              |
+| [biome](.claude/skills/biome/SKILL.md)                                         | Fast all-in-one linting/formatting toolchain (100x faster than ESLint)                     |
+| [creating-changesets](.claude/skills/creating-changesets/SKILL.md)             | Changesets workflow - version bumps, release notes, semver decisions                       |
+| [fumadocs](.claude/skills/fumadocs/SKILL.md)                                   | Fumadocs documentation framework - layouts, MDX, source API, theming, components           |
+| [docs-sandpack](.claude/skills/docs-sandpack/SKILL.md)                         | Interactive code examples in docs using Sandpack                                           |
+| [react-router-fs](.claude/skills/react-router-fs/SKILL.md)                     | React Router file-based routing conventions - filename patterns, layout nesting, migration |
 
 ### Utility Skills
 
@@ -366,13 +368,13 @@ Note: The Read, Edit, Write, and Glob tools still require absolute paths.
 
 ## Configuration Files
 
-| File                          | Purpose                                        |
-| ----------------------------- | ---------------------------------------------- |
-| `biome.jsonc`                 | Linting, formatting, and code quality rules    |
-| `tsconfig.json`               | Shared TypeScript configuration                |
-| `tsup.config.ts`              | Shared bundler configuration                   |
-| `vite.config.ts`              | Root Vitest configuration for monorepo testing |
-| `.size-limit.mjs`             | Bundle size checking configuration             |
-| `pnpm-workspace.yaml`         | Workspace package definitions                  |
-| `.claude/settings.local.json` | Local Claude Code permissions                  |
+| File                          | Purpose                                                                         |
+| ----------------------------- | ------------------------------------------------------------------------------- |
+| `biome.jsonc`                 | Linting, formatting, and code quality rules                                     |
+| `tsconfig.json`               | Shared TypeScript configuration                                                 |
+| `tsup.config.ts`              | Shared bundler configuration                                                    |
+| `vite.config.ts`              | Root Vitest configuration for monorepo testing                                  |
+| `.size-limit.mjs`             | Bundle size checking configuration                                              |
+| `pnpm-workspace.yaml`         | Workspace package definitions                                                   |
+| `.claude/settings.local.json` | Local Claude Code permissions                                                   |
 | `.claude/docs-env.md`         | Docs site architecture reference (build system, routing, plugins, integrations) |

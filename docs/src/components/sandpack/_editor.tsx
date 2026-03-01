@@ -1,6 +1,7 @@
 import type { SandpackFiles } from "@codesandbox/sandpack-react"
-import { useTheme } from "next-themes"
 import { Suspense, lazy } from "react"
+
+import { useTheme } from "@/components/theme-switcher/use-theme"
 
 export interface SandpackEditorProps {
   files: SandpackFiles
@@ -15,7 +16,7 @@ const LazyEditor = lazy(async () => {
   ] = await Promise.all([import("@codesandbox/sandpack-react"), import("react-resizable-panels")])
 
   function Editor({ files, entry, localFiles }: SandpackEditorProps) {
-    const { resolvedTheme = "dark" } = useTheme()
+    const { resolvedTheme } = useTheme()
 
     return (
       <SandpackProvider
@@ -30,7 +31,7 @@ const LazyEditor = lazy(async () => {
             "sp-layout": "rounded-xl!",
           },
         }}
-        theme={resolvedTheme === "dark" ? "dark" : "light"}
+        theme={resolvedTheme}
         customSetup={{
           dependencies: {
             "use-sync-external-store": "^1.6.0",

@@ -1,7 +1,3 @@
-"use client"
-
-import { useTheme } from "next-themes"
-
 import { Monitor, Moon, Sun } from "@/components/icons"
 
 import "./styles.css"
@@ -9,19 +5,21 @@ import "./styles.css"
 import { cx } from "@/tools/cx"
 import { useIsMounted } from "@/tools/use-is-mounted"
 
+import { type Theme, useTheme } from "./use-theme"
+
 const THEMES = ["light", "dark", "system"] as const
 
 const THEME_TO_ICON = {
   system: Monitor,
   light: Sun,
   dark: Moon,
-}
+} satisfies Record<Theme, unknown>
 
 const THEME_TO_LABEL = {
   system: "System theme",
   light: "Light theme",
   dark: "Dark theme",
-}
+} satisfies Record<Theme, unknown>
 
 function normalizeTheme(theme: string): string {
   if (theme === "system" && "matchMedia" in window) {
@@ -32,7 +30,7 @@ function normalizeTheme(theme: string): string {
 }
 
 export function ThemeSwitcher({ className }: { className?: string }) {
-  const { theme = "system", setTheme } = useTheme()
+  const { theme, setTheme } = useTheme()
   const isMounted = useIsMounted()
 
   return (

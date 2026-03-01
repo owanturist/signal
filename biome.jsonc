@@ -358,7 +358,8 @@
             "useExportsLast": "off" // declaration files often have exports throughout the file
           },
           "correctness": {
-            "noUnusedImports": "off" // declaration files often have unused imports
+            "noUnusedImports": "off", // declaration files often have unused imports
+            "noUnusedVariables": "off" // declaration files often have unused variables
           },
           "nursery": {
             "noShadow": "off" // shadowing is common in declaration files
