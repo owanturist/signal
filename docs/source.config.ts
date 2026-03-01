@@ -6,10 +6,13 @@ import {
 import { defineConfig, defineDocs } from "fumadocs-mdx/config"
 import lastModified from "fumadocs-mdx/plugins/last-modified"
 
+const LIGHT_THEME = "github-light"
+const DARK_THEME = "github-dark"
+
 const rehypeCodeOptions = {
   themes: {
-    light: "github-light",
-    dark: "github-dark",
+    light: LIGHT_THEME,
+    dark: DARK_THEME,
   },
   // https://fumadocs.dev/docs/headless/mdx/rehype-code#inline-code
   inline: "tailing-curly-colon",
@@ -30,10 +33,10 @@ export default defineConfig({
     rehypePlugins: [[rehypeCode, rehypeCodeOptions]],
     rehypeCodeOptions: {
       themes: {
-        light: "github-light",
-        dark: "github-dark",
+        light: LIGHT_THEME,
+        dark: DARK_THEME,
       },
-      transformers: [...(rehypeCodeDefaultOptions.transformers ?? [])],
+      transformers: rehypeCodeDefaultOptions.transformers,
     },
   },
 })
