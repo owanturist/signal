@@ -39,5 +39,6 @@ cypress/videos
 
 # docs
 docs/.next
+docs/.react-router
 docs/.source
 docs/next-env.d.ts
