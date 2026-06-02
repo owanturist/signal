@@ -1,18 +1,31 @@
 name: Setup environment
-description: Setup Node.js and install dependencies using pnpm
+description: Setup Node.js and pnpm via mise, then install dependencies
 
 runs:
   using: composite
   steps:
-    - name: Install pnpm
-      uses: pnpm/action-setup@v2
+    - name: Setup mise
+      uses: jdx/mise-action@v2
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
+    # mise only shims a tool's primary bins (node, npm), so npx/corepack hit a
+    # dud fallback shim. Put node's bin dir on PATH so third-party actions
+    # (e.g. size-limit-action calls `npx`) resolve them as plain binaries.
+    - name: Expose tool bin dirs on PATH
+      shell: bash
+      run: echo "$(mise where node)/bin" >> "$GITHUB_PATH"
+
+    - name: Get pnpm store directory
+      id: pnpm-store
+      shell: bash
+      run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+    - name: Cache pnpm store
+      uses: actions/cache@v4
       with:
-        node-version-file: ".nvmrc"
-        registry-url: "https://registry.npmjs.org"
-        cache: "pnpm"
+        path: ${{ steps.pnpm-store.outputs.path }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
 
     - name: Install dependencies
       shell: bash
