@@ -7,6 +7,13 @@ runs:
     - name: Setup mise
       uses: jdx/mise-action@v2
 
+    # mise only shims a tool's primary bins (node, npm), so npx/corepack hit a
+    # dud fallback shim. Put node's bin dir on PATH so third-party actions
+    # (e.g. size-limit-action calls `npx`) resolve them as plain binaries.
+    - name: Expose tool bin dirs on PATH
+      shell: bash
+      run: echo "$(mise where node)/bin" >> "$GITHUB_PATH"
+
     - name: Get pnpm store directory
       id: pnpm-store
       shell: bash
