@@ -41,4 +41,4 @@ function transformFromSchema<TInput, TOutput>(
 }
 
 export type { FormUnitTransform }
-export { transformFromInput, transformFromTransformer, transformFromValidator, transformFromSchema }
+export { transformFromInput, transformFromSchema, transformFromTransformer, transformFromValidator }

@@ -41,4 +41,4 @@ const CounterComponent = memo<{
   (prevProps, nextProps) => prevProps.count === nextProps.count,
 )
 
-export { withinNth, expectCounts, CounterComponent }
+export { CounterComponent, expectCounts, withinNth }

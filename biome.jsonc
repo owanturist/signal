@@ -130,6 +130,8 @@
           "complexity": {
             "noExcessiveLinesPerFunction": "info", // it should indicate potential for refactoring, but not too strict
             "noExcessiveCognitiveComplexity": "info", // it should indicate potential for refactoring, but not too strict
+            "useMaxParams": "off", // ignore it since sometimes it's necessary to have many parameters
+            "noUselessUndefined": "off", // explicit `return undefined` is preferred for readability
             "noVoid": "warn" // using void is sometimes useful, e.g. in void Promise
           },
 
@@ -185,6 +187,7 @@
 
           "correctness": {
             "useQwikClasslist": "off", // irrelevant
+            "useQwikValidLexicalScope": "off", // irrelevant
             "noSolidDestructuredProps": "off", // irrelevant
 
             "useImportExtensions": "off", // irrelevant,
@@ -228,24 +231,24 @@
           },
 
           "nursery": {
-            "useQwikMethodUsage": "off", // irrelevant
-            "useQwikValidLexicalScope": "off", // irrelevant
             "useVueMultiWordComponentNames": "off", // irrelevant
             "useVueDefineMacrosOrder": "off", // irrelevant
+            "noReactNativeRawText": "off", // irrelevant
             "noEqualsToNull": "off", // == null is used to check for both null and undefined
             "noLeakedRender": "off", // many false-positives for boolean && JSX expressions
-            "noVueReservedProps": "off", // irrelevant
-            "noVueReservedKeys": "off", // irrelevant
-            "noVueDuplicateKeys": "off", // irrelevant
-            "noVueDataObjectDeclaration": "off", // irrelevant
             "noTernary": "off", // ternary is useful in many cases
 
-            "noUnresolvedImports": "off", // handled by TS
-            "noUselessUndefined": "off", // it is better to be explicit about undefined values
             "useExplicitType": "off", // it is too much noise to enforce explicit types everywhere, even none module-public exports
-            "useMaxParams": "off", // common...
+            "useExplicitReturnType": "off", // same reasoning as useExplicitType: too noisy on non module-public exports
             "useAwaitThenable": "off", // false-positives
             "noJsxPropsBind": "off", // it is madness to follow this rule
+            "useThisInClassMethods": "off", // false-positives for overridable hooks (e.g. _clone, _getChildren) where subclasses depend on the instance-method shape
+
+            "useConsistentMethodSignatures": {
+              // property-style enables stricter variance checks under strictFunctionTypes
+              "level": "error",
+              "fix": "safe" // promote the unsafe fix to safe so check:fix auto-applies it
+            },
 
             "useDestructuring": "info",
             "noExcessiveLinesPerFile": "info",
@@ -342,7 +345,8 @@
             "noMagicNumbers": "off", // magic numbers are fine in tests
             "noNonNullAssertion": "off",
             "noDoneCallback": "off", // false-positive for context in hooks like "beforeAll(context => { context.thing = 42 })"
-            "useComponentExportOnlyModules": "off" // tests might export non-component modules
+            "useComponentExportOnlyModules": "off", // tests might export non-component modules
+            "noJsxLiterals": "off" // jsx literals are fine in tests (graduated from nursery in biome 2.4)
           },
           "complexity": {
             "noExcessiveLinesPerFunction": "off" // test `describe/it` blocks can be long
@@ -356,11 +360,13 @@
             "noSecrets": "off" // too much false-positives in tests
           },
           "nursery": {
-            "noJsxLiterals": "off", // jsx literals are fine in tests
             "noShadow": "off", // shadowing is fine in tests
             "noIncrementDecrement": "off", // increment/decrement is fine in tests
             "noExcessiveLinesPerFile": "off", // tests files can be long
-            "noExcessiveClassesPerFile": "off" // test files can have many test classes
+            "noExcessiveClassesPerFile": "off", // test files can have many test classes
+            "noConditionalExpect": "off", // conditional expect() is common in test helper utilities
+            "noComponentHookFactories": "off", // inline component factories are a common test pattern
+            "noExcessiveNestedCallbacks": "off" // describe/it nesting often exceeds the default threshold
           }
         }
       }

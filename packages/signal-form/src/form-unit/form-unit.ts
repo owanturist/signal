@@ -285,8 +285,8 @@ function FormUnit<TInput, TError = null, TOutput = TInput>(
 
 export type {
   FormUnitOptions,
-  FormUnitTransformedOptions,
   FormUnitSchemaOptions,
+  FormUnitTransformedOptions,
   FormUnitValidatedOptions,
 }
 export { FormUnit }

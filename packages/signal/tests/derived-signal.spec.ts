@@ -656,7 +656,7 @@ describe.concurrent("Signal(getter) garbage collection", () => {
     source.write(0)
     expect(source).toHaveEmittersSize(1)
 
-    await global.gc?.({ execution: "async" })
+    await globalThis.gc?.({ execution: "async" })
     expect(source).toHaveEmittersSize(0)
   })
 
@@ -672,7 +672,7 @@ describe.concurrent("Signal(getter) garbage collection", () => {
 
     derived = null
 
-    await global.gc?.({ execution: "async" })
+    await globalThis.gc?.({ execution: "async" })
     expect(source).toHaveEmittersSize(0)
   })
 
@@ -689,7 +689,7 @@ describe.concurrent("Signal(getter) garbage collection", () => {
       expect(derived).toHaveEmittersSize(0)
     })()
 
-    await global.gc?.({ execution: "async" })
+    await globalThis.gc?.({ execution: "async" })
     expect(source).toHaveEmittersSize(0)
   })
 
@@ -717,7 +717,7 @@ describe.concurrent("Signal(getter) garbage collection", () => {
       expect(derived).toHaveEmittersSize(0)
     })()
 
-    await global.gc?.({ execution: "async" })
+    await globalThis.gc?.({ execution: "async" })
     expect(source).toHaveEmittersSize(0)
   })
 
@@ -734,7 +734,7 @@ describe.concurrent("Signal(getter) garbage collection", () => {
       expect(derived).toHaveEmittersSize(0)
     })()
 
-    await global.gc?.({ execution: "async" })
+    await globalThis.gc?.({ execution: "async" })
     expect(source).toHaveEmittersSize(0)
   })
 
@@ -765,7 +765,7 @@ describe.concurrent("Signal(getter) garbage collection", () => {
       expect(derived3).toHaveEmittersSize(0)
     })()
 
-    await global.gc?.({ execution: "async" })
+    await globalThis.gc?.({ execution: "async" })
     expect(source).toHaveEmittersSize(1)
   })
 })

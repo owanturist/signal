@@ -170,7 +170,7 @@ abstract class SignalFormState<
 
 interface SignalFormChild<TChildParams extends SignalFormParams, TParams extends SignalFormParams> {
   _state: SignalFormState<TChildParams>
-  _mapToChild(this: void, parentValue: TParams["output.schema"]): TChildParams["output.schema"]
+  _mapToChild: (this: void, parentValue: TParams["output.schema"]) => TChildParams["output.schema"]
 }
 
 export type { SignalFormChild }

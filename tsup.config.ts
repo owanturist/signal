@@ -13,7 +13,7 @@ export default defineConfig({
       keep_classnames: false,
       keep_fnames: false,
       properties: {
-        regex: /^_[^_]\w+[^_]$/,
+        regex: /^_[^_]\w+[^_]$/u,
         // @ts-expect-error undocumented, but it specifies how to mangle properties
         cache: {
           props: {
@@ -25,5 +25,5 @@ export default defineConfig({
     },
   },
   // any package is external
-  external: [/^\w+/],
+  external: [/^\w+/u],
 })

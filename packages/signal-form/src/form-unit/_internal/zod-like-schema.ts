@@ -20,7 +20,9 @@ type ZodLikeSafeParseResult<TOutput> =
   | { success: true; data: TOutput }
 
 type ZodLikeSchema<TOutput> =
+  // biome-ignore lint/nursery/useConsistentMethodSignatures: mirrors zod-style class methods so user schemas can pass narrower input types
   | { parse(input: unknown): TOutput }
+  // biome-ignore lint/nursery/useConsistentMethodSignatures: mirrors zod-style class methods so user schemas can pass narrower input types
   | { safeParse(input: unknown): ZodLikeSafeParseResult<TOutput> }
 
 function zodLikeSafeParseResultToResult<TOutput>(
@@ -68,5 +70,5 @@ function zodLikeParse<TOutput>(
   }
 }
 
-export type { ZodLikeIssue, ZodLikeError, ZodLikeSafeParseResult, ZodLikeSchema }
+export type { ZodLikeError, ZodLikeIssue, ZodLikeSafeParseResult, ZodLikeSchema }
 export { zodLikeParse }

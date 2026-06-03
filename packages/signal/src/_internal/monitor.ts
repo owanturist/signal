@@ -43,4 +43,4 @@ function extractMonitor(): Monitor {
 }
 
 export type { Monitor }
-export { UNTRACKED_MONITOR, createMonitor, attachToMonitor, injectMonitor, extractMonitor }
+export { UNTRACKED_MONITOR, attachToMonitor, createMonitor, extractMonitor, injectMonitor }
