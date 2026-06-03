@@ -36,8 +36,8 @@
   },
   "devDependencies": {
     "@owanturist/signal": "workspace:*",
-    "vite-tsconfig-paths": "^6.0.5",
-    "vitest": "^4.0.18",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.7",
     "zod": "^4.3.6"
   }
 }
