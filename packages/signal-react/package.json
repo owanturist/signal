@@ -29,7 +29,7 @@
   "repository": "https://github.com/owanturist/signal/tree/master/packages/signal-react",
   "homepage": "https://github.com/owanturist/signal/packages/signal-react#readme",
   "scripts": {
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsgo --noEmit",
     "build": "tsup src/index.ts --config ../../tsup.config.ts"
   },
   "dependencies": {

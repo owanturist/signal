@@ -19,15 +19,10 @@
     "noUnusedParameters": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitReturns": true,
-    "downlevelIteration": true,
     "jsx": "react-jsx",
     "types": ["vitest/globals"],
     "verbatimModuleSyntax": true,
-    "noImplicitOverride": true,
-    "baseUrl": ".",
-    "paths": {
-      "~/tools/*": ["./packages/tools/src/*"]
-    }
+    "noImplicitOverride": true
   },
   "include": ["./*.ts"]
 }

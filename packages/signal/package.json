@@ -36,7 +36,7 @@
   "repository": "https://github.com/owanturist/signal/tree/master/packages/signal",
   "homepage": "https://github.com/owanturist/signal/packages/signal#readme",
   "scripts": {
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsgo --noEmit",
     "build": "tsup src/index.ts src/monitor-factory.ts --config ../../tsup.config.ts"
   },
   "devDependencies": {
