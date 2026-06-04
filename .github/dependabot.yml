@@ -11,3 +11,7 @@ updates:
       separator: "-"
     reviewers:
       - "owanturist"
+    # supply-chain protection: mirror pnpm's minimum-release-age (2 weeks).
+    # security updates bypass this cooldown automatically.
+    cooldown:
+      default-days: 14

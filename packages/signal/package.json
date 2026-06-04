@@ -36,11 +36,11 @@
   "repository": "https://github.com/owanturist/signal/tree/master/packages/signal",
   "homepage": "https://github.com/owanturist/signal/packages/signal#readme",
   "scripts": {
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsgo --noEmit",
     "build": "tsup src/index.ts src/monitor-factory.ts --config ../../tsup.config.ts"
   },
   "devDependencies": {
-    "vite-tsconfig-paths": "^6.0.5",
-    "vitest": "^4.0.18"
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.7"
   }
 }

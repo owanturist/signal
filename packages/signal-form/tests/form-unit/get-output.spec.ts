@@ -8,6 +8,7 @@ import {
   type FormUnitSchemaOptions,
   type FormUnitValidatedOptions,
   type Result,
+  type ZodLikeSafeParseResult,
 } from "../../src"
 
 it("matches type signature", ({ monitor }) => {
@@ -451,7 +452,7 @@ describe("when ZodLikeSchema is used", () => {
       return FormUnit(initial, {
         ...options,
         schema: {
-          safeParse(input: string) {
+          safeParse(input: string): ZodLikeSafeParseResult<number> {
             if (input.length > 0) {
               return { success: true, data: input.length }
             }

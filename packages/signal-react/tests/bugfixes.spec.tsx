@@ -8,8 +8,8 @@ describe("watching misses when defined after useEffect #140", () => {
   interface ComponentProps {
     first: Signal<number>
     second: Signal<number>
-    useGetFirst(first: Signal<number>): number
-    useGetSecond(second: Signal<number>): number
+    useGetFirst: (first: Signal<number>) => number
+    useGetSecond: (second: Signal<number>) => number
   }
 
   const ComponentComputedBeforeEffect: FC<ComponentProps> = ({

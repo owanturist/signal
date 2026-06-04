@@ -221,7 +221,7 @@ describe.concurrent("Signal(getter) garbage collection", () => {
     unmount()
     expect(source).toHaveEmittersSize(1)
 
-    await global.gc?.({ execution: "async" })
+    await globalThis.gc?.({ execution: "async" })
     expect(source).toHaveEmittersSize(0)
   })
 })

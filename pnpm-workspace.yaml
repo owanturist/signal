@@ -1,2 +1,12 @@
 packages:
   - "packages/*"
+
+allowBuilds:
+  esbuild: true
+
+# do not require -w flag when installing to the root
+ignoreWorkspaceRootCheck: true
+# avoid linking */node_modules/{package_name} to packages/{package_name}
+linkWorkspacePackages: false
+# supply-chain protection: refuse package versions younger than 2 weeks (20160 minutes)
+minimumReleaseAge: 20160

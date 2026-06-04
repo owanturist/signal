@@ -23,7 +23,7 @@ export interface WithThird<T = Counter> {
 }
 
 export interface WithSpy {
-  spy(...args: Array<unknown>): void
+  spy: (...args: Array<unknown>) => void
 }
 
 export interface WithListener {

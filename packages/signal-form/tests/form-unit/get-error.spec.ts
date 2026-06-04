@@ -9,6 +9,7 @@ import {
   type FormUnitSchemaOptions,
   type FormUnitValidatedOptions,
   type Result,
+  type ZodLikeSafeParseResult,
 } from "../../src"
 
 it("selects error", ({ monitor }) => {
@@ -317,7 +318,7 @@ describe("when ZodLikeSchema is used", () => {
       const value = FormUnit(1, {
         touched: true,
         schema: {
-          safeParse() {
+          safeParse(): ZodLikeSafeParseResult<number> {
             return { success: false, error }
           },
         },

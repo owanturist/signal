@@ -3,10 +3,10 @@
   "name": "tools",
   "private": true,
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsgo --noEmit"
   },
   "devDependencies": {
-    "vite-tsconfig-paths": "^6.0.5",
-    "vitest": "^4.0.18"
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.7"
   }
 }

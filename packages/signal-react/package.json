@@ -29,7 +29,7 @@
   "repository": "https://github.com/owanturist/signal/tree/master/packages/signal-react",
   "homepage": "https://github.com/owanturist/signal/packages/signal-react#readme",
   "scripts": {
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsgo --noEmit",
     "build": "tsup src/index.ts --config ../../tsup.config.ts"
   },
   "dependencies": {
@@ -43,12 +43,12 @@
     "@owanturist/signal": "workspace:*",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
-    "@types/react": "^19.2.13",
+    "@types/react": "^19.2.15",
     "@types/use-sync-external-store": "^1.5.0",
-    "happy-dom": "^20.5.0",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "vite-tsconfig-paths": "^6.0.5",
-    "vitest": "^4.0.18"
+    "happy-dom": "^20.9.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.7"
   }
 }
