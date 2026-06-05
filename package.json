@@ -7,7 +7,6 @@
     "preinstall": "npx -y only-allow pnpm",
     "cs": "changeset",
     "version": "changeset version",
-    "release": "pnpm --recursive publish --access=public && changeset tag",
     "size": "size-limit",
     "test": "vitest",
     "test:run": "pnpm test --run --reporter=dot",
