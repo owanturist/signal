@@ -102,6 +102,68 @@ describe("types", () => {
   })
 })
 
+describe("nested verbose output", () => {
+  it("returns verbose shape for a switch nested directly in a switch branch", ({ monitor }) => {
+    const inner = FormSwitch(FormUnit<"_a" | "_b">("_a"), {
+      _a: FormUnit(1),
+      _b: FormUnit("two"),
+    })
+
+    const parent = FormSwitch(FormUnit<"_x" | "_y">("_x"), {
+      _x: inner,
+      _y: FormUnit("zzz"),
+    })
+
+    expect(parent.getOutput(monitor, params._second)).toStrictEqual({
+      active: "_x",
+      branches: {
+        _x: {
+          active: "_a",
+          branches: {
+            _a: 1,
+            _b: "two",
+          },
+        },
+        _y: "zzz",
+      },
+    })
+  })
+
+  it("returns verbose shape for a switch nested inside a shape inside a switch branch", ({
+    monitor,
+  }) => {
+    const innerSwitch = FormSwitch(FormUnit<"_a" | "_b">("_b"), {
+      _a: FormUnit(1),
+      _b: FormShape({
+        nested: FormUnit("inside"),
+      }),
+    })
+
+    const parent = FormSwitch(FormUnit<"_metrics" | "_markdown">("_metrics"), {
+      _metrics: FormShape({
+        settings: innerSwitch,
+      }),
+      _markdown: FormUnit(""),
+    })
+
+    expect(parent.getOutput(monitor, params._second)).toStrictEqual({
+      active: "_metrics",
+      branches: {
+        _metrics: {
+          settings: {
+            active: "_b",
+            branches: {
+              _a: 1,
+              _b: { nested: "inside" },
+            },
+          },
+        },
+        _markdown: "",
+      },
+    })
+  })
+})
+
 describe("when branch is initially invalid", () => {
   it("returns null for initially invalid active", ({ monitor }) => {
     const form = FormSwitch(
