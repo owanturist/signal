@@ -441,7 +441,7 @@ class FormSwitchState<
 
   public readonly _outputVerbose = Signal(
     (monitor): FormSwitchOutputVerbose<TKind, TBranches> =>
-      this._toVerbose(monitor, ({ _output }) => _output),
+      this._toVerbose(monitor, ({ _outputVerbose }) => _outputVerbose),
   )
 
   // V A L I D
