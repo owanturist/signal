@@ -297,6 +297,64 @@ describe("FormUnitValidatedOptions", () => {
   })
 })
 
+/**
+ * bugfix: Do not allow multiple FormUnit output functions #912
+ * @link https://github.com/owanturist/signal/issues/912
+ */
+describe("does not allow multiple output functions", () => {
+  it("rejects transform together with validate", ({ monitor }) => {
+    const value = FormUnit("", {
+      // @ts-expect-error transform and validate are mutually exclusive
+      transform: (input: string) => input.trim(),
+      validate: (input: string) => (input.length > 0 ? [null, input] : ["too short", null]),
+    })
+
+    expect(value.getInput(monitor)).toBe("")
+  })
+
+  it("rejects transform together with schema", ({ monitor }) => {
+    const value = FormUnit("", {
+      // @ts-expect-error transform and schema are mutually exclusive
+      transform: (input: string) => input.trim(),
+      schema: z.string().min(1),
+    })
+
+    expect(value.getInput(monitor)).toBe("")
+  })
+
+  it("rejects validate together with schema", ({ monitor }) => {
+    const value = FormUnit("", {
+      // @ts-expect-error validate and schema are mutually exclusive
+      validate: (input: string): Result<string, string> =>
+        input.length > 0 ? [null, input] : ["too short", null],
+      schema: z.string().min(1),
+    })
+
+    expect(value.getInput(monitor)).toBe("")
+  })
+
+  it("rejects transform, validate and schema all together", ({ monitor }) => {
+    const value = FormUnit("", {
+      // @ts-expect-error transform, validate and schema are mutually exclusive
+      transform: (input: string) => input.trim(),
+      validate: (input: string) => (input.length > 0 ? [null, input] : ["too short", null]),
+      schema: z.string().min(1),
+    })
+
+    expect(value.getInput(monitor)).toBe("")
+  })
+
+  it("rejects validateOn with transform", ({ monitor }) => {
+    const value = FormUnit("", {
+      // @ts-expect-error validateOn has no meaning without validate or schema
+      transform: (input: string) => input.trim(),
+      validateOn: "onInit",
+    })
+
+    expect(value.getInput(monitor)).toBe("")
+  })
+})
+
 describe("FormUnitSchemaOptions", () => {
   it("defines unit with schema as validator", ({ monitor }) => {
     const value = FormUnit(0, {

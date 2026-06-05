@@ -6,6 +6,7 @@ import { params } from "~/tools/params"
 import {
   FormUnit,
   type FormUnitSchemaOptions,
+  type FormUnitTransformedOptions,
   type FormUnitValidatedOptions,
   type Result,
   type ZodLikeSafeParseResult,
@@ -149,7 +150,7 @@ describe("when initial error is defined", () => {
 describe("when transform is defined", () => {
   function setup(
     initial = "",
-    options?: Partial<FormUnitValidatedOptions<string, number, number>>,
+    options?: Partial<FormUnitTransformedOptions<string, number, number>>,
   ) {
     return FormUnit(initial, {
       transform: (input) => input.length,
@@ -165,15 +166,15 @@ describe("when transform is defined", () => {
     expect(output).toBe(3)
   })
 
-  it("returns output after validation", ({ monitor }) => {
-    const value = setup("123", { validateOn: "onInit" })
+  it("returns output regardless of validation lifecycle", ({ monitor }) => {
+    const value = setup("123")
     const output = value.getOutput(monitor)
 
     expect(output).toBe(3)
   })
 
-  it("returns null before validation when error is specified", ({ monitor }) => {
-    const value = setup("1", { validateOn: "onInit", error: 2 })
+  it("returns null when error is specified", ({ monitor }) => {
+    const value = setup("1", { error: 2 })
 
     const output0 = value.getOutput(monitor)
     expect(output0).toBeNull()
@@ -183,8 +184,8 @@ describe("when transform is defined", () => {
     expect(output1).toBe(1)
   })
 
-  it("returns null after validation when error is set", ({ monitor }) => {
-    const value = setup("1", { validateOn: "onInit" })
+  it("returns null after error is set", ({ monitor }) => {
+    const value = setup("1")
 
     const output0 = value.getOutput(monitor)
     expect(output0).toBe(1)

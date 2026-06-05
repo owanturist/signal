@@ -105,8 +105,12 @@ interface FormUnitOptions<TInput, TError = null> {
 }
 
 interface FormUnitTransformedOptions<TInput, TError = null, TOutput = TInput>
-  extends Omit<FormUnitOptions<TInput, TError>, "isOutputEqual"> {
+  extends FormUnitOptions<TInput, TError> {
   readonly transform: FormUnitTransformer<TInput, TOutput>
+
+  readonly validate?: never
+  readonly schema?: never
+  readonly validateOn?: never
 
   /**
    * PERFORMANCE OPTIMIZATION
@@ -123,26 +127,55 @@ interface FormUnitTransformedOptions<TInput, TError = null, TOutput = TInput>
 }
 
 interface FormUnitSchemaOptions<TInput, TOutput = TInput>
-  extends Omit<
-    FormUnitTransformedOptions<TInput, ReadonlyArray<string>, TOutput>,
-    "transform" | "isErrorEqual"
-  > {
+  extends Omit<FormUnitOptions<TInput, ReadonlyArray<string>>, "isErrorEqual"> {
+  readonly schema: ZodLikeSchema<TOutput>
+
   /**
    * @default "onTouch"
    */
   readonly validateOn?: ValidateStrategy
 
-  readonly schema: ZodLikeSchema<TOutput>
+  readonly transform?: never
+  readonly validate?: never
+
+  /**
+   * PERFORMANCE OPTIMIZATION
+   *
+   * A equality check function that determines whether the output value changes.
+   * When it does, the {@link SignalForm.getOutput} returns the new value.
+   *
+   * Useful for none primitive values such as Objects, Arrays, Date, etc.
+   * Intended to improve performance but do not affect business logic.
+   *
+   * @default Object.is
+   */
+  readonly isOutputEqual?: Equal<TOutput>
 }
 
 interface FormUnitValidatedOptions<TInput, TError = null, TOutput = TInput>
-  extends Omit<FormUnitTransformedOptions<TInput, TError, TOutput>, "transform"> {
+  extends FormUnitOptions<TInput, TError> {
+  readonly validate: FormUnitValidator<TInput, TError, TOutput>
+
   /**
    * @default "onTouch"
    */
   readonly validateOn?: ValidateStrategy
 
-  readonly validate: FormUnitValidator<TInput, TError, TOutput>
+  readonly transform?: never
+  readonly schema?: never
+
+  /**
+   * PERFORMANCE OPTIMIZATION
+   *
+   * A equality check function that determines whether the output value changes.
+   * When it does, the {@link SignalForm.getOutput} returns the new value.
+   *
+   * Useful for none primitive values such as Objects, Arrays, Date, etc.
+   * Intended to improve performance but do not affect business logic.
+   *
+   * @default Object.is
+   */
+  readonly isOutputEqual?: Equal<TOutput>
 }
 
 function FormUnit<TInput, TError = null, TOutput = TInput>(
