@@ -3,7 +3,7 @@ import { untracked } from "@owanturist/signal"
 import { FormList, type FormListOptions, FormUnit } from "../../src"
 
 function setup(options?: FormListOptions<FormUnit<number>>) {
-  const form = FormList([FormUnit(1), FormUnit(2), FormUnit(3)], options)
+  const form = FormList((input: number) => FormUnit(input), [1, 2, 3], options)
 
   const listener0 = vi.fn()
   const listener1 = vi.fn()

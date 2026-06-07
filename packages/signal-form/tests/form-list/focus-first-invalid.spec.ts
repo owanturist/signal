@@ -5,11 +5,8 @@ import { FormList, type FormListOptions, FormUnit } from "../../src"
 
 function setup(options?: FormListOptions<FormUnit<number, ReadonlyArray<string>>>) {
   const form = FormList(
-    [
-      FormUnit(0, { schema: z.number() }),
-      FormUnit(1, { schema: z.number() }),
-      FormUnit(2, { schema: z.number() }),
-    ],
+    (input: number) => FormUnit(input, { schema: z.number() }),
+    [0, 1, 2],
     options,
   )
 
@@ -78,7 +75,11 @@ it("calls the only invalid", () => {
 })
 
 it("does not focus invalid without listener", ({ monitor }) => {
-  const form = FormList([FormUnit(1, { error: "err-1" }), FormUnit(2, { error: "err-2" })])
+  const form = FormList<FormUnit<number, string>>(
+    (input: number) => FormUnit<number, string>(input),
+    [1, 2],
+    { error: ["err-1", "err-2"] },
+  )
 
   const listener1 = vi.fn()
 
@@ -90,7 +91,7 @@ it("does not focus invalid without listener", ({ monitor }) => {
 
 describe("with onFocusWhenInvalid()", () => {
   it("does nothing when elements are empty", () => {
-    const form = FormList([])
+    const form = FormList((input: number) => FormUnit(input), [])
     const listener0 = vi.fn()
 
     form.onFocusWhenInvalid(listener0)
@@ -99,11 +100,13 @@ describe("with onFocusWhenInvalid()", () => {
   })
 
   it("does not call a listener when elements are not validated", () => {
-    const form = FormList([
-      FormUnit("", {
-        schema: z.string(),
-      }),
-    ])
+    const form = FormList(
+      (input: string) =>
+        FormUnit(input, {
+          schema: z.string(),
+        }),
+      [""],
+    )
 
     const listener0 = vi.fn()
 
@@ -113,12 +116,14 @@ describe("with onFocusWhenInvalid()", () => {
   })
 
   it("does not call a listener when elements are valid", () => {
-    const form = FormList([
-      FormUnit("valid", {
-        validateOn: "onInit",
-        schema: z.string().min(2),
-      }),
-    ])
+    const form = FormList(
+      (input: string) =>
+        FormUnit(input, {
+          validateOn: "onInit",
+          schema: z.string().min(2),
+        }),
+      ["valid"],
+    )
 
     const listener0 = vi.fn()
 
@@ -128,12 +133,14 @@ describe("with onFocusWhenInvalid()", () => {
   })
 
   it("calls a listener when an element is not valid", () => {
-    const form = FormList([
-      FormUnit("", {
-        validateOn: "onInit",
-        schema: z.string().min(2),
-      }),
-    ])
+    const form = FormList(
+      (input: string) =>
+        FormUnit(input, {
+          validateOn: "onInit",
+          schema: z.string().min(2),
+        }),
+      [""],
+    )
 
     const listener0 = vi.fn()
 
@@ -143,12 +150,14 @@ describe("with onFocusWhenInvalid()", () => {
   })
 
   it("does not call a listener when an element is invalid and has own listener", ({ monitor }) => {
-    const form = FormList([
-      FormUnit("", {
-        validateOn: "onInit",
-        schema: z.string().min(2),
-      }),
-    ])
+    const form = FormList(
+      (input: string) =>
+        FormUnit(input, {
+          validateOn: "onInit",
+          schema: z.string().min(2),
+        }),
+      [""],
+    )
 
     const listener0 = vi.fn()
     const listener1 = vi.fn()

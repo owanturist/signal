@@ -1,8 +1,8 @@
 import { batch } from "@owanturist/signal"
 
 import { isUndefined } from "~/tools/is-undefined"
-import { map } from "~/tools/map"
 
+import type { GetSignalFormInput } from "../signal-form/get-signal-form-input"
 import type { SignalForm } from "../signal-form/signal-form"
 
 import type { FormListErrorSetter } from "./form-list-error-setter"
@@ -14,6 +14,11 @@ import { FormListState } from "./_internal/form-list-state"
 
 type FormList<TElement extends SignalForm> = FormListImpl<TElement>
 
+type FormListElementFactory<TElement extends SignalForm> = (
+  input: GetSignalFormInput<TElement>,
+  index: number,
+) => TElement
+
 interface FormListOptions<TElement extends SignalForm> {
   readonly input?: FormListInputSetter<TElement>
   readonly initial?: FormListInputSetter<TElement>
@@ -23,10 +28,14 @@ interface FormListOptions<TElement extends SignalForm> {
 }
 
 function FormList<TElement extends SignalForm>(
-  elements: ReadonlyArray<TElement>,
+  factory: FormListElementFactory<TElement>,
+  initialInputs: ReadonlyArray<GetSignalFormInput<TElement>>,
   { input, initial, touched, validateOn, error }: FormListOptions<TElement> = {},
 ): FormList<TElement> {
-  const state = new FormListState<TElement>(null, map(elements, FormListImpl._getState))
+  const wrappedFactory = (inputValue: GetSignalFormInput<TElement>, index: number) =>
+    FormListImpl._getState(factory(inputValue, index))
+
+  const state = new FormListState<TElement>(null, wrappedFactory, initialInputs)
 
   batch((monitor) => {
     if (!isUndefined(input)) {
@@ -53,5 +62,5 @@ function FormList<TElement extends SignalForm>(
   return state._host()
 }
 
-export type { FormListOptions }
+export type { FormListElementFactory, FormListOptions }
 export { FormList }

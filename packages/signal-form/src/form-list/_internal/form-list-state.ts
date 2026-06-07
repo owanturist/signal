@@ -1,7 +1,5 @@
 import { type Monitor, Signal, untracked } from "@owanturist/signal"
 
-import { concat } from "~/tools/concat"
-import { drop } from "~/tools/drop"
 import { entries } from "~/tools/entries"
 import { isBoolean } from "~/tools/is-boolean"
 import { isFunction } from "~/tools/is-function"
@@ -10,7 +8,6 @@ import { isString } from "~/tools/is-string"
 import { isUndefined } from "~/tools/is-undefined"
 import { Lazy } from "~/tools/lazy"
 import { map } from "~/tools/map"
-import { take } from "~/tools/take"
 
 import { toConcise } from "../../_internal/to-concise"
 import type { GetSignalFormParams } from "../../signal-form/_internal/get-signal-form-params"
@@ -18,6 +15,8 @@ import {
   type SignalFormChild,
   SignalFormState,
 } from "../../signal-form/_internal/signal-form-state"
+import type { GetSignalFormFlag } from "../../signal-form/get-signal-form-flag"
+import type { GetSignalFormInput } from "../../signal-form/get-signal-form-input"
 import type { SignalForm } from "../../signal-form/signal-form"
 import type { SignalFormParams } from "../../signal-form/signal-form-params"
 import { VALIDATE_ON_TOUCH } from "../../validate-strategy"
@@ -38,74 +37,86 @@ import type { FormListValidateOnVerbose } from "../form-list-validate-on-verbose
 
 import { FormList } from "./form-list"
 
+type FormListElementFactoryInternal<TElement extends SignalForm> = (
+  input: GetSignalFormInput<TElement>,
+  index: number,
+) => SignalFormState<GetSignalFormParams<TElement>>
+
 class FormListState<TElement extends SignalForm = SignalForm> extends SignalFormState<
   FormListParams<TElement>
 > {
   public readonly _host = Lazy(() => new FormList(this))
 
-  public readonly _elements: Signal<ReadonlyArray<SignalFormState<GetSignalFormParams<TElement>>>>
+  public readonly _factory: FormListElementFactoryInternal<TElement>
 
-  private readonly _initialElements: Signal<{
-    _list: Signal<ReadonlyArray<SignalFormState<GetSignalFormParams<TElement>>>>
-  }>
+  public readonly _initialInputs: Signal<ReadonlyArray<GetSignalFormInput<TElement>>>
+
+  public readonly _elements: Signal<ReadonlyArray<SignalFormState<GetSignalFormParams<TElement>>>>
 
   public constructor(
     parent: null | SignalFormState,
-    elements: ReadonlyArray<SignalFormState<GetSignalFormParams<TElement>>>,
+    factory: FormListElementFactoryInternal<TElement>,
+    initialInputs: ReadonlyArray<GetSignalFormInput<TElement>>,
   ) {
     super(parent)
 
-    const initialElements = map(elements, (element) => element._clone())
-
-    this._initialElements = Signal({
-      _list: Signal(initialElements),
-    })
+    this._factory = factory
+    this._initialInputs = Signal(initialInputs)
 
     this._elements = Signal(
-      untracked((monitor) =>
-        map(elements, (element, index) => {
-          const child = this._parentOf(element)
-
-          child._replaceInitial(monitor, initialElements.at(index), true)
-
-          return child
-        }),
-      ),
+      untracked(() => map(initialInputs, (input, index) => this._parentOf(factory(input, index)))),
     )
   }
 
   public _childOf(parent: null | SignalFormState): FormListState<TElement> {
-    return new FormListState(parent, untracked(this._elements))
+    return untracked((monitor) => {
+      const child = new FormListState<TElement>(
+        parent,
+        this._factory,
+        this._initialInputs.read(monitor),
+      )
+
+      const clonedElements = map(this._elements.read(monitor), (element) =>
+        child._parentOf(element._clone()),
+      )
+
+      child._elements.write(clonedElements)
+
+      return child
+    })
   }
 
   public _getElements(monitor: Monitor): ReadonlyArray<TElement> {
     return map(this._elements.read(monitor), ({ _host }) => _host() as TElement)
   }
 
-  public _getInitialElements(
-    monitor: Monitor,
-  ): ReadonlyArray<SignalFormState<GetSignalFormParams<TElement>>> {
-    return this._initialElements.read(monitor)._list.read(monitor)
-  }
+  // I N I T I A L
 
-  public readonly _initial = Signal(
-    (monitor): FormListInput<TElement> =>
-      map(this._getInitialElements(monitor), ({ _initial }) => _initial.read(monitor)),
-  )
+  public readonly _initial = Signal((monitor): FormListInput<TElement> => {
+    const elements = this._elements.read(monitor)
+    const initialInputs = this._initialInputs.read(monitor)
+
+    return map(initialInputs, (input, index) => {
+      const element = elements.at(index)
+
+      return element ? element._initial.read(monitor) : input
+    })
+  })
 
   public _replaceInitial(
     monitor: Monitor,
     state: undefined | FormListState<TElement>,
-    isMounting: boolean,
+    _isMounting: boolean,
   ): void {
     if (state) {
+      const initialInputs = state._initialInputs.read(monitor)
+
+      this._initialInputs.write(initialInputs)
+
       const elements = this._elements.read(monitor)
-      const initialElements = state._initialElements.read(monitor)
 
-      this._initialElements.write(initialElements)
-
-      for (const [index, element] of entries(initialElements._list.read(monitor))) {
-        elements.at(index)?._replaceInitial(monitor, element, isMounting)
+      for (const [index, input] of entries(initialInputs)) {
+        elements.at(index)?._setInitial(monitor, input)
       }
     }
   }
@@ -116,33 +127,53 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
       : setter
 
     const elements = this._elements.read(monitor)
-    const initialElements = this._initialElements.read(monitor)
-    const initialElementsList = initialElements._list.read(monitor)
+    const prevInitialInputs = this._initialInputs.read(monitor)
 
-    const nextInitialElements = map(
-      take(
-        concat(
-          initialElementsList,
-          // fallback the initial elements to the current elements' tail
-          drop(elements, initialElementsList.length),
-        ),
-        setters.length,
-      ),
-      (element) => element._clone(),
-    )
+    // First, push each defined per-element setter into the existing child.
+    // The child's `_setInitial` resolves the setter (value or function) against the
+    // child's own state. The list reads the resolved value back out of the child below.
+    for (const [index, element] of entries(elements)) {
+      const setterAt = setters.at(index)
 
-    initialElements._list.write(nextInitialElements)
-
-    for (const [index, initial] of entries(setters)) {
-      if (!isUndefined(initial)) {
-        nextInitialElements.at(index)?._setInitial(monitor, initial)
+      if (!isUndefined(setterAt)) {
+        element._setInitial(monitor, setterAt)
       }
     }
 
-    for (const [index, element] of entries(nextInitialElements)) {
-      elements.at(index)?._replaceInitial(monitor, element, false)
+    // Then compute the new initialInputs array. Length follows setters.length, capped at
+    // max(prevInitialInputs.length, elements.length) — we cannot create a meaningful
+    // initial for a slot beyond what we have visibility into.
+    const maxLength = Math.max(prevInitialInputs.length, elements.length)
+    const nextLength = Math.min(setters.length, maxLength)
+
+    const nextInitialInputs: Array<GetSignalFormInput<TElement>> = []
+
+    for (let index = 0; index < nextLength; index += 1) {
+      const setterAt = setters.at(index)
+      const element = elements.at(index)
+
+      if (element) {
+        // The child has already been updated above; read its resolved initial.
+        nextInitialInputs.push(element._initial.read(monitor))
+      } else {
+        // i is within capacity but no element exists at this slot.
+        // For value setters, take the setter value; for function/undefined setters,
+        // fall back to the existing initialInputs[i] (which must exist since
+        // nextLength <= prevInitialInputs.length when elements.length < nextLength).
+        const fallback = prevInitialInputs[index]
+
+        if (!(isUndefined(setterAt) || isFunction(setterAt))) {
+          nextInitialInputs.push(setterAt as GetSignalFormInput<TElement>)
+        } else if (!isUndefined(fallback)) {
+          nextInitialInputs.push(fallback)
+        }
+      }
     }
+
+    this._initialInputs.write(nextInitialInputs)
   }
+
+  // I N P U T
 
   public readonly _input = Signal(
     (monitor): FormListInput<TElement> =>
@@ -154,14 +185,75 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
       ? setter(this._input.read(monitor), this._initial.read(monitor))
       : setter
 
-    for (const [index, element] of entries(this._elements.read(monitor))) {
-      const input = setters.at(index)
+    const elements = this._elements.read(monitor)
 
-      if (!isUndefined(input)) {
-        element._setInput(monitor, input)
+    if (setters.length === elements.length) {
+      // Fast path: no structural change. Per-slot apply.
+      for (const [index, element] of entries(elements)) {
+        const input = setters.at(index)
+
+        if (!isUndefined(input)) {
+          element._setInput(monitor, input)
+        }
       }
+
+      return
     }
+
+    // Structural change: length follows setters.length.
+    // - For existing slots: keep the element instance, push the setter through.
+    // - For new slots: materialize via factory, but only if we have a concrete input
+    //   to seed it with (value setter; or fall back to _initialInputs[i] when the
+    //   setter is undefined / a function).
+    const initialInputs = this._initialInputs.read(monitor)
+    const nextElements: Array<SignalFormState<GetSignalFormParams<TElement>>> = []
+
+    for (let index = 0; index < setters.length; index += 1) {
+      const setterAt = setters.at(index)
+      const existing = elements.at(index)
+
+      if (existing) {
+        if (!isUndefined(setterAt)) {
+          existing._setInput(monitor, setterAt)
+        }
+        nextElements.push(existing)
+        continue
+      }
+
+      // New slot: need a concrete input to seed the factory with.
+      // Value setter wins; otherwise fall back to the recorded initial input.
+      const isValueSetter = !isUndefined(setterAt) && !isFunction(setterAt)
+      const seedInput: GetSignalFormInput<TElement> | undefined = isValueSetter
+        ? (setterAt as GetSignalFormInput<TElement>)
+        : initialInputs.at(index)
+
+      if (isUndefined(seedInput)) {
+        if (isFunction(setterAt)) {
+          // A function setter has nothing to operate on at this slot — refuse
+          // rather than silently shrink the output below setters.length.
+          throw new Error(
+            `FormList.setInput: cannot apply a function setter at index ${index} — no existing element and no initial input to seed the factory. Provide a concrete value, or grow _initialInputs first via setInitial.`,
+          )
+        }
+        // setterAt is undefined and there is no initial input to fall back on —
+        // nothing to materialize, leave the slot out.
+        continue
+      }
+
+      const created = this._parentOf(this._factory(seedInput, index))
+
+      // If the setter for the new slot was a function, apply it on top of the seed.
+      if (isFunction(setterAt)) {
+        created._setInput(monitor, setterAt)
+      }
+
+      nextElements.push(created)
+    }
+
+    this._elements.write(nextElements)
   }
+
+  // E R R O R
 
   public readonly _error = Signal((monitor): FormListError<TElement> => {
     const error = map(this._elements.read(monitor), ({ _error }) => _error.read(monitor))
@@ -190,6 +282,8 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     }
   }
 
+  // V A L I D A T E   O N
+
   public readonly _validateOn = Signal((monitor): FormListValidateOn<TElement> => {
     const validateOn = map(this._elements.read(monitor), ({ _validateOn }) =>
       _validateOn.read(monitor),
@@ -208,14 +302,6 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
   public _setValidateOn(monitor: Monitor, setter: FormListValidateOnSetter<TElement>): void {
     const setters = isFunction(setter) ? setter(this._validateOnVerbose.read(monitor)) : setter
 
-    for (const [index, element] of entries(this._getInitialElements(monitor))) {
-      const validateOn = isString(setters) ? setters : setters.at(index)
-
-      if (!isUndefined(validateOn)) {
-        element._setValidateOn(monitor, validateOn)
-      }
-    }
-
     for (const [index, element] of entries(this._elements.read(monitor))) {
       const validateOn = isString(setters) ? setters : setters.at(index)
 
@@ -224,6 +310,8 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
       }
     }
   }
+
+  // T O U C H E D
 
   public readonly _touched = Signal((monitor): FormListFlag<TElement> => {
     const touched = map(this._elements.read(monitor), ({ _touched }) => _touched.read(monitor))
@@ -248,6 +336,8 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     }
   }
 
+  // O U T P U T
+
   public readonly _output = Signal((monitor): null | FormListOutput<TElement> => {
     const output = map(this._elements.read(monitor), ({ _output }) => _output.read(monitor))
 
@@ -263,6 +353,8 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
       map(this._elements.read(monitor), ({ _outputVerbose }) => _outputVerbose.read(monitor)),
   )
 
+  // V A L I D
+
   public readonly _valid = Signal((monitor): FormListFlag<TElement> => {
     const valid = map(this._elements.read(monitor), ({ _valid }) => _valid.read(monitor))
 
@@ -274,6 +366,8 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
       map(this._elements.read(monitor), ({ _validVerbose }) => _validVerbose.read(monitor)),
   )
 
+  // I N V A L I D
+
   public readonly _invalid = Signal((monitor): FormListFlag<TElement> => {
     const invalid = map(this._elements.read(monitor), ({ _invalid }) => _invalid.read(monitor))
 
@@ -284,6 +378,8 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     (monitor): FormListFlagVerbose<TElement> =>
       map(this._elements.read(monitor), ({ _invalidVerbose }) => _invalidVerbose.read(monitor)),
   )
+
+  // V A L I D A T E D
 
   public readonly _validated = Signal((monitor): FormListFlag<TElement> => {
     const validated = map(this._elements.read(monitor), ({ _validated }) =>
@@ -304,73 +400,116 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     }
   }
 
+  // D I R T Y
+  //
+  // Length semantics: verbose signals report per-current-element only.
+  // The "removed slots" case (elements.length < _initialInputs.length) folds into
+  // the concise _dirty signal as `true` (the list is dirty because the structure
+  // has shrunk from initial), but is NOT reflected in _dirtyVerbose to keep the
+  // verbose array type-stable.
+
   public readonly _dirty = Signal((monitor): FormListFlag<TElement> => {
     const elements = this._elements.read(monitor)
-    const initialElements = this._getInitialElements(monitor)
+    const initialInputsLength = this._initialInputs.read(monitor).length
 
-    const dirty = concat(
-      map(elements, ({ _dirty, _dirtyOn }, index) => {
-        if (index >= initialElements.length) {
-          // added elements are always dirty
-          return _dirtyOn.read(monitor)
-        }
+    if (elements.length < initialInputsLength) {
+      return true
+    }
 
-        return _dirty.read(monitor)
-      }),
+    const dirty = map(elements, ({ _dirty, _dirtyOn }, index) => {
+      if (index >= initialInputsLength) {
+        // added elements are always dirty
+        return _dirtyOn.read(monitor)
+      }
 
-      // removed elements are always dirty
-      map(drop(initialElements, elements.length), ({ _dirtyOn }) => _dirtyOn.read(monitor)),
-    )
+      return _dirty.read(monitor)
+    })
 
     return toConcise(dirty, isBoolean, false)
   })
 
   public readonly _dirtyVerbose = Signal((monitor): FormListFlagVerbose<TElement> => {
     const elements = this._elements.read(monitor)
-    const initialElements = this._getInitialElements(monitor)
+    const initialInputsLength = this._initialInputs.read(monitor).length
 
-    return concat(
-      map(elements, ({ _dirtyVerbose, _dirtyOnVerbose }, index) => {
-        if (index >= initialElements.length) {
-          // added elements are always dirty
-          return _dirtyOnVerbose.read(monitor)
-        }
+    return map(elements, ({ _dirtyVerbose, _dirtyOnVerbose }, index) => {
+      if (index >= initialInputsLength) {
+        // added elements are always dirty
+        return _dirtyOnVerbose.read(monitor)
+      }
 
-        return _dirtyVerbose.read(monitor)
-      }),
-
-      // removed elements are always dirty
-      map(drop(initialElements, elements.length), ({ _dirtyOnVerbose }) =>
-        _dirtyOnVerbose.read(monitor),
-      ),
-    )
+      return _dirtyVerbose.read(monitor)
+    })
   })
 
   public readonly _dirtyOn = Signal((monitor): FormListFlag<TElement> => {
-    const dirtyOn = map(this._getInitialElements(monitor), ({ _dirtyOn }) => _dirtyOn.read(monitor))
+    const elements = this._elements.read(monitor)
+    const initialInputsLength = this._initialInputs.read(monitor).length
+
+    const dirtyOn: Array<GetSignalFormFlag<TElement>> = []
+
+    for (let index = 0; index < initialInputsLength; index += 1) {
+      const element = elements.at(index)
+
+      if (element) {
+        dirtyOn.push(element._dirtyOn.read(monitor))
+      } else {
+        // removed slot — always considered dirty
+        dirtyOn.push(true as GetSignalFormFlag<TElement>)
+      }
+    }
 
     return toConcise(dirtyOn, isBoolean, false)
   })
 
-  public readonly _dirtyOnVerbose = Signal(
-    (monitor): FormListFlagVerbose<TElement> =>
-      map(this._getInitialElements(monitor), ({ _dirtyOnVerbose }) =>
-        _dirtyOnVerbose.read(monitor),
-      ),
-  )
+  public readonly _dirtyOnVerbose = Signal((monitor): FormListFlagVerbose<TElement> => {
+    const elements = this._elements.read(monitor)
+    const initialInputsLength = this._initialInputs.read(monitor).length
+
+    // Like _dirtyVerbose, restrict to slots that have a current element to preserve
+    // the per-slot verbose type.
+    const length = Math.min(initialInputsLength, elements.length)
+
+    return map(elements.slice(0, length), ({ _dirtyOnVerbose }) => _dirtyOnVerbose.read(monitor))
+  })
 
   public _reset(monitor: Monitor, resetter: undefined | FormListInputSetter<TElement>): void {
     if (!isUndefined(resetter)) {
       this._setInitial(monitor, resetter)
     }
 
-    const nextElements = this._getInitialElements(monitor)
+    // Capture validateOn so that list-level overrides survive recreation. Touched is
+    // intentionally NOT captured — reset is supposed to clear touched state, and
+    // factory-built elements start untouched.
+    const conciseValidateOn = this._validateOn.read(monitor)
+    const verboseValidateOn = this._validateOnVerbose.read(monitor)
 
-    for (const element of nextElements) {
-      element._reset(monitor, undefined)
+    // Pull the *effective* initial inputs (children may have set their own _initial
+    // since the last list-level setInitial) and refreeze them as the rebuild target.
+    const targetInitials = this._initial.read(monitor)
+
+    this._initialInputs.write(targetInitials)
+
+    const nextElements = map(targetInitials, (input, index) =>
+      this._parentOf(this._factory(input, index)),
+    )
+
+    for (const [index, element] of entries(nextElements)) {
+      // If the list-level validateOn collapsed to a single strategy, apply it to every
+      // fresh element (extending past the captured verbose length). Otherwise apply
+      // per-slot from the verbose snapshot.
+      if (isString(conciseValidateOn)) {
+        element._setValidateOn(monitor, conciseValidateOn)
+      } else {
+        const validateOn = verboseValidateOn.at(index)
+
+        if (!isUndefined(validateOn)) {
+          element._setValidateOn(monitor, validateOn)
+        }
+      }
     }
 
-    this._elements.write(map(nextElements, (element) => this._parentOf(element)))
+    this._elements.write(nextElements)
   }
 
   public _getChildren<TChildParams extends SignalFormParams>(
@@ -383,4 +522,5 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
   }
 }
 
+export type { FormListElementFactoryInternal }
 export { FormListState }

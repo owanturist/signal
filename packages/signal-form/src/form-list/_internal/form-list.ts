@@ -3,6 +3,7 @@ import { type Monitor, Signal, batch } from "@owanturist/signal"
 import { entries } from "~/tools/entries"
 import { isFunction } from "~/tools/is-function"
 import { isShallowArrayEqual } from "~/tools/is-shallow-array-equal"
+import { isUndefined } from "~/tools/is-undefined"
 import { map } from "~/tools/map"
 import { params } from "~/tools/params"
 import type { Setter } from "~/tools/setter"
@@ -39,28 +40,22 @@ class FormList<TElement extends SignalForm> extends SignalForm<FormListParams<TE
     setter: Setter<ReadonlyArray<TElement>, [ReadonlyArray<TElement>, Monitor]>,
   ): void {
     batch((monitor) => {
-      const initialElements = this._state._getInitialElements(monitor)
+      const initialInputs = this._state._initialInputs.read(monitor)
 
-      const elementsStates = map(
+      const nextStateElements = map(
         isFunction(setter) ? setter(this._elements.read(monitor), monitor) : setter,
-
-        SignalForm._getState,
+        (element) => this._state._parentOf(SignalForm._getState(element)),
       )
 
-      const nextStateElements = map(elementsStates, (element) => this._state._parentOf(element))
+      // Strict slot-wins: align each child's `_initial` with the list's
+      // `_initialInputs[i]`. New slots beyond `_initialInputs.length` keep whatever
+      // initial the spliced-in element brought with it.
+      for (const [index, child] of entries(nextStateElements)) {
+        const initial = initialInputs.at(index)
 
-      // detach all elements from their initial states in one go
-      for (const stateElement of nextStateElements) {
-        stateElement._replaceInitial(monitor, undefined, false)
-      }
-
-      // attach the elements to their updated initial states
-      for (const [index, stateElement] of entries(nextStateElements)) {
-        stateElement._replaceInitial(
-          monitor,
-          initialElements.at(index),
-          !elementsStates.at(index)?._hasSameRootWith(stateElement),
-        )
+        if (!isUndefined(initial)) {
+          child._setInitial(monitor, initial)
+        }
       }
 
       this._state._elements.write(nextStateElements)
