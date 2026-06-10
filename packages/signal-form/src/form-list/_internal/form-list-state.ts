@@ -1,4 +1,3 @@
-// biome-ignore lint/nursery/noExcessiveLinesPerFile: <explanation>
 import { type Monitor, Signal, untracked } from "@owanturist/signal"
 
 import { concat } from "~/tools/concat"
