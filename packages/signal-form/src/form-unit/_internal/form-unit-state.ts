@@ -32,17 +32,13 @@ class FormUnitState<TInput, TError, TOutput> extends SignalFormState<
 
   public constructor(
     parent: null | SignalFormState,
-    public readonly _initialState: Signal<{
-      _explicit: Signal<boolean>
-      _current: Signal<TInput>
-    }>,
+    public readonly _initial: Signal<TInput>,
     public readonly _input: Signal<TInput>,
     private readonly _customError: Signal<null | TError>,
     public readonly _validateOn: Signal<ValidateStrategy>,
     public readonly _touched: Signal<boolean>,
     private readonly _transform: Signal<FormUnitTransform<TInput, TError, TOutput>>,
     private readonly _isInputDirty: Equal<TInput>,
-    private readonly _isInputEqual: Equal<TInput>,
     private readonly _isOutputEqual: Equal<null | TOutput>,
     private readonly _isErrorEqual: Equal<null | TError>,
   ) {
@@ -66,13 +62,6 @@ class FormUnitState<TInput, TError, TOutput> extends SignalFormState<
 
       return [isValidated.read(monitor) ? error : null, null]
     })
-
-    this._initial = Signal(
-      (monitor): TInput => _initialState.read(monitor)._current.read(monitor),
-      {
-        equals: _isInputEqual,
-      },
-    )
 
     this._error = this._errorVerbose = Signal(
       (monitor): null | TError => {
@@ -158,17 +147,13 @@ class FormUnitState<TInput, TError, TOutput> extends SignalFormState<
   public _childOf(parent: null | SignalFormState): FormUnitState<TInput, TError, TOutput> {
     return new FormUnitState(
       parent,
-      this._initialState.clone(({ _current, _explicit }) => ({
-        _current: _current.clone(),
-        _explicit: _explicit.clone(),
-      })),
+      this._initial.clone(),
       this._input.clone(),
       this._customError.clone(),
       this._validateOn.clone(),
       this._touched.clone(),
       this._transform.clone(),
       this._isInputDirty,
-      this._isInputEqual,
       this._isOutputEqual,
       this._isErrorEqual,
     )
@@ -176,16 +161,10 @@ class FormUnitState<TInput, TError, TOutput> extends SignalFormState<
 
   // I N I T I A L
 
-  public _initial: ReadonlySignal<TInput>
-
   public _setInitial(monitor: Monitor, setter: FormUnitInputSetter<TInput>): void {
-    const { _current, _explicit } = this._initialState.read(monitor)
-
-    _current.write((initial) =>
+    this._initial.write((initial) =>
       isFunction(setter) ? setter(initial, this._input.read(monitor)) : setter,
     )
-
-    _explicit.write(true)
 
     this._validated.write(identity)
   }
@@ -279,7 +258,7 @@ class FormUnitState<TInput, TError, TOutput> extends SignalFormState<
         ? resetter(this._initial.read(monitor), this._input.read(monitor))
         : resetter
 
-    this._initialState.read(monitor)._current.write(resetValue)
+    this._initial.write(resetValue)
     this._input.write(resetValue)
     // TODO test when reset for all below
     this._touched.write(false)

@@ -4,7 +4,6 @@ import { hasProperty } from "~/tools/has-property"
 import { isNull } from "~/tools/is-null"
 import { isShallowArrayEqual } from "~/tools/is-shallow-array-equal"
 import { isStrictEqual } from "~/tools/is-strict-equal"
-import { isUndefined } from "~/tools/is-undefined"
 
 import type { SignalForm } from "../signal-form/signal-form"
 import { VALIDATE_ON_INIT, VALIDATE_ON_TOUCH, type ValidateStrategy } from "../validate-strategy"
@@ -217,11 +216,8 @@ function FormUnit<TInput, TError = null, TOutput = TInput>(
 
   const input = Signal(input_, { equals: isInputEqual })
 
-  const initial = Signal({
-    _explicit: Signal(!isUndefined(options?.initial)),
-    _current: Signal(isInputEqual(initialOrInput, input_) ? input_ : initialOrInput, {
-      equals: isInputEqual,
-    }),
+  const initial = Signal(isInputEqual(initialOrInput, input_) ? input_ : initialOrInput, {
+    equals: isInputEqual,
   })
 
   const touched = Signal(options?.touched ?? false)
@@ -243,7 +239,6 @@ function FormUnit<TInput, TError = null, TOutput = TInput>(
       touched,
       Signal(transform),
       isInputDirty,
-      isInputEqual,
       isOutputEqual,
       isErrorEqual,
     )._host()
@@ -273,7 +268,6 @@ function FormUnit<TInput, TError = null, TOutput = TInput>(
       touched,
       Signal(transform),
       isInputDirty,
-      isInputEqual,
       isOutputEqual,
       isErrorEqual,
     )._host()
@@ -295,7 +289,6 @@ function FormUnit<TInput, TError = null, TOutput = TInput>(
       touched,
       Signal(transform as FormUnitTransform<TInput, TError, TOutput>),
       isInputDirty,
-      isInputEqual,
       isOutputEqual,
       isErrorEqual,
     )._host()
@@ -310,7 +303,6 @@ function FormUnit<TInput, TError = null, TOutput = TInput>(
     touched,
     Signal(transformFromInput as FormUnitTransform<TInput, TError, TInput>),
     isInputDirty,
-    isInputEqual,
     createIsUnionEqual(isNull, isInputEqual),
     isErrorEqual,
   )._host()
