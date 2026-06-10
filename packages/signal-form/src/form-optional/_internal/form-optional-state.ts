@@ -122,15 +122,6 @@ class FormOptionalState<
     }
   }
 
-  public _replaceInitial(
-    monitor: Monitor,
-    state: undefined | FormOptionalState<TEnabled, TElement>,
-    isMounting: boolean,
-  ): void {
-    this._enabled._replaceInitial(monitor, state?._enabled, isMounting)
-    this._element._replaceInitial(monitor, state?._element, isMounting)
-  }
-
   // I N P U T
 
   public readonly _input = Signal(

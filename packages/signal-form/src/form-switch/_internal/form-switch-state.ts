@@ -152,18 +152,6 @@ class FormSwitchState<
     }
   }
 
-  public _replaceInitial(
-    monitor: Monitor,
-    state: undefined | FormSwitchState<TKind, TBranches>,
-    isMounting: boolean,
-  ): void {
-    this._active._replaceInitial(monitor, state?._active, isMounting)
-
-    for (const [key, branch] of entries(this._branches)) {
-      branch._replaceInitial(monitor, state?._branches[key], isMounting)
-    }
-  }
-
   // I N P U T
 
   public readonly _input = Signal(

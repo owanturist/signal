@@ -178,30 +178,6 @@ class FormUnitState<TInput, TError, TOutput> extends SignalFormState<
 
   public _initial: ReadonlySignal<TInput>
 
-  public _replaceInitial(
-    monitor: Monitor,
-    state: undefined | FormUnitState<TInput, TError, TOutput>,
-    isMounting: boolean,
-  ): void {
-    const { _explicit, _current } = this._initialState.read(monitor)
-
-    if (state) {
-      const initialState = state._initialState.read(monitor)
-
-      if (_explicit.read(monitor) && isMounting) {
-        initialState._explicit.write(true)
-        initialState._current.write(_current.read(monitor))
-      }
-
-      this._initialState.write(initialState)
-    } else {
-      this._initialState.write({
-        _current: _current.clone(),
-        _explicit: _explicit.clone(),
-      })
-    }
-  }
-
   public _setInitial(monitor: Monitor, setter: FormUnitInputSetter<TInput>): void {
     const { _current, _explicit } = this._initialState.read(monitor)
 

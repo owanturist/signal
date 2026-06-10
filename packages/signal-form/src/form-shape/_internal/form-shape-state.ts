@@ -89,16 +89,6 @@ class FormShapeState<TFields extends FormShapeFields = FormShapeFields> extends 
     return { ...initial, ...meta } as FormShapeInput<TFields>
   })
 
-  public _replaceInitial(
-    monitor: Monitor,
-    state: undefined | FormShapeState<TFields>,
-    isMounting: boolean,
-  ): void {
-    for (const [key, field] of entries(this._fields)) {
-      field._replaceInitial(monitor, state?._fields[key], isMounting)
-    }
-  }
-
   public _setInitial(monitor: Monitor, setter: FormShapeInputSetter<TFields>): void {
     const setters = isFunction(setter)
       ? setter(this._initial.read(monitor), this._input.read(monitor))

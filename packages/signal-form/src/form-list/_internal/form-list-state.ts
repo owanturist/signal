@@ -95,25 +95,6 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     })
   })
 
-  public _replaceInitial(
-    monitor: Monitor,
-    state: undefined | FormListState<TElement>,
-    _isMounting: boolean,
-  ): void {
-    console.log("TODO NOW safe to remove?")
-    if (state) {
-      const initialInputs = state._initialInputs.read(monitor)
-
-      this._initialInputs.write(initialInputs)
-
-      const elements = this._elements.read(monitor)
-
-      for (const [index, input] of entries(initialInputs)) {
-        elements.at(index)?._setInitial(monitor, input)
-      }
-    }
-  }
-
   public _setInitial(monitor: Monitor, setter: FormListInputSetter<TElement>): void {
     const initial = isFunction(setter)
       ? setter(this._initial.read(monitor), this._input.read(monitor))

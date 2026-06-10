@@ -42,12 +42,6 @@ abstract class SignalFormState<
 
   public abstract readonly _initial: ReadonlySignal<TParams["input.schema"]>
 
-  public abstract _replaceInitial(
-    monitor: Monitor,
-    state: undefined | this,
-    isMounting: boolean,
-  ): void
-
   public abstract _setInitial(monitor: Monitor, setter: TParams["input.setter"]): void
 
   // I N P U T
