@@ -4,8 +4,8 @@ import type { Setter } from "~/tools/setter"
 
 import { FormList, FormUnit, type FormUnitOptions } from "../../src"
 
-function setup(initialInputs: ReadonlyArray<number>) {
-  return FormList((input: number) => setupElement(input), initialInputs)
+function setup(initial: ReadonlyArray<number>) {
+  return FormList((input: number) => setupElement(input), { initial })
 }
 
 function setupElement(initial: number, options?: FormUnitOptions<number>) {

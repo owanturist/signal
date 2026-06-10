@@ -20,8 +20,16 @@ type FormListElementFactory<TElement extends SignalForm> = (
 ) => TElement
 
 interface FormListOptions<TElement extends SignalForm> {
-  readonly input?: FormListInputSetter<TElement>
+  /**
+   * @default []
+   */
   readonly initial?: FormListInputSetter<TElement>
+
+  /**
+   * @default {@link initial}
+   */
+  readonly input?: FormListInputSetter<TElement>
+
   readonly touched?: FormListFlagSetter<TElement>
   readonly validateOn?: FormListValidateOnSetter<TElement>
   readonly error?: FormListErrorSetter<TElement>
@@ -29,17 +37,18 @@ interface FormListOptions<TElement extends SignalForm> {
 
 function FormList<TElement extends SignalForm>(
   factory: FormListElementFactory<TElement>,
-  initialInputs: ReadonlyArray<GetSignalFormInput<TElement>>,
   { input, initial, touched, validateOn, error }: FormListOptions<TElement> = {},
 ): FormList<TElement> {
   const wrappedFactory = (inputValue: GetSignalFormInput<TElement>, index: number) =>
     FormListImpl._getState(factory(inputValue, index))
 
-  const state = new FormListState<TElement>(null, wrappedFactory, initialInputs)
+  const state = new FormListState<TElement>(null, wrappedFactory)
 
   batch((monitor) => {
-    if (!isUndefined(input)) {
-      state._setInput(monitor, input)
+    const inputOrInitial = input ?? initial
+
+    if (!isUndefined(inputOrInitial)) {
+      state._setInput(monitor, inputOrInitial)
     }
 
     if (!isUndefined(initial)) {

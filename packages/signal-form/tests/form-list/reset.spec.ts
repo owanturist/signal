@@ -15,15 +15,12 @@ it("matches the type definition", ({ monitor }) => {
       FormUnit(input, {
         schema: z.number().transform((x) => x.toFixed(0)),
       }),
-    [0],
+    { initial: [0] },
   )
 
   expectTypeOf(form.reset).toEqualTypeOf<
     (
-      resetter?: Setter<
-        ReadonlyArray<undefined | Setter<number, [number, number]>>,
-        [ReadonlyArray<number>, ReadonlyArray<number>]
-      >,
+      resetter?: Setter<ReadonlyArray<number>, [ReadonlyArray<number>, ReadonlyArray<number>]>,
     ) => void
   >()
 
@@ -33,7 +30,10 @@ it("matches the type definition", ({ monitor }) => {
 })
 
 it("sets initial values for all items", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), [1, 2, 3], { input: [0, 1, 2] })
+  const form = FormList((input: number) => FormUnit(input), {
+    initial: [1, 2, 3],
+    input: [0, 1, 2],
+  })
 
   form.reset()
   expect(form.getOutput(monitor)).toStrictEqual([1, 2, 3])
@@ -42,8 +42,8 @@ it("sets initial values for all items", ({ monitor }) => {
 it("clears custom errors", ({ monitor }) => {
   const form = FormList<FormUnit<number, ReadonlyArray<string>>>(
     (input: number) => FormUnit<number, ReadonlyArray<string>>(input),
-    [0, 1, 2],
     {
+      initial: [0, 1, 2],
       error: [["error"], ["error"], ["error"]],
     },
   )
@@ -53,7 +53,9 @@ it("clears custom errors", ({ monitor }) => {
 })
 
 it("resets isValidated state", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input, { schema: z.number() }), [0, 1, 2])
+  const form = FormList((input: number) => FormUnit(input, { schema: z.number() }), {
+    initial: [0, 1, 2],
+  })
 
   form.setTouched(true)
   expect(form.isValidated(monitor)).toBe(true)
@@ -63,21 +65,30 @@ it("resets isValidated state", ({ monitor }) => {
 })
 
 it("provides the initial value to the element resetter 1st argument", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), [1, 2, 3], { input: [0, 1, 2] })
+  const form = FormList((input: number) => FormUnit(input), {
+    initial: [1, 2, 3],
+    input: [0, 1, 2],
+  })
 
   form.reset((initial) => initial.map((x) => x + 1))
   expect(form.getOutput(monitor)).toStrictEqual([2, 3, 4])
 })
 
 it("provides the original value to the resetter 2nd argument", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), [1, 2, 3], { input: [0, 1, 2] })
+  const form = FormList((input: number) => FormUnit(input), {
+    initial: [1, 2, 3],
+    input: [0, 1, 2],
+  })
 
   form.reset((_, original) => original.map((x) => x + 1))
   expect(form.getInput(monitor)).toStrictEqual([1, 2, 3])
 })
 
 it("restores removed elements", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), [1, 2, 3], { input: [0, 1, 2] })
+  const form = FormList((input: number) => FormUnit(input), {
+    initial: [1, 2, 3],
+    input: [0, 1, 2],
+  })
 
   form.setElements((elements) => elements.slice(0, 2))
   expect(form.getInput(monitor)).toStrictEqual([0, 1])
@@ -89,7 +100,10 @@ it("restores removed elements", ({ monitor }) => {
 })
 
 it("restores all elements", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), [1, 2, 3], { input: [0, 1, 2] })
+  const form = FormList((input: number) => FormUnit(input), {
+    initial: [1, 2, 3],
+    input: [0, 1, 2],
+  })
 
   form.setElements([])
   expect(form.getInput(monitor)).toStrictEqual([])
@@ -101,7 +115,10 @@ it("restores all elements", ({ monitor }) => {
 })
 
 it("removes added element", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), [1, 2, 3], { input: [0, 1, 2] })
+  const form = FormList((input: number) => FormUnit(input), {
+    initial: [1, 2, 3],
+    input: [0, 1, 2],
+  })
 
   form.setElements((elements) => [...elements, FormUnit(3, { initial: 4 })])
   expect(form.getInput(monitor)).toStrictEqual([0, 1, 2, 3])
@@ -113,7 +130,9 @@ it("removes added element", ({ monitor }) => {
 })
 
 it("removes all elements", ({ monitor }) => {
-  const form = FormList<FormUnit<number>>((input: number) => FormUnit(input), [])
+  const form = FormList<FormUnit<number>>((input: number) => FormUnit(input), {
+    initial: [],
+  })
 
   form.setElements([
     FormUnit(0, { initial: 1 }),
@@ -131,7 +150,9 @@ it("removes all elements", ({ monitor }) => {
 it("updates validateOn for restored elements", ({ monitor }) => {
   const form = FormList(
     (input: number) => FormUnit(input, { schema: z.number(), validateOn: "onChange" }),
-    [0, 1, 2],
+    {
+      initial: [0, 1, 2],
+    },
   )
 
   form.setElements([FormUnit(0, { schema: z.number() })])
@@ -143,7 +164,9 @@ it("updates validateOn for restored elements", ({ monitor }) => {
 })
 
 it("updates submit count for restored elements", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), [0, 1, 2])
+  const form = FormList((input: number) => FormUnit(input), {
+    initial: [0, 1, 2],
+  })
 
   form.setElements([FormUnit(0)])
   form.submit()
@@ -160,7 +183,9 @@ it("updates submit count for restored elements", ({ monitor }) => {
 })
 
 it("updates isSubmitting for restored elements", async ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), [0, 1, 2])
+  const form = FormList((input: number) => FormUnit(input), {
+    initial: [0, 1, 2],
+  })
 
   form.onSubmit(() => wait(1000))
 
@@ -200,10 +225,12 @@ describe("when resetting elements with metadata", () => {
           id,
           name: FormUnit(name),
         }),
-      [
-        { id: 1, name: "1" },
-        { id: 2, name: "2" },
-      ],
+      {
+        initial: [
+          { id: 1, name: "1" },
+          { id: 2, name: "2" },
+        ],
+      },
     )
 
     form.setElements(([, second]) => [second!])
@@ -222,10 +249,12 @@ describe("when resetting elements with metadata", () => {
           id,
           name: FormUnit(name),
         }),
-      [
-        { id: 1, name: "1" },
-        { id: 2, name: "2" },
-      ],
+      {
+        initial: [
+          { id: 1, name: "1" },
+          { id: 2, name: "2" },
+        ],
+      },
     )
 
     form.setElements(([first]) => [first!])
@@ -244,7 +273,9 @@ describe("when resetting elements with metadata", () => {
           id,
           name: FormUnit(name),
         }),
-      [{ id: 1, name: "1" }],
+      {
+        initial: [{ id: 1, name: "1" }],
+      },
     )
 
     form.setElements((elements) => [
@@ -276,7 +307,9 @@ describe("when resetting elements with metadata", () => {
           id,
           name: FormUnit(name),
         }),
-      [{ id: 1, name: "1" }],
+      {
+        initial: [{ id: 1, name: "1" }],
+      },
     )
 
     form.setElements((elements) => [

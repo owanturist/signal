@@ -9,7 +9,7 @@ it("matches the type definition", ({ monitor }) => {
       FormUnit(input, {
         schema: z.number().transform((x) => x.toFixed(0)),
       }),
-    [0],
+    { initial: [0] },
   )
 
   expectTypeOf(form.getInput).toEqualTypeOf<(monitor: Monitor) => ReadonlyArray<number>>()
@@ -20,13 +20,17 @@ it("matches the type definition", ({ monitor }) => {
 })
 
 it("returns empty array for empty list", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), [])
+  const form = FormList((input: number) => FormUnit(input), {
+    initial: [],
+  })
 
   expect(form.getInput(monitor)).toStrictEqual([])
 })
 
 it("returns an array of original values", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), [0, 1, 2])
+  const form = FormList((input: number) => FormUnit(input), {
+    initial: [0, 1, 2],
+  })
 
   expect(form.getInput(monitor)).toStrictEqual([0, 1, 2])
 })

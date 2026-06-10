@@ -1,8 +1,71 @@
 import { FormList, FormShape, FormUnit } from "../../src"
 
+describe("initialization", () => {
+  it("initializes empty elements with no input/initial provided", ({ monitor }) => {
+    const form = FormList((input: number) => FormUnit(input))
+
+    expect(form.getInitial(monitor)).toStrictEqual([])
+    expect(form.getInput(monitor)).toStrictEqual([])
+    expect(form.isDirty(monitor)).toBe(false)
+
+    const elements = form.getElements(monitor)
+    expect(elements.map((element) => element.getInitial(monitor))).toStrictEqual([])
+    expect(elements.map((element) => element.getInput(monitor))).toStrictEqual([])
+    expect(elements.map((element) => element.isDirty(monitor))).toStrictEqual([])
+  })
+
+  it("initializes elements with only input provided", ({ monitor }) => {
+    const form = FormList((input: number) => FormUnit(input), {
+      input: [1, 2],
+    })
+
+    expect(form.getInitial(monitor)).toStrictEqual([])
+    expect(form.getInput(monitor)).toStrictEqual([1, 2])
+    expect(form.isDirty(monitor)).toBe(true)
+
+    const elements = form.getElements(monitor)
+    expect(elements.map((element) => element.getInitial(monitor))).toStrictEqual([1, 2])
+    expect(elements.map((element) => element.getInput(monitor))).toStrictEqual([1, 2])
+    expect(elements.map((element) => element.isDirty(monitor))).toStrictEqual([false, false])
+  })
+
+  it("initializes elements with only initial provided", ({ monitor }) => {
+    const form = FormList((input: number) => FormUnit(input), {
+      initial: [1, 2],
+    })
+
+    expect(form.getInitial(monitor)).toStrictEqual([1, 2])
+    expect(form.getInput(monitor)).toStrictEqual([1, 2])
+    expect(form.isDirty(monitor)).toBe(false)
+
+    const elements = form.getElements(monitor)
+    expect(elements.map((element) => element.getInitial(monitor))).toStrictEqual([1, 2])
+    expect(elements.map((element) => element.getInput(monitor))).toStrictEqual([1, 2])
+    expect(elements.map((element) => element.isDirty(monitor))).toStrictEqual([false, false])
+  })
+
+  it("initializes elements with both initial and input provided", ({ monitor }) => {
+    const form = FormList((input: number) => FormUnit(input), {
+      initial: [1, 2],
+      input: [1, 3, 4],
+    })
+
+    expect(form.getInitial(monitor)).toStrictEqual([1, 2])
+    expect(form.getInput(monitor)).toStrictEqual([1, 3, 4])
+    expect(form.isDirty(monitor)).toBe(true)
+
+    const elements = form.getElements(monitor)
+    expect(elements.map((element) => element.getInitial(monitor))).toStrictEqual([1, 2, 4])
+    expect(elements.map((element) => element.getInput(monitor))).toStrictEqual([1, 3, 4])
+    expect(elements.map((element) => element.isDirty(monitor))).toStrictEqual([false, true, false])
+  })
+})
+
 describe("setInput auto-grow", () => {
   it("grows the list via the factory when setInput is longer than current", ({ monitor }) => {
-    const form = FormList((input: number) => FormUnit(input), [1])
+    const form = FormList((input: number) => FormUnit(input), {
+      input: [1],
+    })
 
     form.setInput([10, 20, 30])
 
@@ -11,7 +74,9 @@ describe("setInput auto-grow", () => {
   })
 
   it("truncates the list when setInput is shorter than current", ({ monitor }) => {
-    const form = FormList((input: number) => FormUnit(input), [1, 2, 3])
+    const form = FormList((input: number) => FormUnit(input), {
+      input: [1, 2, 3],
+    })
 
     form.setInput([9])
 
@@ -20,115 +85,145 @@ describe("setInput auto-grow", () => {
   })
 
   it("grows from empty via the factory", ({ monitor }) => {
-    const form = FormList((input: number) => FormUnit(input), [])
+    const form = FormList((input: number) => FormUnit(input))
 
     form.setInput([1, 2])
 
     expect(form.getInput(monitor)).toStrictEqual([1, 2])
   })
-
-  it("throws when a function setter targets a new slot with no seed", () => {
-    const form = FormList((input: number) => FormUnit(input), [])
-
-    expect(() => form.setInput([(x) => x + 1])).toThrow(/function setter at index 0/)
-  })
-
-  it("silently skips undefined setters at new slots with no seed", ({ monitor }) => {
-    const form = FormList((input: number) => FormUnit(input), [])
-
-    form.setInput([undefined, 20])
-
-    // index 0: undefined + no seed → skipped; index 1: value → factory(20, 1)
-    expect(form.getInput(monitor)).toStrictEqual([20])
-  })
 })
 
 describe("setInitial auto-grow", () => {
-  it("caps initialInputs growth at max(elements.length, currentInitialInputs.length)", ({
-    monitor,
-  }) => {
-    // setInitial does not invoke the factory to materialize a new element — it only
-    // writes initial values for slots that already have an element OR an existing
-    // initial. Slots beyond both are silently dropped.
-    const form = FormList((input: number) => FormUnit(input), [1])
+  it("assigns initial without creating elements", ({ monitor }) => {
+    const form = FormList((input: number) => FormUnit(input), {
+      input: [1],
+    })
 
     form.setInitial([10, 20, 30])
 
-    expect(form.getInitial(monitor)).toStrictEqual([10])
-    expect(form.getElements(monitor).map((e) => e.getInitial(monitor))).toStrictEqual([10])
+    expect(form.getInitial(monitor)).toStrictEqual([10, 20, 30])
+    expect(form.getInput(monitor)).toStrictEqual([1])
+    expect(form.getElements(monitor).map((element) => element.getInitial(monitor))).toStrictEqual([
+      10,
+    ])
   })
 
-  it("can grow initialInputs after setInput grew elements", ({ monitor }) => {
-    const form = FormList((input: number) => FormUnit(input), [1])
+  it("assigns initial after matching the input", ({ monitor }) => {
+    const form = FormList((input: number) => FormUnit(input), {
+      input: [1],
+    })
 
-    form.setInput([0, 0, 0]) // elements grow to length 3
-    form.setInitial([10, 20, 30]) // now initialInputs can grow alongside
+    form.setInput([1, 2, 3])
+    form.setInitial([10, 20, 30])
 
     expect(form.getInitial(monitor)).toStrictEqual([10, 20, 30])
+    expect(form.getInput(monitor)).toStrictEqual([1, 2, 3])
+    expect(form.getElements(monitor).map((element) => element.getInitial(monitor))).toStrictEqual([
+      10, 20, 30,
+    ])
   })
 
-  it("shrinks initialInputs when setInitial is shorter", ({ monitor }) => {
-    const form = FormList((input: number) => FormUnit(input), [1, 2, 3])
+  it("assigns initial before matching the input", ({ monitor }) => {
+    const form = FormList((input: number) => FormUnit(input), {
+      input: [1],
+    })
+
+    form.setInitial([10, 20, 30])
+    form.setInput([1, 2, 3])
+
+    expect(form.getInitial(monitor)).toStrictEqual([10, 20, 30])
+    expect(form.getInput(monitor)).toStrictEqual([1, 2, 3])
+    expect(form.getElements(monitor).map((element) => element.getInitial(monitor))).toStrictEqual([
+      10, 20, 30,
+    ])
+  })
+
+  it("resets to assigned initials", ({ monitor }) => {
+    const form = FormList((input: number) => FormUnit(input), {
+      input: [1],
+    })
+
+    form.setInitial([10, 20, 30])
+    form.reset()
+
+    expect(form.getInitial(monitor)).toStrictEqual([10, 20, 30])
+    expect(form.getInput(monitor)).toStrictEqual([10, 20, 30])
+    expect(form.getElements(monitor).map((element) => element.getInitial(monitor))).toStrictEqual([
+      10, 20, 30,
+    ])
+    expect(form.getElements(monitor).map((element) => element.getInput(monitor))).toStrictEqual([
+      10, 20, 30,
+    ])
+  })
+
+  it("resets to assigned element initials", ({ monitor }) => {
+    const form = FormList((input: number) => FormUnit(input), {
+      initial: [1, 2, 3],
+    })
+
+    form.getElements(monitor).at(1)?.setInitial(20)
+
+    form.reset()
+
+    expect(form.getInitial(monitor)).toStrictEqual([1, 20, 3])
+    expect(form.getInput(monitor)).toStrictEqual([1, 20, 3])
+    expect(form.getElements(monitor).map((element) => element.getInitial(monitor))).toStrictEqual([
+      1, 20, 3,
+    ])
+    expect(form.getElements(monitor).map((element) => element.getInput(monitor))).toStrictEqual([
+      1, 20, 3,
+    ])
+  })
+
+  it("shrinks initials when setInitial is shorter", ({ monitor }) => {
+    const form = FormList((input: number) => FormUnit(input), {
+      input: [1, 2, 3],
+    })
 
     form.setInitial([7, 8])
 
     expect(form.getInitial(monitor)).toStrictEqual([7, 8])
+    expect(form.getInput(monitor)).toStrictEqual([1, 2, 3])
+    expect(form.getElements(monitor).map((element) => element.getInitial(monitor))).toStrictEqual([
+      7, 8, 3,
+    ])
   })
 })
 
-describe("reset uses the factory to rebuild", () => {
-  it("recreates fresh elements from initialInputs", ({ monitor }) => {
-    let factoryCalls = 0
-    const form = FormList(
-      (input: number) => {
-        factoryCalls++
-        return FormUnit(input)
-      },
-      [1, 2, 3],
-    )
-
-    const beforeReset = factoryCalls
-    expect(beforeReset).toBe(3)
-
-    form.setInput([10, 20, 30, 40, 50])
-    expect(factoryCalls).toBe(5) // 2 new elements built by factory
-
-    form.reset()
-    expect(form.getInput(monitor)).toStrictEqual([1, 2, 3])
-    expect(form.getElements(monitor)).toHaveLength(3)
-    expect(factoryCalls).toBe(8) // 3 more for reset
+it("resets after setElements([]) via the factory", ({ monitor }) => {
+  const form = FormList((input: number) => FormUnit(input), {
+    initial: [1, 2, 3],
   })
 
-  it("rebuilds after setElements([]) via the factory", ({ monitor }) => {
-    const form = FormList((input: number) => FormUnit(input), [1, 2, 3])
+  form.setElements([])
+  expect(form.getElements(monitor)).toHaveLength(0)
 
-    form.setElements([])
-    expect(form.getElements(monitor)).toHaveLength(0)
-
-    form.reset()
-    expect(form.getInput(monitor)).toStrictEqual([1, 2, 3])
-  })
+  form.reset()
+  expect(form.getInput(monitor)).toStrictEqual([1, 2, 3])
 })
 
 describe("nested factory behavior", () => {
   it("inner setInput grows inner elements", ({ monitor }) => {
     const form = FormList(
-      (input: ReadonlyArray<number>) => FormList((n: number) => FormUnit(n), input),
-      [[1, 2], [3]],
+      (initial: ReadonlyArray<number>) => FormList((n: number) => FormUnit(n), { initial }),
+      {
+        initial: [[1, 2], [3]],
+      },
     )
 
-    form.getElements(monitor).at(0)!.setInput([10, 20, 30])
+    form.getElements(monitor).at(0)?.setInput([10, 20, 30])
 
     expect(form.getInput(monitor)).toStrictEqual([[10, 20, 30], [3]])
   })
 
   it("outer reset rebuilds nested lists", ({ monitor }) => {
     const form = FormList(
-      (input: ReadonlyArray<number>) => FormList((n: number) => FormUnit(n), input),
-      [[1, 2], [3]],
+      (initial: ReadonlyArray<number>) => FormList((n: number) => FormUnit(n), { initial }),
+      {
+        initial: [[1, 2], [3]],
+      },
     )
 
-    form.getElements(monitor).at(0)!.setInput([99, 88, 77, 66])
     form.setInput([[100, 200], [300, 400], [500]])
 
     expect(form.getInput(monitor)).toStrictEqual([[100, 200], [300, 400], [500]])
@@ -144,12 +239,19 @@ describe("factory with FormShape elements", () => {
       first: number
       second: string
     }
+
     const form = FormList(
-      ({ first, second }: Item) => FormShape({ first: FormUnit(first), second: FormUnit(second) }),
-      [
-        { first: 1, second: "a" },
-        { first: 2, second: "b" },
-      ],
+      ({ first, second }: Item) =>
+        FormShape({
+          first: FormUnit(first),
+          second: FormUnit(second),
+        }),
+      {
+        initial: [
+          { first: 1, second: "a" },
+          { first: 2, second: "b" },
+        ],
+      },
     )
 
     expect(form.getInput(monitor)).toStrictEqual([

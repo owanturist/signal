@@ -41,8 +41,8 @@ function setupItems(items: ReadonlyArray<ItemSpec>, options?: FormListOptions<Fo
   // specifying only `input: {first:1}` has initial = {first:1, second:""}). The input
   // value defaults to the constructor default (so an item specifying only
   // `initial: {first:1}` has input = {first:0, second:""}).
-  const initials = items.map((it) => mergeInput(it.initial ?? it.input))
-  const inputs = items.map((it) => mergeInput(it.input))
+  const initial = items.map((it) => mergeInput(it.initial ?? it.input))
+  const input = items.map((it) => mergeInput(it.input))
 
   return FormList<FormShape<Element>>(
     (input: ElementInput) =>
@@ -50,8 +50,7 @@ function setupItems(items: ReadonlyArray<ItemSpec>, options?: FormListOptions<Fo
         first: FormUnit(input.first),
         second: FormUnit(input.second),
       }),
-    initials,
-    { input: inputs, ...options },
+    { initial, input, ...options },
   )
 }
 
@@ -526,28 +525,61 @@ describe("removing an initial element from the list's beginning", () => {
   })
 
   describe("when using FormSwitch", () => {
-    function setupSwitchElement(count: number) {
+    interface Input {
+      active: string
+      branches: {
+        _1: number
+        _2: {
+          active: string
+          branches: {
+            _3: number
+            _4: number
+          }
+        }
+      }
+    }
+
+    function createSwitchInput(count: number): Input {
+      return {
+        active: "_1",
+        branches: {
+          _1: count,
+          _2: {
+            active: "_3",
+            branches: {
+              _3: count,
+              _4: count,
+            },
+          },
+        },
+      }
+    }
+
+    function setupSwitchElement(input: Input) {
       return FormSwitch(
         FormUnit("_1", {
           schema: z.enum(["_1", "_2"]),
         }),
         {
-          _1: FormUnit(count),
+          _1: FormUnit(0),
           _2: FormSwitch(
             FormUnit("_3", {
               schema: z.enum(["_3", "_4"]),
             }),
             {
-              _3: FormUnit(count),
-              _4: FormUnit(count),
+              _3: FormUnit(0),
+              _4: FormUnit(0),
             },
           ),
         },
+        { input, initial: input },
       )
     }
 
     it("returns true for a removed switch", ({ monitor }) => {
-      const form = FormList(() => setupSwitchElement(1), [undefined as unknown as never])
+      const form = FormList((input: Input) => setupSwitchElement(input), {
+        initial: [createSwitchInput(1)],
+      })
 
       form.setElements([])
 
@@ -558,9 +590,11 @@ describe("removing an initial element from the list's beginning", () => {
     })
 
     it("returns true for a added switch", ({ monitor }) => {
-      const form = FormList(() => setupSwitchElement(1), [undefined as unknown as never])
+      const form = FormList((input: Input) => setupSwitchElement(input), {
+        initial: [createSwitchInput(1)],
+      })
 
-      form.setElements((elements) => [...elements, setupSwitchElement(2)])
+      form.setElements((elements) => [...elements, setupSwitchElement(createSwitchInput(2))])
 
       expect(form.isDirty(monitor)).toBe(true)
       expect(form.isDirty(monitor, params._first)).toStrictEqual([false, true])
@@ -596,12 +630,36 @@ describe("removing an initial element from the list's beginning", () => {
   })
 
   describe("when using FormOptional", () => {
-    function setupOptionalElement(count: number) {
-      return FormOptional(FormUnit(true), FormOptional(FormUnit(true), FormUnit(count)))
+    interface Input {
+      enabled: boolean
+      element: {
+        enabled: boolean
+        element: number
+      }
+    }
+
+    function createOptionalInput(count: number): Input {
+      return {
+        enabled: true,
+        element: {
+          enabled: true,
+          element: count,
+        },
+      }
+    }
+
+    function setupOptionalElement(input: Input) {
+      return FormOptional(
+        FormUnit(input.enabled),
+
+        FormOptional(FormUnit(input.element.enabled), FormUnit(input.element.element)),
+      )
     }
 
     it("returns true for a removed optional", ({ monitor }) => {
-      const form = FormList(() => setupOptionalElement(1), [undefined as unknown as never])
+      const form = FormList((input: Input) => setupOptionalElement(input), {
+        initial: [createOptionalInput(1)],
+      })
 
       form.setElements([])
 
@@ -612,9 +670,11 @@ describe("removing an initial element from the list's beginning", () => {
     })
 
     it("returns true for a added switch", ({ monitor }) => {
-      const form = FormList(() => setupOptionalElement(1), [undefined as unknown as never])
+      const form = FormList((input: Input) => setupOptionalElement(input), {
+        initial: [createOptionalInput(1)],
+      })
 
-      form.setElements((elements) => [...elements, setupOptionalElement(2)])
+      form.setElements((elements) => [...elements, setupOptionalElement(createOptionalInput(2))])
 
       expect(form.isDirty(monitor)).toBe(true)
       expect(form.isDirty(monitor, params._first)).toStrictEqual([false, true])

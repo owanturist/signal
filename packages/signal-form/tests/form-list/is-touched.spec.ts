@@ -4,12 +4,12 @@ import { params } from "~/tools/params"
 
 import { FormList, type FormListOptions, FormUnit } from "../../src"
 
-function setup(initialInputs: ReadonlyArray<number>, options?: FormListOptions<FormUnit<number>>) {
-  return FormList((input: number) => FormUnit(input), initialInputs, options)
+function setup(options?: FormListOptions<FormUnit<number>>) {
+  return FormList((input: number) => FormUnit(input), options)
 }
 
 it("matches the type definition", ({ monitor }) => {
-  const form = setup([0])
+  const form = setup({ initial: [0] })
 
   expectTypeOf(form.isTouched).toEqualTypeOf<{
     (monitor: Monitor): boolean
@@ -31,7 +31,9 @@ it("matches the type definition", ({ monitor }) => {
 })
 
 it("returns false for empty list", ({ monitor }) => {
-  const form = setup([])
+  const form = setup({
+    initial: [],
+  })
 
   expect(form.isTouched(monitor)).toBe(false)
   expect(form.isTouched(monitor, params._first)).toBe(false)
@@ -39,7 +41,9 @@ it("returns false for empty list", ({ monitor }) => {
 })
 
 it("returns false when all elements are not touched", ({ monitor }) => {
-  const form = setup([0, 1, 2])
+  const form = setup({
+    initial: [0, 1, 2],
+  })
 
   expect(form.isTouched(monitor)).toBe(false)
   expect(form.isTouched(monitor, params._first)).toBe(false)
@@ -47,7 +51,10 @@ it("returns false when all elements are not touched", ({ monitor }) => {
 })
 
 it("returns true when at least one element is touched", ({ monitor }) => {
-  const form = setup([0, 1, 2], { touched: [false, false, true] })
+  const form = setup({
+    initial: [0, 1, 2],
+    touched: [false, false, true],
+  })
 
   expect(form.isTouched(monitor)).toBe(true)
   expect(form.isTouched(monitor, params._first)).toStrictEqual([false, false, true])
@@ -55,7 +62,10 @@ it("returns true when at least one element is touched", ({ monitor }) => {
 })
 
 it("returns true when all elements are touched", ({ monitor }) => {
-  const form = setup([0, 1, 2], { touched: true })
+  const form = setup({
+    initial: [0, 1, 2],
+    touched: true,
+  })
 
   expect(form.isTouched(monitor)).toBe(true)
   expect(form.isTouched(monitor, params._first)).toBe(true)

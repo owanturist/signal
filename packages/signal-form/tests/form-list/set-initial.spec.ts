@@ -1,13 +1,6 @@
 import type { Setter } from "~/tools/setter"
 
-import {
-  FormList,
-  type FormListOptions,
-  FormShape,
-  type FormShapeOptions,
-  FormUnit,
-  type SignalForm,
-} from "../../src"
+import { FormList, FormShape, type FormShapeOptions, FormUnit } from "../../src"
 
 interface Element {
   first: FormUnit<number>
@@ -17,14 +10,6 @@ interface Element {
 interface ElementInput {
   first: number
   second: string
-}
-
-function setup<T extends SignalForm>(
-  factory: (input: T extends SignalForm<infer P> ? P["input.schema"] : never, index: number) => T,
-  initialInputs: ReadonlyArray<T extends SignalForm<infer P> ? P["input.schema"] : never>,
-  options?: FormListOptions<T>,
-) {
-  return FormList(factory, initialInputs, options)
 }
 
 function setupElement(input: ElementInput, options?: FormShapeOptions<Element>) {
@@ -38,15 +23,12 @@ function setupElement(input: ElementInput, options?: FormShapeOptions<Element>) 
 }
 
 it("matches the type definition", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), [0])
+  const form = FormList((input: number) => FormUnit(input), {
+    initial: [0],
+  })
 
   expectTypeOf(form.setInitial).toEqualTypeOf<
-    (
-      setter: Setter<
-        ReadonlyArray<undefined | Setter<number, [number, number]>>,
-        [ReadonlyArray<number>, ReadonlyArray<number>]
-      >,
-    ) => void
+    (setter: Setter<ReadonlyArray<number>, [ReadonlyArray<number>, ReadonlyArray<number>]>) => void
   >()
 
   expectTypeOf(form.getElements(monitor).at(0)!.setInitial).toEqualTypeOf<
@@ -56,32 +38,24 @@ it("matches the type definition", ({ monitor }) => {
 
 it("matches the nested type definition", ({ monitor }) => {
   const form = FormList(
-    (input: ReadonlyArray<number>) => FormList((innerInput: number) => FormUnit(innerInput), input),
-    [[0]],
+    (initial: ReadonlyArray<number>) =>
+      FormList((innerInput: number) => FormUnit(innerInput), { initial }),
+    {
+      initial: [[0]],
+    },
   )
 
   expectTypeOf(form.setInitial).toEqualTypeOf<
     (
       setter: Setter<
-        ReadonlyArray<
-          | undefined
-          | Setter<
-              ReadonlyArray<undefined | Setter<number, [number, number]>>,
-              [ReadonlyArray<number>, ReadonlyArray<number>]
-            >
-        >,
+        ReadonlyArray<ReadonlyArray<number>>,
         [ReadonlyArray<ReadonlyArray<number>>, ReadonlyArray<ReadonlyArray<number>>]
       >,
     ) => void
   >()
 
   expectTypeOf(form.getElements(monitor).at(0)!.setInitial).toEqualTypeOf<
-    (
-      setter: Setter<
-        ReadonlyArray<undefined | Setter<number, [number, number]>>,
-        [ReadonlyArray<number>, ReadonlyArray<number>]
-      >,
-    ) => void
+    (setter: Setter<ReadonlyArray<number>, [ReadonlyArray<number>, ReadonlyArray<number>]>) => void
   >()
 
   expectTypeOf(
@@ -90,7 +64,9 @@ it("matches the nested type definition", ({ monitor }) => {
 })
 
 it("changes all items", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), [0, 1, 2])
+  const form = FormList((input: number) => FormUnit(input), {
+    initial: [0, 1, 2],
+  })
 
   form.setInitial([3, 4, 5])
   expect(form.getInitial(monitor)).toStrictEqual([3, 4, 5])
@@ -100,7 +76,9 @@ it("changes all items", ({ monitor }) => {
 })
 
 it("adds an added element's initial", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), [0, 1])
+  const form = FormList((input: number) => FormUnit(input), {
+    initial: [0, 1],
+  })
 
   form.setElements((elements) => [...elements, FormUnit(2)])
 
@@ -117,7 +95,9 @@ it("adds an added element's initial", ({ monitor }) => {
 })
 
 it("keeps a removed element's initial", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), [0, 1])
+  const form = FormList((input: number) => FormUnit(input), {
+    initial: [0, 1],
+  })
 
   form.setElements((elements) => elements.slice(0, 1))
   expect(form.getOutput(monitor)).toStrictEqual([0])
@@ -128,11 +108,13 @@ it("keeps a removed element's initial", ({ monitor }) => {
   expect(form.getElements(monitor).map((element) => element.getInitial(monitor))).toStrictEqual([3])
 })
 
-it("does not add initial when neither initial nor current value exist", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), [0, 1])
+it("adds initial when neither initial nor current value exist", ({ monitor }) => {
+  const form = FormList((input: number) => FormUnit(input), {
+    initial: [0, 1],
+  })
 
   form.setInitial([3, 4, 5])
-  expect(form.getInitial(monitor)).toStrictEqual([3, 4])
+  expect(form.getInitial(monitor)).toStrictEqual([3, 4, 5])
 
   expect(form.getElements(monitor).map((element) => element.getInitial(monitor))).toStrictEqual([
     3, 4,
@@ -140,7 +122,10 @@ it("does not add initial when neither initial nor current value exist", ({ monit
 })
 
 it("removes initials by shorter list", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), [1, 2, 3], { input: [0, 1, 2] })
+  const form = FormList((input: number) => FormUnit(input), {
+    initial: [1, 2, 3],
+    input: [0, 1, 2],
+  })
 
   form.setInitial([3, 4])
   expect(form.getInitial(monitor)).toStrictEqual([3, 4])
@@ -149,18 +134,11 @@ it("removes initials by shorter list", ({ monitor }) => {
   ])
 })
 
-it('do not remove initials by "undefined" in the list', ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), [1, 2, 3], { input: [0, 1, 2] })
-
-  form.setInitial([undefined, 4, undefined])
-  expect(form.getInitial(monitor)).toStrictEqual([1, 4, 3])
-  expect(form.getElements(monitor).map((element) => element.getInitial(monitor))).toStrictEqual([
-    1, 4, 3,
-  ])
-})
-
 it("remove all initials by empty list", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), [1, 2, 3], { input: [0, 1, 2] })
+  const form = FormList((input: number) => FormUnit(input), {
+    initial: [1, 2, 3],
+    input: [0, 1, 2],
+  })
 
   form.setInitial([])
   expect(form.getInitial(monitor)).toStrictEqual([])
@@ -169,38 +147,13 @@ it("remove all initials by empty list", ({ monitor }) => {
   ])
 })
 
-it("overrides initial values on init", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), [1, 2, 3], {
-    input: [0, 1, 2],
-    initial: [4, 5, 6],
-  })
-
-  expect(form.getInitial(monitor)).toStrictEqual([4, 5, 6])
-  expect(form.getElements(monitor).map((element) => element.getInitial(monitor))).toStrictEqual([
-    4, 5, 6,
-  ])
-})
-
-it("changed list's initial values when element's initial is changed", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), [0, 1, 2], {
-    initial: [3, 4, 5],
-  })
-
-  form.getElements(monitor).at(1)!.setInitial(6)
-  expect(form.getInitial(monitor)).toStrictEqual([3, 6, 5])
-  expect(form.getElements(monitor).map((element) => element.getInitial(monitor))).toStrictEqual([
-    3, 6, 5,
-  ])
-})
-
 it("updates list's initial value from an element's setInitial", ({ monitor }) => {
-  const form = setup<FormShape<Element>>(
-    (input) => setupElement(input),
-    [
+  const form = FormList((input) => setupElement(input), {
+    initial: [
       { first: 1, second: "1" },
       { first: 2, second: "2" },
     ],
-  )
+  })
 
   expect(form.getInitial(monitor)).toStrictEqual([
     { first: 1, second: "1" },
@@ -225,10 +178,9 @@ it("updates list's initial value from an element's setInitial", ({ monitor }) =>
 
 describe("adding a new element to the list's beginning", () => {
   it("keeps initial values for an initial element", ({ monitor }) => {
-    const form = setup<FormShape<Element>>(
-      (input) => setupElement(input),
-      [{ first: 1, second: "1" }],
-    )
+    const form = FormList((input) => setupElement(input), {
+      initial: [{ first: 1, second: "1" }],
+    })
 
     form.setElements((elements) => [
       setupElement({ first: 0, second: "0" }, { input: { first: 0, second: "0" } }),
@@ -244,10 +196,9 @@ describe("adding a new element to the list's beginning", () => {
   })
 
   it("inherits initial value for a new element by default", ({ monitor }) => {
-    const form = setup<FormShape<Element>>(
-      (input) => setupElement(input),
-      [{ first: 1, second: "1" }],
-    )
+    const form = FormList((input) => setupElement(input), {
+      initial: [{ first: 1, second: "1" }],
+    })
 
     form.setElements((elements) => [
       setupElement({ first: 0, second: "0" }, { input: { first: 0, second: "0" } }),
@@ -268,13 +219,12 @@ describe("adding a new element to the list's beginning", () => {
   it("does NOT override list initial when splicing a new element with its own initial", ({
     monitor,
   }) => {
-    const form = setup<FormShape<Element>>(
-      (input) => setupElement(input),
-      [
+    const form = FormList((input) => setupElement(input), {
+      initial: [
         { first: 1, second: "1" },
         { first: 2, second: "2" },
       ],
-    )
+    })
 
     form.setElements((elements) => [
       setupElement(
@@ -304,13 +254,12 @@ describe("adding a new element to the list's beginning", () => {
   })
 
   it("updates list's initial value from an element's setInitial", ({ monitor }) => {
-    const form = setup<FormShape<Element>>(
-      (input) => setupElement(input),
-      [
+    const form = FormList((input) => setupElement(input), {
+      initial: [
         { first: 1, second: "1" },
         { first: 2, second: "2" },
       ],
-    )
+    })
 
     form.setElements((elements) => [
       setupElement({ first: 0, second: "0" }, { input: { first: 0, second: "0" } }),
@@ -352,10 +301,12 @@ describe("nested list", () => {
                 one: FormUnit(inner.one),
                 two: FormUnit(inner.two),
               }),
-            input.first,
+            { initial: input.first },
           ),
         }),
-      [{ first: [{ one: "1", two: 2 }] }],
+      {
+        initial: [{ first: [{ one: "1", two: 2 }] }],
+      },
     )
 
     expect(form.getInitial(monitor)).toStrictEqual([
@@ -368,8 +319,10 @@ describe("nested list", () => {
   describe("when updating initial value from different entry points", () => {
     it("root level", ({ monitor }) => {
       const form = FormList(
-        (input: ReadonlyArray<number>) => FormList((n: number) => FormUnit(n), input),
-        [[1, 2]],
+        (initial: ReadonlyArray<number>) => FormList((n: number) => FormUnit(n), { initial }),
+        {
+          initial: [[1, 2]],
+        },
       )
 
       form.setInitial([[10, 2]])
@@ -387,8 +340,10 @@ describe("nested list", () => {
 
     it("middle level", ({ monitor }) => {
       const form = FormList(
-        (input: ReadonlyArray<number>) => FormList((n: number) => FormUnit(n), input),
-        [[1, 2]],
+        (initial: ReadonlyArray<number>) => FormList((n: number) => FormUnit(n), { initial }),
+        {
+          initial: [[1, 2]],
+        },
       )
 
       form.getElements(monitor).at(0)!.setInitial([10, 2])
@@ -406,8 +361,10 @@ describe("nested list", () => {
 
     it("bottom level", ({ monitor }) => {
       const form = FormList(
-        (input: ReadonlyArray<number>) => FormList((n: number) => FormUnit(n), input),
-        [[1, 2]],
+        (initial: ReadonlyArray<number>) => FormList((n: number) => FormUnit(n), { initial }),
+        {
+          initial: [[1, 2]],
+        },
       )
 
       form.getElements(monitor).at(0)!.getElements(monitor).at(0)!.setInitial(10)

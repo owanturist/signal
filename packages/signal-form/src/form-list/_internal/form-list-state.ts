@@ -1,5 +1,8 @@
+// biome-ignore lint/nursery/noExcessiveLinesPerFile: <explanation>
 import { type Monitor, Signal, untracked } from "@owanturist/signal"
 
+import { concat } from "~/tools/concat"
+import { drop } from "~/tools/drop"
 import { entries } from "~/tools/entries"
 import { isBoolean } from "~/tools/is-boolean"
 import { isFunction } from "~/tools/is-function"
@@ -8,6 +11,7 @@ import { isString } from "~/tools/is-string"
 import { isUndefined } from "~/tools/is-undefined"
 import { Lazy } from "~/tools/lazy"
 import { map } from "~/tools/map"
+import { take } from "~/tools/take"
 
 import { toConcise } from "../../_internal/to-concise"
 import type { GetSignalFormParams } from "../../signal-form/_internal/get-signal-form-params"
@@ -47,34 +51,16 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
 > {
   public readonly _host = Lazy(() => new FormList(this))
 
-  public readonly _factory: FormListElementFactoryInternal<TElement>
-
-  public readonly _initialInputs: Signal<ReadonlyArray<GetSignalFormInput<TElement>>>
-
-  public readonly _elements: Signal<ReadonlyArray<SignalFormState<GetSignalFormParams<TElement>>>>
-
   public constructor(
     parent: null | SignalFormState,
-    factory: FormListElementFactoryInternal<TElement>,
-    initialInputs: ReadonlyArray<GetSignalFormInput<TElement>>,
+    private readonly _factory: FormListElementFactoryInternal<TElement>,
   ) {
     super(parent)
-
-    this._factory = factory
-    this._initialInputs = Signal(initialInputs)
-
-    this._elements = Signal(
-      untracked(() => map(initialInputs, (input, index) => this._parentOf(factory(input, index)))),
-    )
   }
 
   public _childOf(parent: null | SignalFormState): FormListState<TElement> {
     return untracked((monitor) => {
-      const child = new FormListState<TElement>(
-        parent,
-        this._factory,
-        this._initialInputs.read(monitor),
-      )
+      const child = new FormListState<TElement>(parent, this._factory)
 
       const clonedElements = map(this._elements.read(monitor), (element) =>
         child._parentOf(element._clone()),
@@ -89,6 +75,12 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
   public _getElements(monitor: Monitor): ReadonlyArray<TElement> {
     return map(this._elements.read(monitor), ({ _host }) => _host() as TElement)
   }
+
+  public readonly _elements = Signal<ReadonlyArray<SignalFormState<GetSignalFormParams<TElement>>>>(
+    [],
+  )
+
+  public readonly _initialInputs = Signal<ReadonlyArray<GetSignalFormInput<TElement>>>([])
 
   // I N I T I A L
 
@@ -108,6 +100,7 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     state: undefined | FormListState<TElement>,
     _isMounting: boolean,
   ): void {
+    console.log("TODO NOW safe to remove?")
     if (state) {
       const initialInputs = state._initialInputs.read(monitor)
 
@@ -122,55 +115,17 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
   }
 
   public _setInitial(monitor: Monitor, setter: FormListInputSetter<TElement>): void {
-    const setters = isFunction(setter)
+    const initial = isFunction(setter)
       ? setter(this._initial.read(monitor), this._input.read(monitor))
       : setter
 
-    const elements = this._elements.read(monitor)
-    const prevInitialInputs = this._initialInputs.read(monitor)
+    const existing = take(this._elements.read(monitor), initial.length)
 
-    // First, push each defined per-element setter into the existing child.
-    // The child's `_setInitial` resolves the setter (value or function) against the
-    // child's own state. The list reads the resolved value back out of the child below.
-    for (const [index, element] of entries(elements)) {
-      const setterAt = setters.at(index)
-
-      if (!isUndefined(setterAt)) {
-        element._setInitial(monitor, setterAt)
-      }
+    for (const [index, element] of entries(existing)) {
+      element._setInitial(monitor, initial.at(index))
     }
 
-    // Then compute the new initialInputs array. Length follows setters.length, capped at
-    // max(prevInitialInputs.length, elements.length) — we cannot create a meaningful
-    // initial for a slot beyond what we have visibility into.
-    const maxLength = Math.max(prevInitialInputs.length, elements.length)
-    const nextLength = Math.min(setters.length, maxLength)
-
-    const nextInitialInputs: Array<GetSignalFormInput<TElement>> = []
-
-    for (let index = 0; index < nextLength; index += 1) {
-      const setterAt = setters.at(index)
-      const element = elements.at(index)
-
-      if (element) {
-        // The child has already been updated above; read its resolved initial.
-        nextInitialInputs.push(element._initial.read(monitor))
-      } else {
-        // i is within capacity but no element exists at this slot.
-        // For value setters, take the setter value; for function/undefined setters,
-        // fall back to the existing initialInputs[i] (which must exist since
-        // nextLength <= prevInitialInputs.length when elements.length < nextLength).
-        const fallback = prevInitialInputs[index]
-
-        if (!(isUndefined(setterAt) || isFunction(setterAt))) {
-          nextInitialInputs.push(setterAt as GetSignalFormInput<TElement>)
-        } else if (!isUndefined(fallback)) {
-          nextInitialInputs.push(fallback)
-        }
-      }
-    }
-
-    this._initialInputs.write(nextInitialInputs)
+    this._initialInputs.write(initial)
   }
 
   // I N P U T
@@ -181,76 +136,28 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
   )
 
   public _setInput(monitor: Monitor, setter: FormListInputSetter<TElement>): void {
-    const setters = isFunction(setter)
-      ? setter(this._input.read(monitor), this._initial.read(monitor))
-      : setter
+    const initials = this._initial.read(monitor)
 
-    const elements = this._elements.read(monitor)
+    const inputs = isFunction(setter) ? setter(this._input.read(monitor), initials) : setter
 
-    if (setters.length === elements.length) {
-      // Fast path: no structural change. Per-slot apply.
-      for (const [index, element] of entries(elements)) {
-        const input = setters.at(index)
+    const existing = take(this._elements.read(monitor), inputs.length)
 
-        if (!isUndefined(input)) {
-          element._setInput(monitor, input)
-        }
-      }
-
-      return
+    for (const [index, element] of entries(existing)) {
+      element._setInput(monitor, inputs.at(index))
     }
 
-    // Structural change: length follows setters.length.
-    // - For existing slots: keep the element instance, push the setter through.
-    // - For new slots: materialize via factory, but only if we have a concrete input
-    //   to seed it with (value setter; or fall back to _initialInputs[i] when the
-    //   setter is undefined / a function).
-    const initialInputs = this._initialInputs.read(monitor)
-    const nextElements: Array<SignalFormState<GetSignalFormParams<TElement>>> = []
+    const created = drop(inputs, existing.length).map((input, index) => {
+      const element = this._factory(input, index)
 
-    for (let index = 0; index < setters.length; index += 1) {
-      const setterAt = setters.at(index)
-      const existing = elements.at(index)
-
-      if (existing) {
-        if (!isUndefined(setterAt)) {
-          existing._setInput(monitor, setterAt)
-        }
-        nextElements.push(existing)
-        continue
+      // assign stored initial values
+      if (existing.length + index < initials.length) {
+        element._setInitial(monitor, initials.at(existing.length + index))
       }
 
-      // New slot: need a concrete input to seed the factory with.
-      // Value setter wins; otherwise fall back to the recorded initial input.
-      const isValueSetter = !isUndefined(setterAt) && !isFunction(setterAt)
-      const seedInput: GetSignalFormInput<TElement> | undefined = isValueSetter
-        ? (setterAt as GetSignalFormInput<TElement>)
-        : initialInputs.at(index)
+      return this._parentOf(element)
+    })
 
-      if (isUndefined(seedInput)) {
-        if (isFunction(setterAt)) {
-          // A function setter has nothing to operate on at this slot — refuse
-          // rather than silently shrink the output below setters.length.
-          throw new Error(
-            `FormList.setInput: cannot apply a function setter at index ${index} — no existing element and no initial input to seed the factory. Provide a concrete value, or grow _initialInputs first via setInitial.`,
-          )
-        }
-        // setterAt is undefined and there is no initial input to fall back on —
-        // nothing to materialize, leave the slot out.
-        continue
-      }
-
-      const created = this._parentOf(this._factory(seedInput, index))
-
-      // If the setter for the new slot was a function, apply it on top of the seed.
-      if (isFunction(setterAt)) {
-        created._setInput(monitor, setterAt)
-      }
-
-      nextElements.push(created)
-    }
-
-    this._elements.write(nextElements)
+    this._elements.write(concat(existing, created))
   }
 
   // E R R O R

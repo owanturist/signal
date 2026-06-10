@@ -12,7 +12,9 @@ it("matches the type definition", ({ monitor }) => {
       FormUnit(input, {
         validate: (value) => (value === 0 ? ["fail", null] : [null, value]),
       }),
-    [0],
+    {
+      initial: [0],
+    },
   )
 
   expectTypeOf(form.setError).toEqualTypeOf<
@@ -30,7 +32,8 @@ it("matches the type definition", ({ monitor }) => {
 })
 
 it("resets all errors with null", ({ monitor }) => {
-  const form = FormList<FormUnit<number, ReadonlyArray<string>>>(makeUnit, [0, 1, 2], {
+  const form = FormList<FormUnit<number, ReadonlyArray<string>>>(makeUnit, {
+    initial: [0, 1, 2],
     error: [["err0"], ["err1"], ["err2"]],
   })
 
@@ -39,7 +42,8 @@ it("resets all errors with null", ({ monitor }) => {
 })
 
 it("changes all errors", ({ monitor }) => {
-  const form = FormList<FormUnit<number, ReadonlyArray<string>>>(makeUnit, [0, 1, 2], {
+  const form = FormList<FormUnit<number, ReadonlyArray<string>>>(makeUnit, {
+    initial: [0, 1, 2],
     error: [["err0"], ["err1"], ["err2"]],
   })
 
@@ -48,7 +52,8 @@ it("changes all errors", ({ monitor }) => {
 })
 
 it("changes some errors", ({ monitor }) => {
-  const form = FormList<FormUnit<number, ReadonlyArray<string>>>(makeUnit, [0, 1, 2], {
+  const form = FormList<FormUnit<number, ReadonlyArray<string>>>(makeUnit, {
+    initial: [0, 1, 2],
     error: [["err0"], ["err1"], ["err2"]],
   })
 

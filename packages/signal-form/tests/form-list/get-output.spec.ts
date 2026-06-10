@@ -5,8 +5,9 @@ import { params } from "~/tools/params"
 
 import { FormList, FormUnit } from "../../src"
 
-function setup(initialInputs: ReadonlyArray<number>) {
-  return FormList((input: number) => setupElement(input), initialInputs, {
+function setup(initial: ReadonlyArray<number>) {
+  return FormList((input: number) => setupElement(input), {
+    initial,
     validateOn: "onInit",
   })
 }

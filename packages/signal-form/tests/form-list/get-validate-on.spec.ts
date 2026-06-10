@@ -13,8 +13,8 @@ import {
 
 type Element = FormUnit<number, ReadonlyArray<string>>
 
-function setup(initialInputs: ReadonlyArray<number>, options?: FormListOptions<Element>) {
-  return FormList<Element>((input: number) => setupElement(input), initialInputs, options)
+function setup(options?: FormListOptions<Element>) {
+  return FormList<Element>((input: number) => setupElement(input), options)
 }
 
 function setupElement(initial: number, options?: Partial<FormUnitSchemaOptions<number>>) {
@@ -25,7 +25,7 @@ function setupElement(initial: number, options?: Partial<FormUnitSchemaOptions<n
 }
 
 it("matches the type definition", ({ monitor }) => {
-  const form = setup([0])
+  const form = setup({ initial: [0] })
 
   expectTypeOf(form.getValidateOn).toEqualTypeOf<{
     (monitor: Monitor): ValidateStrategy | ReadonlyArray<ValidateStrategy>
@@ -50,7 +50,7 @@ it("matches the type definition", ({ monitor }) => {
 })
 
 it("returns 'onTouch' for empty list", ({ monitor }) => {
-  const form = setup([])
+  const form = setup()
 
   expect(form.getValidateOn(monitor)).toBe("onTouch")
   expect(form.getValidateOn(monitor, params._first)).toBe("onTouch")
@@ -58,7 +58,10 @@ it("returns 'onTouch' for empty list", ({ monitor }) => {
 })
 
 it("returns verbose when elements use more than a single strategy", ({ monitor }) => {
-  const form = setup([0, 1, 2], { validateOn: ["onInit", undefined, "onSubmit"] })
+  const form = setup({
+    initial: [0, 1, 2],
+    validateOn: ["onInit", undefined, "onSubmit"],
+  })
 
   const expected = ["onInit", "onTouch", "onSubmit"]
 
@@ -68,7 +71,10 @@ it("returns verbose when elements use more than a single strategy", ({ monitor }
 })
 
 it("returns concise when all elements use the same strategy", ({ monitor }) => {
-  const form = setup([0, 1, 2], { validateOn: "onChange" })
+  const form = setup({
+    initial: [0, 1, 2],
+    validateOn: "onChange",
+  })
 
   expect(form.getValidateOn(monitor)).toBe("onChange")
   expect(form.getValidateOn(monitor, params._first)).toBe("onChange")
