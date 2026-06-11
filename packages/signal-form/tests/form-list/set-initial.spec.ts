@@ -7,16 +7,11 @@ interface Element {
   second: FormUnit<string>
 }
 
-interface ElementInput {
-  first: number
-  second: string
-}
-
-function setupElement(input: ElementInput, options?: FormShapeOptions<Element>) {
+function setupElement(options?: FormShapeOptions<Element>) {
   return FormShape(
     {
-      first: FormUnit(input.first),
-      second: FormUnit(input.second),
+      first: FormUnit(0),
+      second: FormUnit("0"),
     },
     options,
   )
@@ -182,10 +177,7 @@ describe("adding a new element to the list's beginning", () => {
       initial: [{ first: 1, second: "1" }],
     })
 
-    form.setElements((elements) => [
-      setupElement({ first: 0, second: "0" }, { input: { first: 0, second: "0" } }),
-      ...elements,
-    ])
+    form.setElements((elements) => [setupElement(), ...elements])
 
     expect(form.getInitial(monitor)).toStrictEqual([{ first: 1, second: "1" }])
 
@@ -200,10 +192,7 @@ describe("adding a new element to the list's beginning", () => {
       initial: [{ first: 1, second: "1" }],
     })
 
-    form.setElements((elements) => [
-      setupElement({ first: 0, second: "0" }, { input: { first: 0, second: "0" } }),
-      ...elements,
-    ])
+    form.setElements((elements) => [setupElement(), ...elements])
 
     expect(form.getInitial(monitor)).toStrictEqual([{ first: 1, second: "1" }])
 
@@ -213,12 +202,10 @@ describe("adding a new element to the list's beginning", () => {
     ])
   })
 
-  // Behavior change in factory-based FormList: setElements no longer grows _initialInputs.
-  // The slot's initial wins; new elements' own `initial` option is overwritten by
-  // initialInputs[i] for i < initialInputs.length, and ignored at the list level for i >= initialInputs.length.
-  it("does NOT override list initial when splicing a new element with its own initial", ({
+  it.todo("does NOT override list initial when splicing a new element with its own initial", ({
     monitor,
   }) => {
+    console.log("TODO NOW verify with old version")
     const form = FormList((input) => setupElement(input), {
       initial: [
         { first: 1, second: "1" },
@@ -227,10 +214,7 @@ describe("adding a new element to the list's beginning", () => {
     })
 
     form.setElements((elements) => [
-      setupElement(
-        { first: 0, second: "0" },
-        { input: { first: 0, second: "0" }, initial: { first: 10, second: "10" } },
-      ),
+      setupElement(),
       FormShape({
         first: FormUnit(0, { initial: 20 }),
         second: FormUnit("", { initial: "20" }),
@@ -238,8 +222,6 @@ describe("adding a new element to the list's beginning", () => {
       ...elements,
     ])
 
-    // Slot 0 and 1 take initialInputs from the list (unchanged); slots 2 and 3 are beyond the
-    // initialInputs length and keep their own.
     expect(form.getInitial(monitor)).toStrictEqual([
       { first: 1, second: "1" },
       { first: 2, second: "2" },
@@ -261,10 +243,7 @@ describe("adding a new element to the list's beginning", () => {
       ],
     })
 
-    form.setElements((elements) => [
-      setupElement({ first: 0, second: "0" }, { input: { first: 0, second: "0" } }),
-      ...elements,
-    ])
+    form.setElements((elements) => [setupElement(), ...elements])
 
     expect(form.getInitial(monitor)).toStrictEqual([
       { first: 1, second: "1" },

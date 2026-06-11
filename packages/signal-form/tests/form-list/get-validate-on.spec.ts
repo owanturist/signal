@@ -3,25 +3,12 @@ import { z } from "zod"
 
 import { params } from "~/tools/params"
 
-import {
-  FormList,
-  type FormListOptions,
-  FormUnit,
-  type FormUnitSchemaOptions,
-  type ValidateStrategy,
-} from "../../src"
+import { FormList, type FormListOptions, FormUnit, type ValidateStrategy } from "../../src"
 
 type Element = FormUnit<number, ReadonlyArray<string>>
 
 function setup(options?: FormListOptions<Element>) {
-  return FormList<Element>((input: number) => setupElement(input), options)
-}
-
-function setupElement(initial: number, options?: Partial<FormUnitSchemaOptions<number>>) {
-  return FormUnit(initial, {
-    schema: z.number(),
-    ...options,
-  })
+  return FormList<Element>((input: number) => FormUnit(input, { schema: z.number() }), options)
 }
 
 it("matches the type definition", ({ monitor }) => {

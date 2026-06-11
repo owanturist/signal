@@ -3,7 +3,6 @@ import { type Monitor, Signal, batch } from "@owanturist/signal"
 import { entries } from "~/tools/entries"
 import { isFunction } from "~/tools/is-function"
 import { isShallowArrayEqual } from "~/tools/is-shallow-array-equal"
-import { isUndefined } from "~/tools/is-undefined"
 import { map } from "~/tools/map"
 import { params } from "~/tools/params"
 import type { Setter } from "~/tools/setter"
@@ -40,10 +39,10 @@ class FormList<TElement extends SignalForm> extends SignalForm<FormListParams<TE
     setter: Setter<ReadonlyArray<TElement>, [ReadonlyArray<TElement>, Monitor]>,
   ): void {
     batch((monitor) => {
-      const initialInputs = this._state._initialInputs.read(monitor)
+      const initialInputs = this.getInitial(monitor)
 
       const nextStateElements = map(
-        isFunction(setter) ? setter(this._elements.read(monitor), monitor) : setter,
+        isFunction(setter) ? setter(this._state._getElements(monitor), monitor) : setter,
         (element) => this._state._parentOf(SignalForm._getState(element)),
       )
 
@@ -51,10 +50,8 @@ class FormList<TElement extends SignalForm> extends SignalForm<FormListParams<TE
       // `_initialInputs[i]`. New slots beyond `_initialInputs.length` keep whatever
       // initial the spliced-in element brought with it.
       for (const [index, child] of entries(nextStateElements)) {
-        const initial = initialInputs.at(index)
-
-        if (!isUndefined(initial)) {
-          child._setInitial(monitor, initial)
+        if (index < initialInputs.length) {
+          child._setInitial(monitor, initialInputs.at(index))
         }
       }
 

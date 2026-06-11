@@ -58,7 +58,10 @@ it("returns empty array for empty list", ({ monitor }) => {
 })
 
 it("returns an array of original values", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), { initial: [3, 1, 4] })
+  const form = FormList((input: number) => FormUnit(input), {
+    initial: [3, 1, 4],
+    input: [30, 10, 40],
+  })
 
   expect(form.getInitial(monitor)).toStrictEqual([3, 1, 4])
 })

@@ -6,19 +6,19 @@ import { params } from "~/tools/params"
 import { FormList, FormUnit } from "../../src"
 
 function setup(initial: ReadonlyArray<number>) {
-  return FormList((input: number) => setupElement(input), {
-    initial,
-    validateOn: "onInit",
-  })
-}
-
-function setupElement(initial: number) {
-  return FormUnit(initial, {
-    schema: z
-      .number()
-      .min(1)
-      .transform((x) => x.toFixed(0)),
-  })
+  return FormList(
+    (input: number) =>
+      FormUnit(input, {
+        schema: z
+          .number()
+          .min(1)
+          .transform((x) => x.toFixed(0)),
+      }),
+    {
+      initial,
+      validateOn: "onInit",
+    },
+  )
 }
 
 it("matches the type definition", ({ monitor }) => {

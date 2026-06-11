@@ -3,19 +3,12 @@ import { z } from "zod"
 
 import { params } from "~/tools/params"
 
-import { FormList, type FormListOptions, FormUnit, type FormUnitSchemaOptions } from "../../src"
+import { FormList, type FormListOptions, FormUnit } from "../../src"
 
 type Element = FormUnit<number, ReadonlyArray<string>>
 
 function setup(options?: FormListOptions<Element>) {
-  return FormList<Element>((input: number) => setupElement(input), options)
-}
-
-function setupElement(initial: number, options?: Partial<FormUnitSchemaOptions<number>>) {
-  return FormUnit(initial, {
-    schema: z.number(),
-    ...options,
-  })
+  return FormList<Element>((input: number) => FormUnit(input, { schema: z.number() }), options)
 }
 
 it("matches the type definition", ({ monitor }) => {
@@ -65,7 +58,7 @@ it("returns false when all elements are not validated", ({ monitor }) => {
 it("returns false when at least one element is not validated", ({ monitor }) => {
   const form = setup({
     initial: [0, 1, 2],
-    validateOn: ["onInit", "onInit", undefined],
+    validateOn: ["onInit", "onInit"],
   })
 
   expect(form.isValidated(monitor)).toBe(false)
@@ -87,7 +80,7 @@ it("returns true when all elements are validated", ({ monitor }) => {
 it("returns false when at least one element has custom errors", ({ monitor }) => {
   const form = setup({
     initial: [0, 1, 2],
-    error: [["error"], null, null],
+    error: [["error"]],
   })
 
   expect(form.isValidated(monitor)).toBe(false)

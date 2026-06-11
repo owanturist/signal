@@ -287,46 +287,48 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     }
   }
 
-  // D I R T Y
-  //
-  // Length semantics: verbose signals report per-current-element only.
-  // The "removed slots" case (elements.length < _initialInputs.length) folds into
-  // the concise _dirty signal as `true` (the list is dirty because the structure
-  // has shrunk from initial), but is NOT reflected in _dirtyVerbose to keep the
-  // verbose array type-stable.
-
   public readonly _dirty = Signal((monitor): FormListFlag<TElement> => {
     const elements = this._elements.read(monitor)
-    const initialInputsLength = this._initialInputs.read(monitor).length
+    const initialInputs = this._initialInputs.read(monitor)
 
-    if (elements.length < initialInputsLength) {
-      return true
-    }
+    const dirty = concat(
+      map(elements, ({ _dirty, _dirtyOn }, index) => {
+        if (index >= initialInputs.length) {
+          // added elements are always dirty
+          return _dirtyOn.read(monitor)
+        }
 
-    const dirty = map(elements, ({ _dirty, _dirtyOn }, index) => {
-      if (index >= initialInputsLength) {
-        // added elements are always dirty
-        return _dirtyOn.read(monitor)
-      }
+        return _dirty.read(monitor)
+      }),
 
-      return _dirty.read(monitor)
-    })
+      // removed elements are always dirty
+      map(drop(initialInputs, elements.length), (initial, index) =>
+        this._factory(initial, index)._dirtyOn.read(monitor),
+      ),
+    )
 
     return toConcise(dirty, isBoolean, false)
   })
 
   public readonly _dirtyVerbose = Signal((monitor): FormListFlagVerbose<TElement> => {
     const elements = this._elements.read(monitor)
-    const initialInputsLength = this._initialInputs.read(monitor).length
+    const initialInputs = this._initialInputs.read(monitor)
 
-    return map(elements, ({ _dirtyVerbose, _dirtyOnVerbose }, index) => {
-      if (index >= initialInputsLength) {
-        // added elements are always dirty
-        return _dirtyOnVerbose.read(monitor)
-      }
+    return concat(
+      map(elements, ({ _dirtyVerbose, _dirtyOnVerbose }, index) => {
+        if (index >= initialInputs.length) {
+          // added elements are always dirty
+          return _dirtyOnVerbose.read(monitor)
+        }
 
-      return _dirtyVerbose.read(monitor)
-    })
+        return _dirtyVerbose.read(monitor)
+      }),
+
+      // removed elements are always dirty
+      map(drop(initialInputs, elements.length), (initial, index) =>
+        this._factory(initial, index)._dirtyOnVerbose.read(monitor),
+      ),
+    )
   })
 
   public readonly _dirtyOn = Signal((monitor): FormListFlag<TElement> => {

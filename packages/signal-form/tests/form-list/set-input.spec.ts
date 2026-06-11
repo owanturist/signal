@@ -50,6 +50,7 @@ it("extends the list via the factory", ({ monitor }) => {
 
   form.setInput([3, 4, 5, 6])
   expect(form.getInput(monitor)).toStrictEqual([3, 4, 5, 6])
+  expect(form.getElements(monitor)).toHaveLength(4)
 })
 
 it("passes the list in the transform function", ({ monitor }) => {
