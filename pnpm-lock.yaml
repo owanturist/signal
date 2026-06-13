@@ -30,23 +30,23 @@ importers:
         specifier: ^12.1.0
         version: 12.1.0(jiti@2.6.1)
       terser:
-        specifier: ^5.47.1
-        version: 5.47.1
+        specifier: ^5.48.0
+        version: 5.48.0
       tsup:
         specifier: ^8.5.1
         version: 8.5.1(jiti@2.6.1)(postcss@8.5.15)(typescript@5.9.3)
       vitest:
         specifier: ^4.1.7
-        version: 4.1.7(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(happy-dom@20.9.0)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.47.1))
+        version: 4.1.7(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(happy-dom@20.9.0)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.48.0))
 
   packages/signal:
     devDependencies:
       vite-tsconfig-paths:
         specifier: ^6.1.1
-        version: 6.1.1(typescript@5.9.3)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.47.1))
+        version: 6.1.1(typescript@5.9.3)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.48.0))
       vitest:
         specifier: ^4.1.7
-        version: 4.1.7(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(happy-dom@20.9.0)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.47.1))
+        version: 4.1.7(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(happy-dom@20.9.0)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.48.0))
 
   packages/signal-form:
     devDependencies:
@@ -55,10 +55,10 @@ importers:
         version: link:../signal
       vite-tsconfig-paths:
         specifier: ^6.1.1
-        version: 6.1.1(typescript@5.9.3)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.47.1))
+        version: 6.1.1(typescript@5.9.3)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.48.0))
       vitest:
         specifier: ^4.1.7
-        version: 4.1.7(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(happy-dom@20.9.0)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.47.1))
+        version: 4.1.7(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(happy-dom@20.9.0)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.48.0))
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -95,19 +95,19 @@ importers:
         version: 19.2.6(react@19.2.6)
       vite-tsconfig-paths:
         specifier: ^6.1.1
-        version: 6.1.1(typescript@5.9.3)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.47.1))
+        version: 6.1.1(typescript@5.9.3)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.48.0))
       vitest:
         specifier: ^4.1.7
-        version: 4.1.7(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(happy-dom@20.9.0)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.47.1))
+        version: 4.1.7(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(happy-dom@20.9.0)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.48.0))
 
   packages/tools:
     devDependencies:
       vite-tsconfig-paths:
         specifier: ^6.1.1
-        version: 6.1.1(typescript@5.9.3)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.47.1))
+        version: 6.1.1(typescript@5.9.3)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.48.0))
       vitest:
         specifier: ^4.1.7
-        version: 4.1.7(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(happy-dom@20.9.0)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.47.1))
+        version: 4.1.7(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(happy-dom@20.9.0)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.48.0))
 
 packages:
 
@@ -1942,8 +1942,8 @@ packages:
     resolution: {integrity: sha512-wK0Ri4fOGjv/XPy8SBHZChl8CM7uMc5VML7SqiQ0zG7+J5Vr+RMQDoHa2CNT6KHUnTGIXH34UDMkPzAUyapBZg==}
     engines: {node: '>=8'}
 
-  terser@5.47.1:
-    resolution: {integrity: sha512-tPbLXTI6ohPASb/1YViL428oEHu6/qv1OxqYnfaonVCFHqx4+wCd95pHrQWsL5X4pl90CTyW9piSAsS2L0VoMw==}
+  terser@5.48.0:
+    resolution: {integrity: sha512-J/9An6vs9Us6wKRriSFXBWdRZapREHqFzdNUKk0pmu804EMR6dr6winwo7e5JDxN4xahxQsuysyYFwlwj4XN/Q==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -2956,7 +2956,7 @@ snapshots:
       obug: 2.1.1
       std-env: 4.1.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.7(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(happy-dom@20.9.0)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.47.1))
+      vitest: 4.1.7(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(happy-dom@20.9.0)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.48.0))
 
   '@vitest/expect@4.1.7':
     dependencies:
@@ -2967,13 +2967,13 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.0
 
-  '@vitest/mocker@4.1.7(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.47.1))':
+  '@vitest/mocker@4.1.7(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.48.0))':
     dependencies:
       '@vitest/spy': 4.1.7
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.47.1)
+      vite: 7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.48.0)
 
   '@vitest/pretty-format@4.1.7':
     dependencies:
@@ -3735,7 +3735,7 @@ snapshots:
 
   term-size@2.2.1: {}
 
-  terser@5.47.1:
+  terser@5.48.0:
     dependencies:
       '@jridgewell/source-map': 0.3.11
       acorn: 8.16.0
@@ -3823,17 +3823,17 @@ snapshots:
     dependencies:
       react: 19.2.6
 
-  vite-tsconfig-paths@6.1.1(typescript@5.9.3)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.47.1)):
+  vite-tsconfig-paths@6.1.1(typescript@5.9.3)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.48.0)):
     dependencies:
       debug: 4.4.3
       globrex: 0.1.2
       tsconfck: 3.1.6(typescript@5.9.3)
-      vite: 7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.47.1)
+      vite: 7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.48.0)
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.47.1):
+  vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.48.0):
     dependencies:
       esbuild: 0.25.12
       fdir: 6.5.0(picomatch@4.0.4)
@@ -3845,12 +3845,12 @@ snapshots:
       '@types/node': 25.9.1
       fsevents: 2.3.3
       jiti: 2.6.1
-      terser: 5.47.1
+      terser: 5.48.0
 
-  vitest@4.1.7(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(happy-dom@20.9.0)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.47.1)):
+  vitest@4.1.7(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(happy-dom@20.9.0)(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.48.0)):
     dependencies:
       '@vitest/expect': 4.1.7
-      '@vitest/mocker': 4.1.7(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.47.1))
+      '@vitest/mocker': 4.1.7(vite@7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.48.0))
       '@vitest/pretty-format': 4.1.7
       '@vitest/runner': 4.1.7
       '@vitest/snapshot': 4.1.7
@@ -3867,7 +3867,7 @@ snapshots:
       tinyexec: 1.1.2
       tinyglobby: 0.2.16
       tinyrainbow: 3.1.0
-      vite: 7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.47.1)
+      vite: 7.2.7(@types/node@25.9.1)(jiti@2.6.1)(terser@5.48.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 25.9.1
