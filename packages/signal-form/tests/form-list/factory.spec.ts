@@ -1,3 +1,5 @@
+import { identity } from "~/tools/identity"
+
 import { FormList, FormShape, FormUnit } from "../../src"
 
 describe("initialization", () => {
@@ -90,6 +92,43 @@ describe("setInput auto-grow", () => {
     form.setInput([1, 2])
 
     expect(form.getInput(monitor)).toStrictEqual([1, 2])
+  })
+
+  it("passes the slot index to the factory when growing past existing elements", () => {
+    const factory = vi.fn((input: number, _index: number) => FormUnit(input))
+
+    const form = FormList(factory, { input: [10, 20] })
+
+    expect(factory).toHaveBeenCalledTimes(2)
+    expect(factory).toHaveBeenNthCalledWith(1, 10, 0)
+    expect(factory).toHaveBeenNthCalledWith(2, 20, 1)
+
+    form.setInput([10, 20, 30, 40])
+
+    expect(factory).toHaveBeenCalledTimes(4)
+    expect(factory).toHaveBeenNthCalledWith(3, 30, 2)
+    expect(factory).toHaveBeenNthCalledWith(4, 40, 3)
+  })
+
+  it("passes the slot index to the factory for removed-slot dirty checks", ({ monitor }) => {
+    const factory = vi.fn((input: number, _index: number) => FormUnit(input))
+
+    const form = FormList(factory, { initial: [10, 20, 30] })
+
+    expect(factory).toHaveBeenCalledTimes(3)
+    factory.mockClear()
+
+    form.setInput([10])
+
+    // Reads both _dirty and _dirtyVerbose; each rebuilds removed slots through
+    // the factory independently, so the slot indices (1, 2) should appear twice.
+    form.isDirty(monitor, identity)
+
+    expect(factory).toHaveBeenCalledTimes(4)
+    expect(factory).toHaveBeenNthCalledWith(1, 20, 1)
+    expect(factory).toHaveBeenNthCalledWith(2, 30, 2)
+    expect(factory).toHaveBeenNthCalledWith(3, 20, 1)
+    expect(factory).toHaveBeenNthCalledWith(4, 30, 2)
   })
 })
 

@@ -128,11 +128,12 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     }
 
     const created = drop(inputs, existing.length).map((input, index) => {
-      const element = this._factory(input, index)
+      const slotIndex = existing.length + index
+      const element = this._factory(input, slotIndex)
 
       // assign stored initial values
-      if (existing.length + index < initials.length) {
-        element._setInitial(monitor, initials.at(existing.length + index))
+      if (slotIndex < initials.length) {
+        element._setInitial(monitor, initials.at(slotIndex))
       }
 
       return this._parentOf(element)
@@ -304,7 +305,7 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
 
       // removed elements are always dirty
       map(drop(initialInputs, elements.length), (initial, index) =>
-        this._factory(initial, index)._dirtyOn.read(monitor),
+        this._factory(initial, elements.length + index)._dirtyOn.read(monitor),
       ),
     )
 
@@ -327,7 +328,7 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
 
       // removed elements are always dirty
       map(drop(initialInputs, elements.length), (initial, index) =>
-        this._factory(initial, index)._dirtyOnVerbose.read(monitor),
+        this._factory(initial, elements.length + index)._dirtyOnVerbose.read(monitor),
       ),
     )
   })
