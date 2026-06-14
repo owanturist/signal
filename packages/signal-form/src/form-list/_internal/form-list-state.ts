@@ -18,7 +18,6 @@ import {
   type SignalFormChild,
   SignalFormState,
 } from "../../signal-form/_internal/signal-form-state"
-import type { GetSignalFormFlag } from "../../signal-form/get-signal-form-flag"
 import type { GetSignalFormInput } from "../../signal-form/get-signal-form-input"
 import type { SignalForm } from "../../signal-form/signal-form"
 import type { SignalFormParams } from "../../signal-form/signal-form-params"
@@ -335,33 +334,32 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
 
   public readonly _dirtyOn = Signal((monitor): FormListFlag<TElement> => {
     const elements = this._elements.read(monitor)
-    const initialInputsLength = this._initialInputs.read(monitor).length
+    const initialInputs = this._initialInputs.read(monitor)
 
-    const dirtyOn: Array<GetSignalFormFlag<TElement>> = []
+    const dirtyOn = concat(
+      map(elements, ({ _dirtyOn }) => _dirtyOn.read(monitor)),
 
-    for (let index = 0; index < initialInputsLength; index += 1) {
-      const element = elements.at(index)
-
-      if (element) {
-        dirtyOn.push(element._dirtyOn.read(monitor))
-      } else {
-        // removed slot — always considered dirty
-        dirtyOn.push(true as GetSignalFormFlag<TElement>)
-      }
-    }
+      // removed elements should create first
+      map(drop(initialInputs, elements.length), (initial, index) =>
+        this._factory(initial, elements.length + index)._dirtyOn.read(monitor),
+      ),
+    )
 
     return toConcise(dirtyOn, isBoolean, false)
   })
 
   public readonly _dirtyOnVerbose = Signal((monitor): FormListFlagVerbose<TElement> => {
     const elements = this._elements.read(monitor)
-    const initialInputsLength = this._initialInputs.read(monitor).length
+    const initialInputs = this._initialInputs.read(monitor)
 
-    // Like _dirtyVerbose, restrict to slots that have a current element to preserve
-    // the per-slot verbose type.
-    const length = Math.min(initialInputsLength, elements.length)
+    return concat(
+      map(elements, ({ _dirtyOnVerbose }) => _dirtyOnVerbose.read(monitor)),
 
-    return map(elements.slice(0, length), ({ _dirtyOnVerbose }) => _dirtyOnVerbose.read(monitor))
+      // removed elements should create first
+      map(drop(initialInputs, elements.length), (initial, index) =>
+        this._factory(initial, elements.length + index)._dirtyOnVerbose.read(monitor),
+      ),
+    )
   })
 
   public _reset(monitor: Monitor, resetter: undefined | FormListInputSetter<TElement>): void {
