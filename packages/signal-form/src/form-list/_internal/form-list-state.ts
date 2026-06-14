@@ -50,36 +50,37 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
 > {
   public readonly _host = Lazy(() => new FormList(this))
 
+  public readonly _elements: Signal<ReadonlyArray<SignalFormState<GetSignalFormParams<TElement>>>>
+
+  public readonly _initialInputs: Signal<ReadonlyArray<GetSignalFormInput<TElement>>>
+
   public constructor(
     parent: null | SignalFormState,
     private readonly _factory: FormListElementFactoryInternal<TElement>,
+    initialInputs: ReadonlyArray<GetSignalFormInput<TElement>> = [],
+    elements: ReadonlyArray<SignalFormState<GetSignalFormParams<TElement>>> = [],
   ) {
     super(parent)
+
+    this._initialInputs = Signal(initialInputs)
+    this._elements = Signal(map(elements, (element) => this._parentOf(element)))
   }
 
   public _childOf(parent: null | SignalFormState): FormListState<TElement> {
-    return untracked((monitor) => {
-      const child = new FormListState<TElement>(parent, this._factory)
-
-      const clonedElements = map(this._elements.read(monitor), (element) =>
-        child._parentOf(element._clone()),
-      )
-
-      child._elements.write(clonedElements)
-
-      return child
-    })
+    return untracked(
+      (monitor) =>
+        new FormListState<TElement>(
+          parent,
+          this._factory,
+          this._initialInputs.read(monitor),
+          this._elements.read(monitor),
+        ),
+    )
   }
 
   public _getElements(monitor: Monitor): ReadonlyArray<TElement> {
     return map(this._elements.read(monitor), ({ _host }) => _host() as TElement)
   }
-
-  public readonly _elements = Signal<ReadonlyArray<SignalFormState<GetSignalFormParams<TElement>>>>(
-    [],
-  )
-
-  public readonly _initialInputs = Signal<ReadonlyArray<GetSignalFormInput<TElement>>>([])
 
   // I N I T I A L
 
