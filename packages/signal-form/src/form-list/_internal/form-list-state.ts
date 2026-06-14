@@ -379,11 +379,9 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
 
     this._initialInputs.write(targetInitials)
 
-    const nextElements = map(targetInitials, (input, index) =>
-      this._parentOf(this._factory(input, index)),
-    )
+    const nextElements = map(targetInitials, (input, index) => {
+      const element = this._parentOf(this._factory(input, index))
 
-    for (const [index, element] of entries(nextElements)) {
       // If the list-level validateOn collapsed to a single strategy, apply it to every
       // fresh element (extending past the captured verbose length). Otherwise apply
       // per-slot from the verbose snapshot.
@@ -396,7 +394,9 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
           element._setValidateOn(monitor, validateOn)
         }
       }
-    }
+
+      return element
+    })
 
     this._elements.write(nextElements)
   }

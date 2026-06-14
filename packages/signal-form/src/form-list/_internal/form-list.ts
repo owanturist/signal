@@ -46,9 +46,6 @@ class FormList<TElement extends SignalForm> extends SignalForm<FormListParams<TE
         (element) => this._state._parentOf(SignalForm._getState(element)),
       )
 
-      // Strict slot-wins: align each child's `_initial` with the list's
-      // `_initialInputs[i]`. New slots beyond `_initialInputs.length` keep whatever
-      // initial the spliced-in element brought with it.
       for (const [index, child] of entries(nextStateElements)) {
         if (index < initialInputs.length) {
           child._setInitial(monitor, initialInputs.at(index))
