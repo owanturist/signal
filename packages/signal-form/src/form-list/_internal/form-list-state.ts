@@ -6,6 +6,7 @@ import { entries } from "~/tools/entries"
 import { isBoolean } from "~/tools/is-boolean"
 import { isFunction } from "~/tools/is-function"
 import { isNull } from "~/tools/is-null"
+import { isShallowArrayEqual } from "~/tools/is-shallow-array-equal"
 import { isString } from "~/tools/is-string"
 import { isUndefined } from "~/tools/is-undefined"
 import { Lazy } from "~/tools/lazy"
@@ -61,7 +62,9 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
   ) {
     super(parent)
 
-    this._initialInputs = Signal(initialInputs)
+    this._initialInputs = Signal(initialInputs, {
+      equals: isShallowArrayEqual,
+    })
     this._elements = Signal(map(elements, (element) => this._parentOf(element)))
   }
 
@@ -367,38 +370,11 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
       this._setInitial(monitor, resetter)
     }
 
-    // Capture validateOn so that list-level overrides survive recreation. Touched is
-    // intentionally NOT captured — reset is supposed to clear touched state, and
-    // factory-built elements start untouched.
-    const conciseValidateOn = this._validateOn.read(monitor)
-    const verboseValidateOn = this._validateOnVerbose.read(monitor)
+    this._setInput(monitor, this._initial.read(monitor))
 
-    // Pull the *effective* initial inputs (children may have set their own _initial
-    // since the last list-level setInitial) and refreeze them as the rebuild target.
-    const targetInitials = this._initial.read(monitor)
-
-    this._initialInputs.write(targetInitials)
-
-    const nextElements = map(targetInitials, (input, index) => {
-      const element = this._parentOf(this._factory(input, index))
-
-      // If the list-level validateOn collapsed to a single strategy, apply it to every
-      // fresh element (extending past the captured verbose length). Otherwise apply
-      // per-slot from the verbose snapshot.
-      if (isString(conciseValidateOn)) {
-        element._setValidateOn(monitor, conciseValidateOn)
-      } else {
-        const validateOn = verboseValidateOn.at(index)
-
-        if (!isUndefined(validateOn)) {
-          element._setValidateOn(monitor, validateOn)
-        }
-      }
-
-      return element
-    })
-
-    this._elements.write(nextElements)
+    for (const element of this._elements.read(monitor)) {
+      element._reset(monitor, undefined)
+    }
   }
 
   public _getChildren<TChildParams extends SignalFormParams>(

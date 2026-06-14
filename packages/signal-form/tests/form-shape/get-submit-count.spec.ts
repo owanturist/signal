@@ -13,7 +13,6 @@ interface ShapeFields {
     _1: FormUnit<boolean>
     _2: FormUnit<Array<string>, ReadonlyArray<string>>
   }>
-  _4: Array<string>
 }
 
 function setupShape(enchant?: (form: FormShape<ShapeFields>) => void) {
@@ -29,7 +28,6 @@ function setupShape(enchant?: (form: FormShape<ShapeFields>) => void) {
           schema: z.array(z.string().max(2)),
         }),
       }),
-      _4: ["anything"],
     })
 
     enchant?.(form)

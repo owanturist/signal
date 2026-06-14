@@ -11,7 +11,6 @@ function setup() {
         one: FormUnit(true),
         two: FormUnit([""]),
       }),
-      fourth: ["anything"],
     },
     {
       initial: {
@@ -42,7 +41,6 @@ describe.each([
         one: false,
         two: ["two"],
       },
-      fourth: ["anything"],
     })
     expect(shape.getInitial(monitor)).toStrictEqual(input)
     expect(shape.isDirty(monitor)).toBe(false)
@@ -61,7 +59,6 @@ it("resets to initial value by consuming current original value with resetter", 
       one: true,
       two: [""],
     },
-    fourth: ["anything"],
   })
   expect(shape.getInitial(monitor)).toStrictEqual(input)
   expect(shape.isDirty(monitor)).toBe(false)
@@ -85,7 +82,6 @@ it("resets to new initial value", ({ monitor }) => {
       one: true,
       two: ["two"],
     },
-    fourth: ["anything"],
   })
   expect(shape.getInitial(monitor)).toStrictEqual(input)
   expect(shape.isDirty(monitor)).toBe(false)
@@ -102,7 +98,6 @@ it("resets with callback on each field", ({ monitor }) => {
         one: false,
         two: ["two"],
       },
-      fourth: ["anything"],
     })
     expect(current).toStrictEqual({
       first: "",
@@ -111,7 +106,6 @@ it("resets with callback on each field", ({ monitor }) => {
         one: true,
         two: [""],
       },
-      fourth: ["anything"],
     })
 
     return {
@@ -163,7 +157,6 @@ it("resets with callback on each field", ({ monitor }) => {
       one: true,
       two: ["three"],
     },
-    fourth: ["anything"],
   })
   expect(shape.getInitial(monitor)).toStrictEqual(input)
   expect(shape.isDirty(monitor)).toBe(false)

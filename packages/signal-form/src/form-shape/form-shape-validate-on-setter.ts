@@ -6,7 +6,7 @@ import type { FormShapeFields } from "./form-shape-fields"
 import type { FormShapeValidateOnVerbose } from "./form-shape-validate-on-verbose"
 import type { GetFormShapeParam } from "./get-form-shape-param"
 
-type FormShapeValidateOnSetter<TFields extends FormShapeFields> = Setter<
+type FormShapeValidateOnSetter<TFields extends FormShapeFields<TFields>> = Setter<
   ValidateStrategy | Partial<GetFormShapeParam<TFields, "validateOn.setter">>,
   [FormShapeValidateOnVerbose<TFields>]
 >

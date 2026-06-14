@@ -15,7 +15,7 @@ import type { FormShapeValidateOn } from "./form-shape-validate-on"
 import type { FormShapeValidateOnSetter } from "./form-shape-validate-on-setter"
 import type { FormShapeValidateOnVerbose } from "./form-shape-validate-on-verbose"
 
-interface FormShapeParams<TFields extends FormShapeFields> extends SignalFormParams {
+interface FormShapeParams<TFields extends FormShapeFields<TFields>> extends SignalFormParams {
   readonly "input.schema": FormShapeInput<TFields>
   readonly "input.setter": FormShapeInputSetter<TFields>
 

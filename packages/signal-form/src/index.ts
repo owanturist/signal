@@ -55,10 +55,6 @@ export type * from "./form-shape/form-shape-validate-on-verbose"
 export type * from "./form-shape/get-form-shape-param"
 export * from "./form-shape/is-form-shape"
 
-// FORM META
-
-export type * from "./form-meta"
-
 // FORM LIST
 
 export * from "./form-list/form-list"

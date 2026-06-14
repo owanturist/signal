@@ -1,7 +1,6 @@
 import { z } from "zod"
 
 import { params } from "~/tools/params"
-import type { Setter } from "~/tools/setter"
 
 import { FormShape, FormUnit, type ValidateStrategy } from "../../src"
 
@@ -86,49 +85,6 @@ it("gives direct access to the fields", ({ monitor }) => {
   expect(shape.fields.second.getInput(monitor)).toBe(0)
 })
 
-it("allows to specify none-form fields", ({ monitor }) => {
-  const shape = FormShape({
-    first: FormUnit(""),
-    id: 123,
-    name: "john",
-  })
-
-  expectTypeOf(shape).toEqualTypeOf<
-    FormShape<{
-      first: FormUnit<string>
-      id: number
-      name: string
-    }>
-  >()
-
-  const input = shape.getInput(monitor)
-  expectTypeOf(input).toEqualTypeOf<{
-    readonly first: string
-    readonly id: number
-    readonly name: string
-  }>()
-  expect(input).toStrictEqual({
-    first: "",
-    id: 123,
-    name: "john",
-  })
-
-  const value = shape.getOutput(monitor)
-  expectTypeOf(value).toEqualTypeOf<null | {
-    readonly first: string
-    readonly id: number
-    readonly name: string
-  }>()
-  expect(value).toStrictEqual({
-    first: "",
-    id: 123,
-    name: "john",
-  })
-
-  expect(shape.fields.id(monitor)).toBe(123)
-  expect(shape.fields.name(monitor)).toBe("john")
-})
-
 describe("FormShapeOptions.touched", () => {
   it("specifies initial touched", ({ monitor }) => {
     const shape = FormShape(
@@ -139,7 +95,6 @@ describe("FormShapeOptions.touched", () => {
           one: FormUnit(true),
           two: FormUnit([""]),
         }),
-        fourth: ["anything"],
       },
       {
         touched: {
@@ -173,7 +128,6 @@ describe("FormShapeOptions.touched", () => {
             touched: true,
           },
         ),
-        fourth: ["anything"],
       },
       {
         touched: (root) => {
@@ -259,7 +213,6 @@ describe("FormShapeOptions.error", () => {
           one: FormUnit(true, { error: ["some"] }),
           two: FormUnit([""]),
         }),
-        fourth: ["anything"],
       },
       {
         error: {
@@ -298,7 +251,6 @@ describe("FormShapeOptions.error", () => {
             },
           },
         ),
-        fourth: ["anything"],
       },
       {
         error: (root) => {
@@ -384,7 +336,6 @@ describe("FormShapeOptions.initial", () => {
           one: FormUnit(true),
           two: FormUnit([""]),
         }),
-        fourth: ["anything"],
       },
       {
         initial: {
@@ -403,7 +354,6 @@ describe("FormShapeOptions.initial", () => {
         one: false,
         two: [""],
       },
-      fourth: ["anything"],
     })
     expect(shape.getInput(monitor)).toStrictEqual({
       first: "",
@@ -412,7 +362,6 @@ describe("FormShapeOptions.initial", () => {
         one: true,
         two: [""],
       },
-      fourth: ["anything"],
     })
   })
 
@@ -425,7 +374,6 @@ describe("FormShapeOptions.initial", () => {
           one: FormUnit(true, { initial: false }),
           two: FormUnit([""], { initial: ["two"] }),
         }),
-        fourth: ["anything"],
       },
       {
         initial: (root) => {
@@ -436,7 +384,6 @@ describe("FormShapeOptions.initial", () => {
               readonly one: boolean
               readonly two: Array<string>
             }
-            readonly fourth: Array<string>
           }>()
           expect(root).toStrictEqual({
             first: "1",
@@ -445,7 +392,6 @@ describe("FormShapeOptions.initial", () => {
               one: false,
               two: ["two"],
             },
-            fourth: ["anything"],
           })
 
           return {
@@ -498,7 +444,6 @@ describe("FormShapeOptions.initial", () => {
         one: true,
         two: ["two", "three"],
       },
-      fourth: ["anything"],
     })
   })
 })
@@ -513,7 +458,6 @@ describe("FormShapeOptions.input", () => {
           one: FormUnit(true),
           two: FormUnit([""]),
         }),
-        fourth: ["anything"],
       },
       {
         input: {
@@ -532,7 +476,6 @@ describe("FormShapeOptions.input", () => {
         one: true,
         two: [""],
       },
-      fourth: ["anything"],
     })
     expect(shape.getInput(monitor)).toStrictEqual({
       first: "1",
@@ -541,7 +484,6 @@ describe("FormShapeOptions.input", () => {
         one: false,
         two: [""],
       },
-      fourth: ["anything"],
     })
   })
 
@@ -554,7 +496,6 @@ describe("FormShapeOptions.input", () => {
           one: FormUnit(false),
           two: FormUnit(["two"]),
         }),
-        fourth: ["anything"],
       },
       {
         input: (root) => {
@@ -565,7 +506,6 @@ describe("FormShapeOptions.input", () => {
               readonly one: boolean
               readonly two: Array<string>
             }
-            readonly fourth: Array<string>
           }>()
           expect(root).toStrictEqual({
             first: "1",
@@ -574,7 +514,6 @@ describe("FormShapeOptions.input", () => {
               one: false,
               two: ["two"],
             },
-            fourth: ["anything"],
           })
 
           return {
@@ -627,7 +566,6 @@ describe("FormShapeOptions.input", () => {
         one: true,
         two: ["two", "three"],
       },
-      fourth: ["anything"],
     })
   })
 
@@ -640,7 +578,6 @@ describe("FormShapeOptions.input", () => {
           one: FormUnit(true),
           two: FormUnit([""]),
         }),
-        fourth: ["anything"],
       },
       {
         input: {
@@ -659,7 +596,6 @@ describe("FormShapeOptions.input", () => {
         one: true,
         two: [""],
       },
-      fourth: ["anything"],
     })
   })
 })
@@ -674,7 +610,6 @@ describe("FormShapeOptions.validateOn", () => {
           one: FormUnit(true, { error: ["some"] }),
           two: FormUnit([""]),
         }),
-        fourth: ["anything"],
       },
       {
         validateOn: {
@@ -716,7 +651,6 @@ describe("FormShapeOptions.validateOn", () => {
             },
           },
         ),
-        fourth: ["anything"],
       },
       {
         validateOn: (root) => {
@@ -790,142 +724,6 @@ describe("FormShapeOptions.validateOn", () => {
       },
     })
   })
-})
-
-it("follows the options type", () => {
-  expectTypeOf(
-    FormShape<{
-      first: FormUnit<string>
-      second: FormUnit<number>
-      third: FormShape<{
-        one: FormUnit<boolean>
-        two: FormUnit<Array<string>>
-      }>
-      fourth: Array<string>
-    }>,
-  )
-    .parameter(1)
-    .toMatchTypeOf<
-      | undefined
-      | {
-          touched?: Setter<
-            | boolean
-            | {
-                readonly first?: Setter<boolean>
-                readonly second?: Setter<boolean>
-                readonly third?: Setter<
-                  | boolean
-                  | {
-                      readonly one?: Setter<boolean>
-                      readonly two?: Setter<boolean>
-                    },
-                  [
-                    {
-                      readonly one: boolean
-                      readonly two: boolean
-                    },
-                  ]
-                >
-              },
-            [
-              {
-                readonly first: boolean
-                readonly second: boolean
-                readonly third: {
-                  readonly one: boolean
-                  readonly two: boolean
-                }
-              },
-            ]
-          >
-
-          initial?: Setter<
-            {
-              readonly first?: Setter<string, [string, string]>
-              readonly second?: Setter<number, [number, number]>
-              readonly third?: Setter<
-                {
-                  readonly one?: Setter<boolean, [boolean, boolean]>
-                  readonly two?: Setter<Array<string>, [Array<string>, Array<string>]>
-                },
-                [
-                  {
-                    readonly one: boolean
-                    readonly two: Array<string>
-                  },
-                  {
-                    readonly one: boolean
-                    readonly two: Array<string>
-                  },
-                ]
-              >
-            },
-            [
-              {
-                readonly first: string
-                readonly second: number
-                readonly third: {
-                  readonly one: boolean
-                  readonly two: Array<string>
-                }
-                readonly fourth: Array<string>
-              },
-              {
-                readonly first: string
-                readonly second: number
-                readonly third: {
-                  readonly one: boolean
-                  readonly two: Array<string>
-                }
-                readonly fourth: Array<string>
-              },
-            ]
-          >
-
-          input?: Setter<
-            {
-              readonly first?: Setter<string, [string, string]>
-              readonly second?: Setter<number, [number, number]>
-              readonly third?: Setter<
-                {
-                  readonly one?: Setter<boolean, [boolean, boolean]>
-                  readonly two?: Setter<Array<string>, [Array<string>, Array<string>]>
-                },
-                [
-                  {
-                    readonly one: boolean
-                    readonly two: Array<string>
-                  },
-                  {
-                    readonly one: boolean
-                    readonly two: Array<string>
-                  },
-                ]
-              >
-            },
-            [
-              {
-                readonly first: string
-                readonly second: number
-                readonly third: {
-                  readonly one: boolean
-                  readonly two: Array<string>
-                }
-                readonly fourth: Array<string>
-              },
-              {
-                readonly first: string
-                readonly second: number
-                readonly third: {
-                  readonly one: boolean
-                  readonly two: Array<string>
-                }
-                readonly fourth: Array<string>
-              },
-            ]
-          >
-        }
-    >()
 })
 
 it("clones the fields", ({ monitor }) => {

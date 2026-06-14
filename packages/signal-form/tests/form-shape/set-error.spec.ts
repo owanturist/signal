@@ -21,7 +21,6 @@ it("specifies error", ({ monitor }) => {
         },
       },
     ),
-    fourth: ["anything"],
   })
 
   expect(shape.getError(monitor)).toStrictEqual({
@@ -192,7 +191,6 @@ it("resets all errors", ({ monitor }) => {
         },
       },
     ),
-    fourth: ["anything"],
   })
 
   shape.setError(null)

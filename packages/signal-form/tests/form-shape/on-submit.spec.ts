@@ -12,7 +12,6 @@ interface ValidatedShapeFields {
     _1: FormUnit<boolean>
     _2: FormUnit<Array<string>, ReadonlyArray<string>>
   }>
-  _4: Array<string>
 }
 
 interface ShapeFields {
@@ -22,7 +21,6 @@ interface ShapeFields {
     _1: FormUnit<boolean>
     _2: FormUnit<Array<string>>
   }>
-  _4: Array<string>
 }
 
 interface ThirdValueVerbose {
@@ -34,7 +32,6 @@ interface RootValueVerbose {
   readonly _1: string
   readonly _2: number
   readonly _3: ThirdValueVerbose
-  readonly _4: Array<string>
 }
 
 function setup(options?: FormShapeOptions<ValidatedShapeFields>) {
@@ -50,7 +47,6 @@ function setup(options?: FormShapeOptions<ValidatedShapeFields>) {
           schema: z.array(z.string().max(2)),
         }),
       }),
-      _4: ["anything"],
     },
     options,
   )
@@ -150,7 +146,6 @@ describe.each<
           _1: true,
           _2: ["value"],
         },
-        _4: ["anything"],
       },
       () =>
         FormShape({
@@ -160,7 +155,6 @@ describe.each<
             _1: FormUnit(true),
             _2: FormUnit(["value"]),
           }),
-          _4: ["anything"],
         }),
     ],
     [
@@ -172,7 +166,6 @@ describe.each<
           _1: false,
           _2: ["y"],
         },
-        _4: ["anything"],
       },
       () =>
         setup({

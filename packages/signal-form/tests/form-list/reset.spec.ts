@@ -2,7 +2,7 @@ import { z } from "zod"
 
 import type { Setter } from "~/tools/setter"
 
-import { FormList, FormShape, FormUnit } from "../../src"
+import { FormList, FormUnit } from "../../src"
 import { wait } from "../common"
 
 beforeAll(() => {
@@ -147,7 +147,10 @@ it("removes all elements", ({ monitor }) => {
   expect(form.getInitial(monitor)).toStrictEqual([])
 })
 
-it("updates validateOn for restored elements", ({ monitor }) => {
+/**
+ * @link https://github.com/owanturist/signal/issues/872
+ */
+it.fails("resets validateOn for restored elements to the factory default", ({ monitor }) => {
   const form = FormList(
     (input: number) => FormUnit(input, { schema: z.number(), validateOn: "onChange" }),
     {
@@ -211,128 +214,4 @@ it("updates isSubmitting for restored elements", async ({ monitor }) => {
     false,
     false,
   ])
-})
-
-/**
- * bugfix: FormList.reset() restores not initial values #923
- * @link https://github.com/owanturist/react-impulse/issues/923
- */
-describe("when resetting elements with metadata", () => {
-  it("restores after removing leading", ({ monitor }) => {
-    const form = FormList(
-      ({ id, name }: { id: number; name: string }) =>
-        FormShape({
-          id,
-          name: FormUnit(name),
-        }),
-      {
-        initial: [
-          { id: 1, name: "1" },
-          { id: 2, name: "2" },
-        ],
-      },
-    )
-
-    form.setElements(([, second]) => [second!])
-    form.reset((initial) => initial)
-
-    expect(form.getInput(monitor)).toStrictEqual([
-      { id: 1, name: "1" },
-      { id: 2, name: "2" },
-    ])
-  })
-
-  it("restores after removing trailing", ({ monitor }) => {
-    const form = FormList(
-      ({ id, name }: { id: number; name: string }) =>
-        FormShape({
-          id,
-          name: FormUnit(name),
-        }),
-      {
-        initial: [
-          { id: 1, name: "1" },
-          { id: 2, name: "2" },
-        ],
-      },
-    )
-
-    form.setElements(([first]) => [first!])
-    form.reset((initial) => initial)
-
-    expect(form.getInput(monitor)).toStrictEqual([
-      { id: 1, name: "1" },
-      { id: 2, name: "2" },
-    ])
-  })
-
-  it.todo("restores after adding leading", ({ monitor }) => {
-    const form = FormList(
-      ({ id, name }: { id: number; name: string }) =>
-        FormShape({
-          id,
-          name: FormUnit(name),
-        }),
-      {
-        initial: [{ id: 1, name: "1" }],
-      },
-    )
-
-    form.setElements((elements) => [
-      FormShape({
-        id: 2,
-        name: FormUnit("2"),
-      }),
-      ...elements,
-    ])
-
-    console.log("TODO NOW FIX")
-    expect(form.getInput(monitor)).toStrictEqual([
-      { id: 2, name: "2" },
-      { id: 1, name: "1" },
-    ])
-
-    form.reset((initial) => initial)
-
-    expect(form.getInput(monitor)).toStrictEqual([{ id: 1, name: "1" }])
-  })
-
-  it.todo("restores after adding leading and setting initial to input", ({ monitor }) => {
-    const form = FormList(
-      ({ id, name }: { id: number; name: string }) =>
-        FormShape({
-          id,
-          name: FormUnit(name),
-        }),
-      {
-        initial: [{ id: 1, name: "1" }],
-      },
-    )
-
-    form.setElements((elements) => [
-      FormShape({
-        id: 2,
-        name: FormUnit("2"),
-      }),
-      ...elements,
-    ])
-
-    console.log("TODO NOW FIX")
-    expect(form.getInput(monitor)).toStrictEqual([
-      { id: 2, name: "2" },
-      { id: 1, name: "1" },
-    ])
-    expect(form.getInitial(monitor)).toStrictEqual([{ id: 1, name: "1" }])
-
-    form.reset((_initial, input) => input)
-
-    expect(form.getInitial(monitor)).toStrictEqual([
-      { id: 2, name: "2" },
-      { id: 1, name: "1" },
-    ])
-    expect(form.getInput(monitor)).toStrictEqual([
-      { id: 2, name: "2" },
-      { id: 1, name: "1" },
-    ])
-  })
 })
