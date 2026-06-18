@@ -202,10 +202,7 @@ describe("adding a new element to the list's beginning", () => {
     ])
   })
 
-  it.todo("does NOT override list initial when splicing a new element with its own initial", ({
-    monitor,
-  }) => {
-    console.log("TODO NOW verify with old version")
+  it.fails("overrides initial value for a list by a new element", ({ monitor }) => {
     const form = FormList((input) => setupElement(input), {
       initial: [
         { first: 1, second: "1" },
@@ -214,7 +211,10 @@ describe("adding a new element to the list's beginning", () => {
     })
 
     form.setElements((elements) => [
-      setupElement(),
+      setupElement({
+        input: { first: 0, second: "0" },
+        initial: { first: 10, second: "10" },
+      }),
       FormShape({
         first: FormUnit(0, { initial: 20 }),
         second: FormUnit("", { initial: "20" }),
@@ -223,13 +223,13 @@ describe("adding a new element to the list's beginning", () => {
     ])
 
     expect(form.getInitial(monitor)).toStrictEqual([
-      { first: 1, second: "1" },
-      { first: 2, second: "2" },
+      { first: 10, second: "10" },
+      { first: 20, second: "20" },
     ])
 
     expect(form.getElements(monitor).map((element) => element.getInitial(monitor))).toStrictEqual([
-      { first: 1, second: "1" },
-      { first: 2, second: "2" },
+      { first: 10, second: "10" },
+      { first: 20, second: "20" },
       { first: 1, second: "1" },
       { first: 2, second: "2" },
     ])
