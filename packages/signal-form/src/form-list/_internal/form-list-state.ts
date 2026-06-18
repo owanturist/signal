@@ -84,8 +84,6 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     return map(this._elements.read(monitor), ({ _host }) => _host() as TElement)
   }
 
-  // I N I T I A L
-
   public readonly _initial = Signal((monitor): FormListInput<TElement> => {
     const elements = this._elements.read(monitor)
     const initialInputs = this._initialInputs.read(monitor)
@@ -110,8 +108,6 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
 
     this._initialInputs.write(initial)
   }
-
-  // I N P U T
 
   public readonly _input = Signal(
     (monitor): FormListInput<TElement> =>
@@ -144,8 +140,6 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     this._elements.write(concat(existing, created))
   }
 
-  // E R R O R
-
   public readonly _error = Signal((monitor): FormListError<TElement> => {
     const error = map(this._elements.read(monitor), ({ _error }) => _error.read(monitor))
 
@@ -172,8 +166,6 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
       }
     }
   }
-
-  // V A L I D A T E   O N
 
   public readonly _validateOn = Signal((monitor): FormListValidateOn<TElement> => {
     const validateOn = map(this._elements.read(monitor), ({ _validateOn }) =>
@@ -202,8 +194,6 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     }
   }
 
-  // T O U C H E D
-
   public readonly _touched = Signal((monitor): FormListFlag<TElement> => {
     const touched = map(this._elements.read(monitor), ({ _touched }) => _touched.read(monitor))
 
@@ -227,8 +217,6 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     }
   }
 
-  // O U T P U T
-
   public readonly _output = Signal((monitor): null | FormListOutput<TElement> => {
     const output = map(this._elements.read(monitor), ({ _output }) => _output.read(monitor))
 
@@ -244,8 +232,6 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
       map(this._elements.read(monitor), ({ _outputVerbose }) => _outputVerbose.read(monitor)),
   )
 
-  // V A L I D
-
   public readonly _valid = Signal((monitor): FormListFlag<TElement> => {
     const valid = map(this._elements.read(monitor), ({ _valid }) => _valid.read(monitor))
 
@@ -257,8 +243,6 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
       map(this._elements.read(monitor), ({ _validVerbose }) => _validVerbose.read(monitor)),
   )
 
-  // I N V A L I D
-
   public readonly _invalid = Signal((monitor): FormListFlag<TElement> => {
     const invalid = map(this._elements.read(monitor), ({ _invalid }) => _invalid.read(monitor))
 
@@ -269,8 +253,6 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     (monitor): FormListFlagVerbose<TElement> =>
       map(this._elements.read(monitor), ({ _invalidVerbose }) => _invalidVerbose.read(monitor)),
   )
-
-  // V A L I D A T E D
 
   public readonly _validated = Signal((monitor): FormListFlag<TElement> => {
     const validated = map(this._elements.read(monitor), ({ _validated }) =>

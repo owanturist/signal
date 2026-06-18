@@ -1,6 +1,7 @@
 import { z } from "zod"
 
 import { params } from "~/tools/params"
+import type { Setter } from "~/tools/setter"
 
 import { FormShape, FormUnit, type ValidateStrategy } from "../../src"
 
@@ -724,6 +725,195 @@ describe("FormShapeOptions.validateOn", () => {
       },
     })
   })
+})
+
+it("follows the options type", () => {
+  expectTypeOf(
+    FormShape<{
+      first: FormUnit<string, number, boolean>
+      second: FormUnit<number, boolean>
+      third: FormShape<{
+        one: FormUnit<boolean, string, number>
+        two: FormUnit<Array<string>, null, number>
+      }>
+    }>,
+  )
+    .parameter(1)
+    .exclude<undefined>()
+    .toEqualTypeOf<{
+      readonly touched?: Setter<
+        | boolean
+        | {
+            readonly first?: Setter<boolean>
+            readonly second?: Setter<boolean>
+            readonly third?: Setter<
+              | boolean
+              | {
+                  readonly one?: Setter<boolean>
+                  readonly two?: Setter<boolean>
+                },
+              [
+                {
+                  readonly one: boolean
+                  readonly two: boolean
+                },
+              ]
+            >
+          },
+        [
+          {
+            readonly first: boolean
+            readonly second: boolean
+            readonly third: {
+              readonly one: boolean
+              readonly two: boolean
+            }
+          },
+        ]
+      >
+
+      readonly initial?: Setter<
+        {
+          readonly first?: Setter<string, [string, string]>
+          readonly second?: Setter<number, [number, number]>
+          readonly third?: Setter<
+            {
+              readonly one?: Setter<boolean, [boolean, boolean]>
+              readonly two?: Setter<Array<string>, [Array<string>, Array<string>]>
+            },
+            [
+              {
+                readonly one: boolean
+                readonly two: Array<string>
+              },
+              {
+                readonly one: boolean
+                readonly two: Array<string>
+              },
+            ]
+          >
+        },
+        [
+          {
+            readonly first: string
+            readonly second: number
+            readonly third: {
+              readonly one: boolean
+              readonly two: Array<string>
+            }
+          },
+          {
+            readonly first: string
+            readonly second: number
+            readonly third: {
+              readonly one: boolean
+              readonly two: Array<string>
+            }
+          },
+        ]
+      >
+
+      readonly input?: Setter<
+        {
+          readonly first?: Setter<string, [string, string]>
+          readonly second?: Setter<number, [number, number]>
+          readonly third?: Setter<
+            {
+              readonly one?: Setter<boolean, [boolean, boolean]>
+              readonly two?: Setter<Array<string>, [Array<string>, Array<string>]>
+            },
+            [
+              {
+                readonly one: boolean
+                readonly two: Array<string>
+              },
+              {
+                readonly one: boolean
+                readonly two: Array<string>
+              },
+            ]
+          >
+        },
+        [
+          {
+            readonly first: string
+            readonly second: number
+            readonly third: {
+              readonly one: boolean
+              readonly two: Array<string>
+            }
+          },
+          {
+            readonly first: string
+            readonly second: number
+            readonly third: {
+              readonly one: boolean
+              readonly two: Array<string>
+            }
+          },
+        ]
+      >
+
+      readonly error?: Setter<
+        null | {
+          readonly first?: Setter<null | number>
+          readonly second?: Setter<null | boolean>
+          readonly third?: Setter<
+            null | {
+              readonly one?: Setter<null | string>
+              readonly two?: Setter<null>
+            },
+            [
+              {
+                readonly one: null | string
+                readonly two: null
+              },
+            ]
+          >
+        },
+        [
+          {
+            readonly first: null | number
+            readonly second: null | boolean
+            readonly third: {
+              readonly one: null | string
+              readonly two: null
+            }
+          },
+        ]
+      >
+
+      readonly validateOn?: Setter<
+        | ValidateStrategy
+        | {
+            readonly first?: Setter<ValidateStrategy>
+            readonly second?: Setter<ValidateStrategy>
+            readonly third?: Setter<
+              | ValidateStrategy
+              | {
+                  readonly one?: Setter<ValidateStrategy>
+                  readonly two?: Setter<ValidateStrategy>
+                },
+              [
+                {
+                  readonly one: ValidateStrategy
+                  readonly two: ValidateStrategy
+                },
+              ]
+            >
+          },
+        [
+          {
+            readonly first: ValidateStrategy
+            readonly second: ValidateStrategy
+            readonly third: {
+              readonly one: ValidateStrategy
+              readonly two: ValidateStrategy
+            }
+          },
+        ]
+      >
+    }>()
 })
 
 it("clones the fields", ({ monitor }) => {
