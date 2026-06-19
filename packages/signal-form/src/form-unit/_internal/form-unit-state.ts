@@ -256,8 +256,7 @@ class FormUnitState<TInput, TError, TOutput> extends SignalFormState<
   public readonly _dirty: ReadonlySignal<boolean>
   public readonly _dirtyVerbose: ReadonlySignal<boolean>
 
-  public readonly _dirtyOn = Signal(true)
-  public readonly _dirtyOnVerbose = this._dirtyOn
+  public readonly _dirtyOnVerbose = Signal(true)
 
   // R E S E T
 

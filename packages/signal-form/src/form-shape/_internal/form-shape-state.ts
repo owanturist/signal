@@ -258,12 +258,6 @@ class FormShapeState<
       mapValues(this._fields, ({ _dirtyVerbose }) => _dirtyVerbose.read(monitor)),
   )
 
-  public readonly _dirtyOn = Signal((monitor): FormShapeFlag<TFields> => {
-    const dirtyOn = mapValues(this._fields, ({ _dirtyOn }) => _dirtyOn.read(monitor))
-
-    return toConcise(values(dirtyOn), isBoolean, false, dirtyOn)
-  })
-
   public readonly _dirtyOnVerbose = Signal(
     (monitor): FormShapeFlagVerbose<TFields> =>
       mapValues(this._fields, ({ _dirtyOnVerbose }) => _dirtyOnVerbose.read(monitor)),

@@ -363,14 +363,6 @@ class FormOptionalState<
       >,
   )
 
-  public readonly _dirtyOn = Signal(
-    (monitor): FormOptionalFlag<TEnabled, TElement> =>
-      this._toConcise<boolean>(monitor, ({ _dirtyOn }) => _dirtyOn, isBoolean) as FormOptionalFlag<
-        TEnabled,
-        TElement
-      >,
-  )
-
   public readonly _dirtyOnVerbose = Signal(
     (monitor): FormOptionalFlagVerbose<TEnabled, TElement> =>
       this._toVerbose(monitor, ({ _dirtyOnVerbose }) => _dirtyOnVerbose) as FormOptionalFlagVerbose<

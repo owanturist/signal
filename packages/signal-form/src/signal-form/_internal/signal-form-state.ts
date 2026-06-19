@@ -99,7 +99,6 @@ abstract class SignalFormState<
   public abstract readonly _dirty: ReadonlySignal<TParams["flag.schema"]>
   public abstract readonly _dirtyVerbose: ReadonlySignal<TParams["flag.schema.verbose"]>
 
-  public abstract readonly _dirtyOn: ReadonlySignal<TParams["flag.schema"]>
   public abstract readonly _dirtyOnVerbose: ReadonlySignal<TParams["flag.schema.verbose"]>
 
   // F O C U S   I N V A L I D

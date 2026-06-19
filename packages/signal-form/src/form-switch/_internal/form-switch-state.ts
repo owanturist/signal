@@ -493,11 +493,6 @@ class FormSwitchState<
       this._toVerbose<"flag.schema.verbose">(monitor, ({ _dirtyVerbose }) => _dirtyVerbose),
   )
 
-  public readonly _dirtyOn = Signal(
-    (monitor): FormSwitchFlag<TKind, TBranches> =>
-      this._toConcise<"flag.schema", boolean>(monitor, ({ _dirtyOn }) => _dirtyOn, isBoolean),
-  )
-
   public readonly _dirtyOnVerbose = Signal(
     (monitor): FormSwitchFlagVerbose<TKind, TBranches> =>
       this._toVerbose<"flag.schema.verbose">(monitor, ({ _dirtyOnVerbose }) => _dirtyOnVerbose),

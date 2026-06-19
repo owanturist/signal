@@ -278,13 +278,9 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     const initialInputs = this._initialInputs.read(monitor)
 
     const dirty = concat(
-      map(elements, ({ _dirty, _dirtyOn }, index) => {
-        if (index >= initialInputs.length) {
-          // added elements are always dirty
-          return true
-        }
-
-        return _dirty.read(monitor)
+      map(elements, ({ _dirty }, index) => {
+        // added elements are always dirty
+        return index >= initialInputs.length || _dirty.read(monitor)
       }),
 
       // removed elements are always dirty
@@ -313,22 +309,6 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
         this._factory(initial, elements.length + index)._dirtyOnVerbose.read(monitor),
       ),
     )
-  })
-
-  public readonly _dirtyOn = Signal((monitor): FormListFlag<TElement> => {
-    const elements = this._elements.read(monitor)
-    const initialInputs = this._initialInputs.read(monitor)
-
-    const dirtyOn = concat(
-      map(elements, ({ _dirtyOn }) => _dirtyOn.read(monitor)),
-
-      //  materialize removed slots on demand to read their dirty state
-      map(drop(initialInputs, elements.length), (initial, index) =>
-        this._factory(initial, elements.length + index)._dirtyOn.read(monitor),
-      ),
-    )
-
-    return toConcise(dirtyOn, isBoolean, false)
   })
 
   public readonly _dirtyOnVerbose = Signal((monitor): FormListFlagVerbose<TElement> => {
