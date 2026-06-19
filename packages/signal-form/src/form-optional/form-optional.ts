@@ -3,7 +3,7 @@ import { batch } from "@owanturist/signal"
 import type { IsEqualType } from "~/tools/is-type-equal"
 import { isUndefined } from "~/tools/is-undefined"
 
-import type { GetSignalFormParam } from "../signal-form/get-signal-form-param"
+import type { GetFormParam } from "../signal-form/get-form-param"
 import type { SignalForm } from "../signal-form/signal-form"
 
 import type { FormOptionalErrorSetter } from "./form-optional-error-setter"
@@ -27,7 +27,7 @@ interface FormOptionalOptions<TEnabled extends SignalForm, TElement extends Sign
 }
 
 function FormOptional<TEnabled extends SignalForm, TElement extends SignalForm>(
-  enabled: IsEqualType<GetSignalFormParam<TEnabled, "output.schema">, boolean> extends true
+  enabled: IsEqualType<GetFormParam<TEnabled, "output.schema">, boolean> extends true
     ? TEnabled
     : never,
   element: TElement,

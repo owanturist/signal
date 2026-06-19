@@ -4,7 +4,7 @@ import type { IsEqualType } from "~/tools/is-type-equal"
 import { isUndefined } from "~/tools/is-undefined"
 import { mapValues } from "~/tools/map-values"
 
-import type { GetSignalFormParam } from "../signal-form/get-signal-form-param"
+import type { GetFormParam } from "../signal-form/get-form-param"
 import type { SignalForm } from "../signal-form/signal-form"
 
 import type { FormSwitchBranches } from "./form-switch-branches"
@@ -30,7 +30,7 @@ interface FormSwitchOptions<TKind extends SignalForm, TBranches extends FormSwit
 
 function FormSwitch<TKind extends SignalForm, TBranches extends FormSwitchBranches<TKind>>(
   active: TKind,
-  branches: IsEqualType<GetSignalFormParam<TKind, "output.schema">, keyof TBranches> extends true
+  branches: IsEqualType<GetFormParam<TKind, "output.schema">, keyof TBranches> extends true
     ? TBranches
     : never,
   { input, initial, touched, validateOn, error }: FormSwitchOptions<TKind, TBranches> = {},

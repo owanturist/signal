@@ -1,6 +1,6 @@
 import type { Setter } from "~/tools/setter"
 
-import type { GetSignalFormParam } from "../signal-form/get-signal-form-param"
+import type { GetFormParam } from "../signal-form/get-form-param"
 import type { SignalForm } from "../signal-form/signal-form"
 
 import type { FormSwitchBranches } from "./form-switch-branches"
@@ -20,7 +20,7 @@ type FormSwitchErrorSetter<
   // concise details
   | Partial<
       FormSwitchConciseSchema<
-        GetSignalFormParam<TKind, "error.setter">,
+        GetFormParam<TKind, "error.setter">,
         Setter<
           null | FormSwitchBranchUnion<TKind, TBranches, "error.setter">,
           [FormSwitchBranchUnion<TKind, TBranches, "error.schema.verbose">]
@@ -31,7 +31,7 @@ type FormSwitchErrorSetter<
   // verbose
   | Partial<
       FormSwitchVerboseSchema<
-        GetSignalFormParam<TKind, "error.setter">,
+        GetFormParam<TKind, "error.setter">,
         Setter<
           null | Partial<GetFormSwitchBranchesParam<TBranches, "error.setter">>,
           [GetFormSwitchBranchesParam<TBranches, "error.schema.verbose">]

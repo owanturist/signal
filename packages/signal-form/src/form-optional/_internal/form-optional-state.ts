@@ -9,7 +9,7 @@ import { isUndefined } from "~/tools/is-undefined"
 import { Lazy } from "~/tools/lazy"
 
 import { toConcise } from "../../_internal/to-concise"
-import type { GetSignalFormParams } from "../../signal-form/_internal/get-signal-form-params"
+import type { GetFormParams } from "../../signal-form/_internal/get-form-params"
 import {
   type SignalFormChild,
   SignalFormState,
@@ -40,13 +40,13 @@ class FormOptionalState<
 > extends SignalFormState<FormOptionalParams<TEnabled, TElement>> {
   public readonly _host = Lazy(() => new FormOptional(this))
 
-  public readonly _enabled: SignalFormState<GetSignalFormParams<TEnabled>>
-  public readonly _element: SignalFormState<GetSignalFormParams<TElement>>
+  public readonly _enabled: SignalFormState<GetFormParams<TEnabled>>
+  public readonly _element: SignalFormState<GetFormParams<TElement>>
 
   public constructor(
     parent: null | SignalFormState,
-    enabled: SignalFormState<GetSignalFormParams<TEnabled>>,
-    element: SignalFormState<GetSignalFormParams<TElement>>,
+    enabled: SignalFormState<GetFormParams<TEnabled>>,
+    element: SignalFormState<GetFormParams<TElement>>,
   ) {
     super(parent)
 
@@ -60,7 +60,7 @@ class FormOptionalState<
 
   public _getEnabledElement(
     monitor: Monitor,
-  ): undefined | SignalFormState<GetSignalFormParams<TElement>> {
+  ): undefined | SignalFormState<GetFormParams<TElement>> {
     return this._isEnabled(monitor) ? this._element : undefined
   }
 

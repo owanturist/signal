@@ -1,6 +1,6 @@
 import type { Setter } from "~/tools/setter"
 
-import type { GetSignalFormParam } from "../signal-form/get-signal-form-param"
+import type { GetFormParam } from "../signal-form/get-form-param"
 import type { SignalForm } from "../signal-form/signal-form"
 
 import type { FormSwitchBranches } from "./form-switch-branches"
@@ -14,7 +14,7 @@ type FormSwitchInputSetter<
 > = Setter<
   Partial<
     FormSwitchVerboseSchema<
-      GetSignalFormParam<TKind, "input.setter">,
+      GetFormParam<TKind, "input.setter">,
       Setter<
         Partial<GetFormSwitchBranchesParam<TBranches, "input.setter">>,
         [

@@ -3,7 +3,7 @@ import { Signal, batch } from "@owanturist/signal"
 import { isShallowArrayEqual } from "~/tools/is-shallow-array-equal"
 import { isUndefined } from "~/tools/is-undefined"
 
-import type { GetSignalFormInput } from "../signal-form/get-signal-form-input"
+import type { GetFormInput } from "../signal-form/get-form-input"
 import type { SignalForm } from "../signal-form/signal-form"
 
 import type { FormListErrorSetter } from "./form-list-error-setter"
@@ -16,7 +16,7 @@ import { FormListState } from "./_internal/form-list-state"
 type FormList<TElement extends SignalForm> = FormListImpl<TElement>
 
 type FormListElementFactory<TElement extends SignalForm> = (
-  input: GetSignalFormInput<TElement>,
+  input: GetFormInput<TElement>,
   index: number,
 ) => TElement
 
@@ -45,7 +45,7 @@ function FormList<TElement extends SignalForm>(
 
     (value, index) => FormListImpl._getState(factory(value, index)),
 
-    Signal<GetSignalFormInput<TElement>>([], {
+    Signal<GetFormInput<TElement>>([], {
       equals: isShallowArrayEqual,
     }),
   )

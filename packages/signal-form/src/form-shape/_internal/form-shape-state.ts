@@ -13,7 +13,7 @@ import { mapValues } from "~/tools/map-values"
 import { values } from "~/tools/values"
 
 import { toConcise } from "../../_internal/to-concise"
-import type { GetSignalFormParams } from "../../signal-form/_internal/get-signal-form-params"
+import type { GetFormParams } from "../../signal-form/_internal/get-form-params"
 import {
   type SignalFormChild,
   SignalFormState,
@@ -40,7 +40,7 @@ import type { FormShapeValidateOnVerbose } from "../form-shape-validate-on-verbo
 import { FormShape } from "./form-shape"
 
 type FormShapeStateFields<TFields extends FormShapeFields<TFields>> = {
-  [TField in keyof TFields]: SignalFormState<GetSignalFormParams<TFields[TField]>>
+  [TField in keyof TFields]: SignalFormState<GetFormParams<TFields[TField]>>
 }
 
 class FormShapeState<

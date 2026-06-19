@@ -1,5 +1,5 @@
-import type { GetSignalFormOutput } from "../../signal-form/get-signal-form-output"
-import type { GetSignalFormParam } from "../../signal-form/get-signal-form-param"
+import type { GetFormOutput } from "../../signal-form/get-form-output"
+import type { GetFormParam } from "../../signal-form/get-form-param"
 import type { SignalForm } from "../../signal-form/signal-form"
 import type { SignalFormParams } from "../../signal-form/signal-form-params"
 import type { FormSwitchBranch } from "../form-switch-branch"
@@ -10,10 +10,10 @@ type FormSwitchBranchUnion<
   TBranches extends FormSwitchBranches<TKind>,
   TKey extends keyof SignalFormParams,
 > = {
-  [TBranch in GetSignalFormOutput<TKind>]: FormSwitchBranch<
+  [TBranch in GetFormOutput<TKind>]: FormSwitchBranch<
     TBranch,
-    GetSignalFormParam<TBranches[TBranch], TKey>
+    GetFormParam<TBranches[TBranch], TKey>
   >
-}[GetSignalFormOutput<TKind>]
+}[GetFormOutput<TKind>]
 
 export type { FormSwitchBranchUnion }

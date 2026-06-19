@@ -13,12 +13,12 @@ import { map } from "~/tools/map"
 import { take } from "~/tools/take"
 
 import { toConcise } from "../../_internal/to-concise"
-import type { GetSignalFormParams } from "../../signal-form/_internal/get-signal-form-params"
+import type { GetFormParams } from "../../signal-form/_internal/get-form-params"
 import {
   type SignalFormChild,
   SignalFormState,
 } from "../../signal-form/_internal/signal-form-state"
-import type { GetSignalFormInput } from "../../signal-form/get-signal-form-input"
+import type { GetFormInput } from "../../signal-form/get-form-input"
 import type { SignalForm } from "../../signal-form/signal-form"
 import type { SignalFormParams } from "../../signal-form/signal-form-params"
 import { VALIDATE_ON_TOUCH } from "../../validate-strategy"
@@ -40,22 +40,22 @@ import type { FormListValidateOnVerbose } from "../form-list-validate-on-verbose
 import { FormList } from "./form-list"
 
 type FormListElementFactoryInternal<TElement extends SignalForm> = (
-  input: GetSignalFormInput<TElement>,
+  input: GetFormInput<TElement>,
   index: number,
-) => SignalFormState<GetSignalFormParams<TElement>>
+) => SignalFormState<GetFormParams<TElement>>
 
 class FormListState<TElement extends SignalForm = SignalForm> extends SignalFormState<
   FormListParams<TElement>
 > {
   public readonly _host = Lazy(() => new FormList(this))
 
-  public readonly _elements: Signal<ReadonlyArray<SignalFormState<GetSignalFormParams<TElement>>>>
+  public readonly _elements: Signal<ReadonlyArray<SignalFormState<GetFormParams<TElement>>>>
 
   public constructor(
     parent: null | SignalFormState,
     private readonly _factory: FormListElementFactoryInternal<TElement>,
-    public readonly _initialInputs: Signal<ReadonlyArray<GetSignalFormInput<TElement>>>,
-    elements: ReadonlyArray<SignalFormState<GetSignalFormParams<TElement>>> = [],
+    public readonly _initialInputs: Signal<ReadonlyArray<GetFormInput<TElement>>>,
+    elements: ReadonlyArray<SignalFormState<GetFormParams<TElement>>> = [],
   ) {
     super(parent)
 
