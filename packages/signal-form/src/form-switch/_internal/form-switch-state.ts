@@ -11,7 +11,7 @@ import { Lazy } from "~/tools/lazy"
 import { mapValues } from "~/tools/map-values"
 import { values } from "~/tools/values"
 
-import type { GetSignalFormParams } from "../../signal-form/_internal/get-signal-form-params"
+import type { GetFormParams } from "../../signal-form/_internal/get-form-params"
 import {
   type SignalFormChild,
   SignalFormState,
@@ -41,7 +41,7 @@ import type { FormSwitchConciseParam } from "./form-switch-concise-param"
 import type { FormSwitchVerboseParam } from "./form-switch-verbose-param"
 
 type FormSwitchStateBranches<TBranches> = {
-  [TBranch in keyof TBranches]: SignalFormState<GetSignalFormParams<TBranches[TBranch]>>
+  [TBranch in keyof TBranches]: SignalFormState<GetFormParams<TBranches[TBranch]>>
 }
 
 type ActiveSwitchStateBranch<TBranches> = FormSwitchBranch<
@@ -55,12 +55,12 @@ class FormSwitchState<
 > extends SignalFormState<FormSwitchParams<TKind, TBranches>> {
   public readonly _host = Lazy(() => new FormSwitch(this))
 
-  public readonly _active: SignalFormState<GetSignalFormParams<TKind>>
+  public readonly _active: SignalFormState<GetFormParams<TKind>>
   public readonly _branches: FormSwitchStateBranches<TBranches>
 
   public constructor(
     parent: null | SignalFormState,
-    active: SignalFormState<GetSignalFormParams<TKind>>,
+    active: SignalFormState<GetFormParams<TKind>>,
     branches: FormSwitchStateBranches<TBranches>,
   ) {
     super(parent)

@@ -1,6 +1,6 @@
 import type { Setter } from "~/tools/setter"
 
-import type { GetSignalFormParam } from "../signal-form/get-signal-form-param"
+import type { GetFormParam } from "../signal-form/get-form-param"
 import type { SignalForm } from "../signal-form/signal-form"
 import type { ValidateStrategy } from "../validate-strategy"
 
@@ -14,8 +14,8 @@ type FormOptionalValidateOnSetter<
   | ValidateStrategy
   | Partial<
       FormOptionalSchema<
-        GetSignalFormParam<TEnabled, "validateOn.setter">,
-        GetSignalFormParam<TElement, "validateOn.setter">
+        GetFormParam<TEnabled, "validateOn.setter">,
+        GetFormParam<TElement, "validateOn.setter">
       >
     >,
   [FormOptionalValidateOnVerbose<TEnabled, TElement>]

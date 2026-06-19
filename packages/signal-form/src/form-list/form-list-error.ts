@@ -1,6 +1,6 @@
-import type { GetSignalFormError } from "../signal-form/get-signal-form-error"
+import type { GetFormError } from "../signal-form/get-form-error"
 import type { SignalForm } from "../signal-form/signal-form"
 
-type FormListError<TElement extends SignalForm> = null | ReadonlyArray<GetSignalFormError<TElement>>
+type FormListError<TElement extends SignalForm> = null | ReadonlyArray<GetFormError<TElement>>
 
 export type { FormListError }

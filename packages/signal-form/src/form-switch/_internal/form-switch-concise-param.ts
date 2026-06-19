@@ -1,4 +1,4 @@
-import type { GetSignalFormParam } from "../../signal-form/get-signal-form-param"
+import type { GetFormParam } from "../../signal-form/get-form-param"
 import type { SignalForm } from "../../signal-form/signal-form"
 import type { SignalFormParams } from "../../signal-form/signal-form-params"
 import type { FormSwitchBranches } from "../form-switch-branches"
@@ -14,7 +14,7 @@ type FormSwitchConciseParam<
 > =
   | TConcise
   | FormSwitchConciseSchema<
-      TConcise | GetSignalFormParam<TKind, TKey>,
+      TConcise | GetFormParam<TKind, TKey>,
       TConcise | FormSwitchBranchUnion<TKind, TBranches, TKey>
     >
 

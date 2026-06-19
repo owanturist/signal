@@ -1,6 +1,6 @@
 import type { Setter } from "~/tools/setter"
 
-import type { GetSignalFormParam } from "../signal-form/get-signal-form-param"
+import type { GetFormParam } from "../signal-form/get-form-param"
 import type { SignalForm } from "../signal-form/signal-form"
 import type { ValidateStrategy } from "../validate-strategy"
 
@@ -21,7 +21,7 @@ type FormSwitchValidateOnSetter<
   // concise details
   | Partial<
       FormSwitchConciseSchema<
-        GetSignalFormParam<TKind, "validateOn.setter">,
+        GetFormParam<TKind, "validateOn.setter">,
         Setter<
           ValidateStrategy | FormSwitchBranchUnion<TKind, TBranches, "validateOn.setter">,
           [FormSwitchBranchUnion<TKind, TBranches, "validateOn.schema.verbose">]
@@ -32,7 +32,7 @@ type FormSwitchValidateOnSetter<
   // verbose
   | Partial<
       FormSwitchVerboseSchema<
-        GetSignalFormParam<TKind, "validateOn.setter">,
+        GetFormParam<TKind, "validateOn.setter">,
         Setter<
           ValidateStrategy | Partial<GetFormSwitchBranchesParam<TBranches, "validateOn.setter">>,
           [GetFormSwitchBranchesParam<TBranches, "validateOn.schema.verbose">]

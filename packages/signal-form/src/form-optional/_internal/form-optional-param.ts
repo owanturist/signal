@@ -1,4 +1,4 @@
-import type { GetSignalFormParam } from "../../signal-form/get-signal-form-param"
+import type { GetFormParam } from "../../signal-form/get-form-param"
 import type { SignalForm } from "../../signal-form/signal-form"
 import type { SignalFormParams } from "../../signal-form/signal-form-params"
 import type { FormOptionalSchema } from "../form-optional-schema"
@@ -11,8 +11,8 @@ type FormOptionalParam<
 > =
   | TConcise
   | FormOptionalSchema<
-      TConcise | GetSignalFormParam<TEnabled, TKey>,
-      TConcise | GetSignalFormParam<TElement, TKey>
+      TConcise | GetFormParam<TEnabled, TKey>,
+      TConcise | GetFormParam<TElement, TKey>
     >
 
 export type { FormOptionalParam }

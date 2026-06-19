@@ -1,6 +1,6 @@
 import type { Compute } from "~/tools/compute"
 
-import type { GetSignalFormParam } from "../../signal-form/get-signal-form-param"
+import type { GetFormParam } from "../../signal-form/get-form-param"
 import type { SignalForm } from "../../signal-form/signal-form"
 import type { SignalFormParams } from "../../signal-form/signal-form-params"
 import type { FormSwitchBranches } from "../form-switch-branches"
@@ -12,10 +12,7 @@ type FormSwitchVerboseParam<
   TBranches extends FormSwitchBranches<TKind>,
   TKey extends keyof SignalFormParams,
 > = Compute<
-  FormSwitchVerboseSchema<
-    GetSignalFormParam<TKind, TKey>,
-    GetFormSwitchBranchesParam<TBranches, TKey>
-  >
+  FormSwitchVerboseSchema<GetFormParam<TKind, TKey>, GetFormSwitchBranchesParam<TBranches, TKey>>
 >
 
 export type { FormSwitchVerboseParam }
