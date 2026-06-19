@@ -48,7 +48,7 @@ class FormList<TElement extends SignalForm> extends SignalForm<FormListParams<TE
 
       for (const [index, child] of entries(nextStateElements)) {
         if (index < initialInputs.length) {
-          if (child._root === this._state) {
+          if (child._hasSameRootWith(this._state)) {
             // existing: force initial override
             child._setInitial(monitor, initialInputs.at(index))
           } else {

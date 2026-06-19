@@ -115,6 +115,8 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     for (const [index, element] of entries(existing)) {
       element._patchInitial(monitor, candidate.at(index))
     }
+
+    this._initialInputs.write(existing.map((element) => element._initial.read(monitor)))
   }
 
   public readonly _input = Signal(
@@ -289,16 +291,14 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
       map(elements, ({ _dirty, _dirtyOn }, index) => {
         if (index >= initialInputs.length) {
           // added elements are always dirty
-          return _dirtyOn.read(monitor)
+          return true
         }
 
         return _dirty.read(monitor)
       }),
 
       // removed elements are always dirty
-      map(drop(initialInputs, elements.length), (initial, index) =>
-        this._factory(initial, elements.length + index)._dirtyOn.read(monitor),
-      ),
+      map(drop(initialInputs, elements.length), () => true),
     )
 
     return toConcise(dirty, isBoolean, false)
@@ -332,7 +332,7 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     const dirtyOn = concat(
       map(elements, ({ _dirtyOn }) => _dirtyOn.read(monitor)),
 
-      // removed elements should create first
+      //  materialize removed slots on demand to read their dirty state
       map(drop(initialInputs, elements.length), (initial, index) =>
         this._factory(initial, elements.length + index)._dirtyOn.read(monitor),
       ),
@@ -348,7 +348,7 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     return concat(
       map(elements, ({ _dirtyOnVerbose }) => _dirtyOnVerbose.read(monitor)),
 
-      // removed elements should create first
+      //  materialize removed slots on demand to read their dirty state
       map(drop(initialInputs, elements.length), (initial, index) =>
         this._factory(initial, elements.length + index)._dirtyOnVerbose.read(monitor),
       ),
