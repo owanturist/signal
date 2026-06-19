@@ -4,6 +4,7 @@ import { hasProperty } from "~/tools/has-property"
 import { isNull } from "~/tools/is-null"
 import { isShallowArrayEqual } from "~/tools/is-shallow-array-equal"
 import { isStrictEqual } from "~/tools/is-strict-equal"
+import { isUndefined } from "~/tools/is-undefined"
 
 import type { SignalForm } from "../signal-form/signal-form"
 import { VALIDATE_ON_INIT, VALIDATE_ON_TOUCH, type ValidateStrategy } from "../validate-strategy"
@@ -212,6 +213,7 @@ function FormUnit<TInput, TError = null, TOutput = TInput>(
   | FormUnit<TInput, TError, TOutput> /* enforce syntax highlight */ {
   const isInputEqual = options?.isInputEqual ?? isStrictEqual
   const isInputDirty = options?.isInputDirty ?? ((left, right) => !isInputEqual(left, right))
+  const isInitialExplicit = !isUndefined(options?.initial)
   const initialOrInput = options?.initial ?? input_
 
   const input = Signal(input_, { equals: isInputEqual })
@@ -241,6 +243,7 @@ function FormUnit<TInput, TError = null, TOutput = TInput>(
       isInputDirty,
       isOutputEqual,
       isErrorEqual,
+      isInitialExplicit,
     )._host()
   }
 
@@ -270,6 +273,7 @@ function FormUnit<TInput, TError = null, TOutput = TInput>(
       isInputDirty,
       isOutputEqual,
       isErrorEqual,
+      isInitialExplicit,
     )._host()
   }
 
@@ -291,6 +295,7 @@ function FormUnit<TInput, TError = null, TOutput = TInput>(
       isInputDirty,
       isOutputEqual,
       isErrorEqual,
+      isInitialExplicit,
     )._host()
   }
 
@@ -305,6 +310,7 @@ function FormUnit<TInput, TError = null, TOutput = TInput>(
     isInputDirty,
     createIsUnionEqual(isNull, isInputEqual),
     isErrorEqual,
+    isInitialExplicit,
   )._host()
 }
 

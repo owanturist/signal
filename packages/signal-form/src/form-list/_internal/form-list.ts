@@ -43,16 +43,24 @@ class FormList<TElement extends SignalForm> extends SignalForm<FormListParams<TE
 
       const nextStateElements = map(
         isFunction(setter) ? setter(this._state._getElements(monitor), monitor) : setter,
-        (element) => this._state._parentOf(SignalForm._getState(element)),
+        (element) => SignalForm._getState(element),
       )
 
       for (const [index, child] of entries(nextStateElements)) {
         if (index < initialInputs.length) {
-          child._setInitial(monitor, initialInputs.at(index))
+          if (child._root === this._state) {
+            // existing: force initial override
+            child._setInitial(monitor, initialInputs.at(index))
+          } else {
+            // new: respect explicit initial
+            child._patchInitial(monitor, initialInputs.at(index))
+          }
         }
       }
 
-      this._state._elements.write(nextStateElements)
+      this._state._elements.write(
+        map(nextStateElements, (element) => this._state._parentOf(element)),
+      )
     })
   }
 }

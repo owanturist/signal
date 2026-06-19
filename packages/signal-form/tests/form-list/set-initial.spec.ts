@@ -202,7 +202,7 @@ describe("adding a new element to the list's beginning", () => {
     ])
   })
 
-  it.fails("overrides initial value for a list by a new element", ({ monitor }) => {
+  it("overrides initial value for a list by a new element", ({ monitor }) => {
     const form = FormList((input) => setupElement(input), {
       initial: [
         { first: 1, second: "1" },
@@ -266,6 +266,71 @@ describe("adding a new element to the list's beginning", () => {
       { first: 3, second: "3" },
       { first: 2, second: "2" },
     ])
+  })
+
+  it("keeps an explicit-initial leaf intact through the list's setElements patch", ({
+    monitor,
+  }) => {
+    const form = FormList((input: number) => FormUnit(input), {
+      initial: [1, 2],
+    })
+
+    form.setElements((elements) => [FormUnit(0, { initial: 99 }), ...elements])
+
+    // Position 0: new element is patched with initialInputs[0]=1 → its explicit
+    //   leaf rejects the patch and stays at 99.
+    // Position 1: existing e0 is force-set to initialInputs[1]=2 (existing
+    //   children always adopt the new positional initial via _setInitial).
+    // Position 2: e1 is past initialInputs.length and is left alone.
+    expect(form.getInitial(monitor)).toStrictEqual([99, 2])
+    expect(form.getElements(monitor).map((element) => element.getInitial(monitor))).toStrictEqual([
+      99, 2, 2,
+    ])
+  })
+
+  it("preserves explicit leaves inside a nested-list element on outer prepend", ({ monitor }) => {
+    const form = FormList(
+      (initial: ReadonlyArray<number>) => FormList((n: number) => FormUnit(n), { initial }),
+      {
+        initial: [[1, 2]],
+      },
+    )
+
+    // Outer list has _initialInputs = [[1, 2]]. Prepend an inner list whose
+    // leaves are explicit at the FormUnit factory level.
+    form.setElements((elements) => [
+      FormList((n: number) => FormUnit(n, { initial: n }), { input: [9, 8] }),
+      ...elements,
+    ])
+
+    // Outer patch reaches the inner list's leaves; explicit leaves no-op.
+    expect(
+      form
+        .getElements(monitor)
+        .at(0)!
+        .getElements(monitor)
+        .map((u) => u.getInitial(monitor)),
+    ).toStrictEqual([9, 8])
+  })
+
+  it("patches some shape fields while leaving the explicit one alone", ({ monitor }) => {
+    const form = FormList((input) => setupElement(input), {
+      initial: [{ first: 1, second: "1" }],
+    })
+
+    form.setElements((elements) => [
+      FormShape({
+        first: FormUnit(0, { initial: 42 }),
+        second: FormUnit("0"),
+      }),
+      ...elements,
+    ])
+
+    // first stays explicit at 42; second gets patched from _initialInputs[0].second.
+    expect(form.getElements(monitor).at(0)!.getInitial(monitor)).toStrictEqual({
+      first: 42,
+      second: "1",
+    })
   })
 })
 

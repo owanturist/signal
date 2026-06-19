@@ -122,6 +122,16 @@ class FormOptionalState<
     }
   }
 
+  public _patchInitial(monitor: Monitor, candidate: FormOptionalInput<TEnabled, TElement>): void {
+    if (!isUndefined(candidate.enabled)) {
+      this._enabled._patchInitial(monitor, candidate.enabled)
+    }
+
+    if (!isUndefined(candidate.element)) {
+      this._element._patchInitial(monitor, candidate.element)
+    }
+  }
+
   // I N P U T
 
   public readonly _input = Signal(

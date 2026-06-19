@@ -152,6 +152,18 @@ class FormSwitchState<
     }
   }
 
+  public _patchInitial(monitor: Monitor, candidate: FormSwitchInput<TKind, TBranches>): void {
+    if (!isUndefined(candidate.active)) {
+      this._active._patchInitial(monitor, candidate.active)
+    }
+
+    for (const [kind, branch] of entries(this._branches)) {
+      if (hasProperty(candidate.branches, kind) && !isUndefined(candidate.branches[kind])) {
+        branch._patchInitial(monitor, candidate.branches[kind])
+      }
+    }
+  }
+
   // I N P U T
 
   public readonly _input = Signal(

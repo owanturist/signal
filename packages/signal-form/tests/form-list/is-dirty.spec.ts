@@ -1075,7 +1075,7 @@ describe("after FormList#setInitial()", () => {
     ])
   })
 
-  it.todo("returns false when initial elements are extended by the new elements' initial values", ({
+  it("returns false when initial elements are extended by the new elements' initial values", ({
     monitor,
   }) => {
     const form = setup({

@@ -109,6 +109,14 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     this._initialInputs.write(initial)
   }
 
+  public _patchInitial(monitor: Monitor, candidate: FormListInput<TElement>): void {
+    const existing = take(this._elements.read(monitor), candidate.length)
+
+    for (const [index, element] of entries(existing)) {
+      element._patchInitial(monitor, candidate.at(index))
+    }
+  }
+
   public readonly _input = Signal(
     (monitor): FormListInput<TElement> =>
       map(this._elements.read(monitor), ({ _input }) => _input.read(monitor)),
@@ -131,7 +139,7 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
 
       // assign stored initial values
       if (slotIndex < initials.length) {
-        element._setInitial(monitor, initials.at(slotIndex))
+        element._patchInitial(monitor, initials.at(slotIndex))
       }
 
       return this._parentOf(element)

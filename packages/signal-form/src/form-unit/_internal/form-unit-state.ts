@@ -41,6 +41,7 @@ class FormUnitState<TInput, TError, TOutput> extends SignalFormState<
     private readonly _isInputDirty: Equal<TInput>,
     private readonly _isOutputEqual: Equal<null | TOutput>,
     private readonly _isErrorEqual: Equal<null | TError>,
+    private _isInitialExplicit: boolean,
   ) {
     super(parent)
 
@@ -156,6 +157,7 @@ class FormUnitState<TInput, TError, TOutput> extends SignalFormState<
       this._isInputDirty,
       this._isOutputEqual,
       this._isErrorEqual,
+      this._isInitialExplicit,
     )
   }
 
@@ -166,6 +168,16 @@ class FormUnitState<TInput, TError, TOutput> extends SignalFormState<
       isFunction(setter) ? setter(initial, this._input.read(monitor)) : setter,
     )
 
+    this._isInitialExplicit = true
+    this._validated.write(identity)
+  }
+
+  public _patchInitial(_monitor: Monitor, candidate: TInput): void {
+    if (this._isInitialExplicit) {
+      return
+    }
+
+    this._initial.write(candidate)
     this._validated.write(identity)
   }
 
@@ -259,6 +271,9 @@ class FormUnitState<TInput, TError, TOutput> extends SignalFormState<
         : resetter
 
     this._initial.write(resetValue)
+    if (!isUndefined(resetter)) {
+      this._isInitialExplicit = true
+    }
     this._input.write(resetValue)
     // TODO test when reset for all below
     this._touched.write(false)

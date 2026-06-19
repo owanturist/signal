@@ -44,6 +44,11 @@ abstract class SignalFormState<
 
   public abstract _setInitial(monitor: Monitor, setter: TParams["input.setter"]): void
 
+  /**
+   * Like {@link _setInitial} but a no-op for explicitly set initials.
+   */
+  public abstract _patchInitial(monitor: Monitor, candidate: TParams["input.schema"]): void
+
   // I N P U T
 
   public abstract readonly _input: ReadonlySignal<TParams["input.schema"]>
