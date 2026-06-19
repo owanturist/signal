@@ -63,14 +63,11 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
   }
 
   public _childOf(parent: null | SignalFormState): FormListState<TElement> {
-    return untracked(
-      (monitor) =>
-        new FormListState<TElement>(
-          parent,
-          this._factory,
-          this._initialInputs.clone(),
-          this._elements.read(monitor),
-        ),
+    return new FormListState<TElement>(
+      parent,
+      this._factory,
+      this._initialInputs.clone(),
+      untracked(this._elements),
     )
   }
 
@@ -80,9 +77,8 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
 
   public readonly _initial = Signal((monitor): FormListInput<TElement> => {
     const elements = this._elements.read(monitor)
-    const initialInputs = this._initialInputs.read(monitor)
 
-    return map(initialInputs, (input, index) => {
+    return map(this._initialInputs.read(monitor), (input, index) => {
       const element = elements.at(index)
 
       return element ? element._initial.read(monitor) : input
@@ -103,11 +99,11 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     this._initialInputs.write(initial)
   }
 
-  public _patchInitial(monitor: Monitor, candidate: FormListInput<TElement>): void {
-    const existing = take(this._elements.read(monitor), candidate.length)
+  public _patchInitial(monitor: Monitor, initials: FormListInput<TElement>): void {
+    const existing = take(this._elements.read(monitor), initials.length)
 
     for (const [index, element] of entries(existing)) {
-      element._patchInitial(monitor, candidate[index])
+      element._patchInitial(monitor, initials[index])
     }
 
     this._initialInputs.write(existing.map((element) => element._initial.read(monitor)))
