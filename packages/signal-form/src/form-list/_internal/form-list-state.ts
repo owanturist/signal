@@ -6,7 +6,6 @@ import { entries } from "~/tools/entries"
 import { isBoolean } from "~/tools/is-boolean"
 import { isFunction } from "~/tools/is-function"
 import { isNull } from "~/tools/is-null"
-import { isShallowArrayEqual } from "~/tools/is-shallow-array-equal"
 import { isString } from "~/tools/is-string"
 import { isUndefined } from "~/tools/is-undefined"
 import { Lazy } from "~/tools/lazy"
@@ -52,19 +51,14 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
 
   public readonly _elements: Signal<ReadonlyArray<SignalFormState<GetSignalFormParams<TElement>>>>
 
-  public readonly _initialInputs: Signal<ReadonlyArray<GetSignalFormInput<TElement>>>
-
   public constructor(
     parent: null | SignalFormState,
     private readonly _factory: FormListElementFactoryInternal<TElement>,
-    initialInputs: ReadonlyArray<GetSignalFormInput<TElement>> = [],
+    public readonly _initialInputs: Signal<ReadonlyArray<GetSignalFormInput<TElement>>>,
     elements: ReadonlyArray<SignalFormState<GetSignalFormParams<TElement>>> = [],
   ) {
     super(parent)
 
-    this._initialInputs = Signal(initialInputs, {
-      equals: isShallowArrayEqual,
-    })
     this._elements = Signal(map(elements, (element) => this._parentOf(element)))
   }
 
@@ -74,7 +68,7 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
         new FormListState<TElement>(
           parent,
           this._factory,
-          this._initialInputs.read(monitor),
+          this._initialInputs.clone(),
           this._elements.read(monitor),
         ),
     )

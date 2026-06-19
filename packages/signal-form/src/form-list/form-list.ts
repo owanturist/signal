@@ -1,5 +1,6 @@
-import { batch } from "@owanturist/signal"
+import { Signal, batch } from "@owanturist/signal"
 
+import { isShallowArrayEqual } from "~/tools/is-shallow-array-equal"
 import { isUndefined } from "~/tools/is-undefined"
 
 import type { GetSignalFormInput } from "../signal-form/get-signal-form-input"
@@ -42,7 +43,13 @@ function FormList<TElement extends SignalForm>(
   const wrappedFactory = (inputValue: GetSignalFormInput<TElement>, index: number) =>
     FormListImpl._getState(factory(inputValue, index))
 
-  const state = new FormListState<TElement>(null, wrappedFactory)
+  const state = new FormListState<TElement>(
+    null,
+    wrappedFactory,
+    Signal<GetSignalFormInput<TElement>>([], {
+      equals: isShallowArrayEqual,
+    }),
+  )
 
   batch((monitor) => {
     const inputOrInitial = input ?? initial
