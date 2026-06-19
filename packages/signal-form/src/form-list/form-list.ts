@@ -40,12 +40,11 @@ function FormList<TElement extends SignalForm>(
   factory: FormListElementFactory<TElement>,
   { input, initial, touched, validateOn, error }: FormListOptions<TElement> = {},
 ): FormList<TElement> {
-  const wrappedFactory = (inputValue: GetSignalFormInput<TElement>, index: number) =>
-    FormListImpl._getState(factory(inputValue, index))
-
   const state = new FormListState<TElement>(
     null,
-    wrappedFactory,
+
+    (value, index) => FormListImpl._getState(factory(value, index)),
+
     Signal<GetSignalFormInput<TElement>>([], {
       equals: isShallowArrayEqual,
     }),

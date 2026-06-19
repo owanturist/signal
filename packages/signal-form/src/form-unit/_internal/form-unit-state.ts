@@ -173,12 +173,10 @@ class FormUnitState<TInput, TError, TOutput> extends SignalFormState<
   }
 
   public _patchInitial(_monitor: Monitor, candidate: TInput): void {
-    if (this._isInitialExplicit) {
-      return
+    if (!this._isInitialExplicit) {
+      this._initial.write(candidate)
+      this._validated.write(identity)
     }
-
-    this._initial.write(candidate)
-    this._validated.write(identity)
   }
 
   // I N P U T
@@ -270,10 +268,11 @@ class FormUnitState<TInput, TError, TOutput> extends SignalFormState<
         ? resetter(this._initial.read(monitor), this._input.read(monitor))
         : resetter
 
-    this._initial.write(resetValue)
     if (!isUndefined(resetter)) {
       this._isInitialExplicit = true
     }
+
+    this._initial.write(resetValue)
     this._input.write(resetValue)
     // TODO test when reset for all below
     this._touched.write(false)

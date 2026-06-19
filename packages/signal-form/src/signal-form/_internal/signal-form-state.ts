@@ -47,7 +47,7 @@ abstract class SignalFormState<
   /**
    * Like {@link _setInitial} but a no-op for explicitly set initials.
    */
-  public abstract _patchInitial(monitor: Monitor, candidate: TParams["input.schema"]): void
+  public abstract _patchInitial(monitor: Monitor, initial: TParams["input.schema"]): void
 
   // I N P U T
 

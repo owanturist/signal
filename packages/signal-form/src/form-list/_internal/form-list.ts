@@ -39,21 +39,21 @@ class FormList<TElement extends SignalForm> extends SignalForm<FormListParams<TE
     setter: Setter<ReadonlyArray<TElement>, [ReadonlyArray<TElement>, Monitor]>,
   ): void {
     batch((monitor) => {
-      const initialInputs = this.getInitial(monitor)
+      const initials = this.getInitial(monitor)
 
       const nextStateElements = map(
         isFunction(setter) ? setter(this._state._getElements(monitor), monitor) : setter,
-        (element) => SignalForm._getState(element),
+        SignalForm._getState,
       )
 
       for (const [index, child] of entries(nextStateElements)) {
-        if (index < initialInputs.length) {
+        if (index < initials.length) {
           if (child._hasSameRootWith(this._state)) {
             // existing: force initial override
-            child._setInitial(monitor, initialInputs.at(index))
+            child._setInitial(monitor, initials[index])
           } else {
             // new: respect explicit initial
-            child._patchInitial(monitor, initialInputs.at(index))
+            child._patchInitial(monitor, initials[index])
           }
         }
       }

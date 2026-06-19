@@ -97,7 +97,7 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     const existing = take(this._elements.read(monitor), initial.length)
 
     for (const [index, element] of entries(existing)) {
-      element._setInitial(monitor, initial.at(index))
+      element._setInitial(monitor, initial[index])
     }
 
     this._initialInputs.write(initial)
@@ -107,7 +107,7 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     const existing = take(this._elements.read(monitor), candidate.length)
 
     for (const [index, element] of entries(existing)) {
-      element._patchInitial(monitor, candidate.at(index))
+      element._patchInitial(monitor, candidate[index])
     }
 
     this._initialInputs.write(existing.map((element) => element._initial.read(monitor)))
@@ -126,7 +126,7 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     const existing = take(this._elements.read(monitor), inputs.length)
 
     for (const [index, element] of entries(existing)) {
-      element._setInput(monitor, inputs.at(index))
+      element._setInput(monitor, inputs[index])
     }
 
     const created = drop(inputs, existing.length).map((input, index) => {
@@ -135,7 +135,7 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
 
       // assign stored initial values
       if (slotIndex < initials.length) {
-        element._patchInitial(monitor, initials.at(slotIndex))
+        element._patchInitial(monitor, initials[slotIndex])
       }
 
       return this._parentOf(element)

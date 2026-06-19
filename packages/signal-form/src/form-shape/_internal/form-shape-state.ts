@@ -79,11 +79,9 @@ class FormShapeState<
     }
   }
 
-  public _patchInitial(monitor: Monitor, candidate: FormShapeInput<TFields>): void {
+  public _patchInitial(monitor: Monitor, initials: FormShapeInput<TFields>): void {
     for (const [key, field] of entries(this._fields)) {
-      if (hasProperty(candidate, key) && !isUndefined(candidate[key])) {
-        field._patchInitial(monitor, candidate[key])
-      }
+      field._patchInitial(monitor, initials[key])
     }
   }
 

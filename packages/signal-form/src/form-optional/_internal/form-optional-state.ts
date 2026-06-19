@@ -122,14 +122,9 @@ class FormOptionalState<
     }
   }
 
-  public _patchInitial(monitor: Monitor, candidate: FormOptionalInput<TEnabled, TElement>): void {
-    if (!isUndefined(candidate.enabled)) {
-      this._enabled._patchInitial(monitor, candidate.enabled)
-    }
-
-    if (!isUndefined(candidate.element)) {
-      this._element._patchInitial(monitor, candidate.element)
-    }
+  public _patchInitial(monitor: Monitor, initial: FormOptionalInput<TEnabled, TElement>): void {
+    this._enabled._patchInitial(monitor, initial.enabled)
+    this._element._patchInitial(monitor, initial.element)
   }
 
   // I N P U T
