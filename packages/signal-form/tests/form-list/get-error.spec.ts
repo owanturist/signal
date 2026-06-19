@@ -3,21 +3,18 @@ import { z } from "zod"
 
 import { params } from "~/tools/params"
 
-import { FormList, FormUnit, type FormUnitSchemaOptions } from "../../src"
+import { FormList, type FormListOptions, FormUnit } from "../../src"
 
-function setup<TError>(elements: ReadonlyArray<FormUnit<number, TError>>) {
-  return FormList(elements)
-}
+type Element = FormUnit<number, ReadonlyArray<string>>
 
-function setupElement(initial: number, options?: Partial<FormUnitSchemaOptions<number>>) {
-  return FormUnit(initial, {
-    schema: z.number(),
-    ...options,
-  })
+function setup(options?: FormListOptions<Element>) {
+  return FormList((input: number) => FormUnit(input, { schema: z.number() }), options)
 }
 
 it("matches the type definition", ({ monitor }) => {
-  const form = setup([setupElement(0)])
+  const form = setup({
+    initial: [0],
+  })
 
   expectTypeOf(form.getError).toEqualTypeOf<{
     (monitor: Monitor): null | ReadonlyArray<null | ReadonlyArray<string>>
@@ -45,7 +42,9 @@ it("matches the type definition", ({ monitor }) => {
 })
 
 it("returns null for empty list", ({ monitor }) => {
-  const form = setup([])
+  const form = setup({
+    initial: [],
+  })
 
   expect(form.getError(monitor)).toBeNull()
   expect(form.getError(monitor, params._first)).toBeNull()
@@ -53,7 +52,9 @@ it("returns null for empty list", ({ monitor }) => {
 })
 
 it("returns null when none of the elements have errors", ({ monitor }) => {
-  const form = setup([setupElement(0), setupElement(1), setupElement(2)])
+  const form = setup({
+    initial: [0, 1, 2],
+  })
 
   expect(form.getError(monitor)).toBeNull()
   expect(form.getError(monitor, params._first)).toBeNull()
@@ -61,7 +62,10 @@ it("returns null when none of the elements have errors", ({ monitor }) => {
 })
 
 it("returns concise when at least one element has errors", ({ monitor }) => {
-  const form = setup([setupElement(0), setupElement(1), setupElement(2, { error: ["err"] })])
+  const form = setup({
+    initial: [0, 1, 2],
+    error: [null, null, ["err"]],
+  })
 
   const expected = [null, null, ["err"]]
 
@@ -71,11 +75,10 @@ it("returns concise when at least one element has errors", ({ monitor }) => {
 })
 
 it("returns concise when all elements have errors", ({ monitor }) => {
-  const form = setup([
-    setupElement(0, { error: ["err0"] }),
-    setupElement(1, { error: ["err1"] }),
-    setupElement(2, { error: ["err2"] }),
-  ])
+  const form = setup({
+    initial: [0, 1, 2],
+    error: [["err0"], ["err1"], ["err2"]],
+  })
 
   const expected = [["err0"], ["err1"], ["err2"]]
 

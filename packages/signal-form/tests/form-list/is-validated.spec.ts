@@ -3,21 +3,18 @@ import { z } from "zod"
 
 import { params } from "~/tools/params"
 
-import { FormList, FormUnit, type FormUnitSchemaOptions } from "../../src"
+import { FormList, type FormListOptions, FormUnit } from "../../src"
 
-function setup<TError>(elements: ReadonlyArray<FormUnit<number, TError>>) {
-  return FormList(elements)
-}
+type Element = FormUnit<number, ReadonlyArray<string>>
 
-function setupElement(initial: number, options?: Partial<FormUnitSchemaOptions<number>>) {
-  return FormUnit(initial, {
-    schema: z.number(),
-    ...options,
-  })
+function setup(options?: FormListOptions<Element>) {
+  return FormList<Element>((input: number) => FormUnit(input, { schema: z.number() }), options)
 }
 
 it("matches the type definition", ({ monitor }) => {
-  const form = setup([setupElement(0)])
+  const form = setup({
+    initial: [0],
+  })
 
   expectTypeOf(form.isValidated).toEqualTypeOf<{
     (monitor: Monitor): boolean
@@ -39,7 +36,9 @@ it("matches the type definition", ({ monitor }) => {
 })
 
 it("returns false for empty list", ({ monitor }) => {
-  const form = setup([])
+  const form = setup({
+    initial: [],
+  })
 
   expect(form.isValidated(monitor)).toBe(false)
   expect(form.isValidated(monitor, params._first)).toBe(false)
@@ -47,7 +46,9 @@ it("returns false for empty list", ({ monitor }) => {
 })
 
 it("returns false when all elements are not validated", ({ monitor }) => {
-  const form = setup([setupElement(0), setupElement(1), setupElement(2)])
+  const form = setup({
+    initial: [0, 1, 2],
+  })
 
   expect(form.isValidated(monitor)).toBe(false)
   expect(form.isValidated(monitor, params._first)).toBe(false)
@@ -55,11 +56,10 @@ it("returns false when all elements are not validated", ({ monitor }) => {
 })
 
 it("returns false when at least one element is not validated", ({ monitor }) => {
-  const form = setup([
-    setupElement(0, { validateOn: "onInit" }),
-    setupElement(1, { validateOn: "onInit" }),
-    setupElement(2),
-  ])
+  const form = setup({
+    initial: [0, 1, 2],
+    validateOn: ["onInit", "onInit"],
+  })
 
   expect(form.isValidated(monitor)).toBe(false)
   expect(form.isValidated(monitor, params._first)).toStrictEqual([true, true, false])
@@ -67,11 +67,10 @@ it("returns false when at least one element is not validated", ({ monitor }) => 
 })
 
 it("returns true when all elements are validated", ({ monitor }) => {
-  const form = setup([
-    setupElement(0, { validateOn: "onInit" }),
-    setupElement(1, { validateOn: "onInit" }),
-    setupElement(2, { validateOn: "onInit" }),
-  ])
+  const form = setup({
+    initial: [0, 1, 2],
+    validateOn: "onInit",
+  })
 
   expect(form.isValidated(monitor)).toBe(true)
   expect(form.isValidated(monitor, params._first)).toBe(true)
@@ -79,7 +78,10 @@ it("returns true when all elements are validated", ({ monitor }) => {
 })
 
 it("returns false when at least one element has custom errors", ({ monitor }) => {
-  const form = setup([setupElement(0, { error: ["error"] }), setupElement(1), setupElement(2)])
+  const form = setup({
+    initial: [0, 1, 2],
+    error: [["error"]],
+  })
 
   expect(form.isValidated(monitor)).toBe(false)
   expect(form.isValidated(monitor, params._first)).toStrictEqual([true, false, false])

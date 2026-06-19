@@ -15,7 +15,6 @@ it("selects value", ({ monitor }) => {
           schema: z.array(z.string().max(1)),
         }),
       }),
-      fourth: ["anything"],
     },
     {
       validateOn: "onInit",
@@ -30,7 +29,6 @@ it("selects value", ({ monitor }) => {
       one: true,
       two: ["1"],
     },
-    fourth: ["anything"],
   })
   expect(shape.getOutput(monitor, params._first)).toStrictEqual(value)
   expect(shape.getOutput(monitor, params._second)).toStrictEqual(value)
@@ -50,7 +48,6 @@ it("selects value", ({ monitor }) => {
       one: true,
       two: null,
     },
-    fourth: ["anything"],
   })
 
   expectTypeOf(shape.getOutput(monitor)).toEqualTypeOf<null | {
@@ -60,7 +57,6 @@ it("selects value", ({ monitor }) => {
       readonly one: boolean
       readonly two: Array<string>
     }
-    readonly fourth: Array<string>
   }>()
   expectTypeOf(shape.getOutput(monitor, params._first)).toEqualTypeOf<null | {
     readonly first: string
@@ -69,7 +65,6 @@ it("selects value", ({ monitor }) => {
       readonly one: boolean
       readonly two: Array<string>
     }
-    readonly fourth: Array<string>
   }>()
   expectTypeOf(shape.getOutput(monitor, params._second)).toEqualTypeOf<{
     readonly first: null | string
@@ -78,7 +73,6 @@ it("selects value", ({ monitor }) => {
       readonly one: null | boolean
       readonly two: null | Array<string>
     }
-    readonly fourth: Array<string>
   }>()
 })
 

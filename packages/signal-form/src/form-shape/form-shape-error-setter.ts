@@ -4,7 +4,7 @@ import type { FormShapeErrorVerbose } from "./form-shape-error-verbose"
 import type { FormShapeFields } from "./form-shape-fields"
 import type { GetFormShapeParam } from "./get-form-shape-param"
 
-type FormShapeErrorSetter<TFields extends FormShapeFields> = Setter<
+type FormShapeErrorSetter<TFields extends FormShapeFields<TFields>> = Setter<
   null | Partial<GetFormShapeParam<TFields, "error.setter">>,
   [FormShapeErrorVerbose<TFields>]
 >

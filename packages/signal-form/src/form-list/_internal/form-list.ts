@@ -39,31 +39,28 @@ class FormList<TElement extends SignalForm> extends SignalForm<FormListParams<TE
     setter: Setter<ReadonlyArray<TElement>, [ReadonlyArray<TElement>, Monitor]>,
   ): void {
     batch((monitor) => {
-      const initialElements = this._state._getInitialElements(monitor)
+      const initials = this.getInitial(monitor)
 
-      const elementsStates = map(
-        isFunction(setter) ? setter(this._elements.read(monitor), monitor) : setter,
-
+      const nextStateElements = map(
+        isFunction(setter) ? setter(this._state._getElements(monitor), monitor) : setter,
         SignalForm._getState,
       )
 
-      const nextStateElements = map(elementsStates, (element) => this._state._parentOf(element))
-
-      // detach all elements from their initial states in one go
-      for (const stateElement of nextStateElements) {
-        stateElement._replaceInitial(monitor, undefined, false)
+      for (const [index, child] of entries(nextStateElements)) {
+        if (index < initials.length) {
+          if (child._hasSameRootWith(this._state)) {
+            // existing: force initial override
+            child._setInitial(monitor, initials[index])
+          } else {
+            // new: respect explicit initial
+            child._patchInitial(monitor, initials[index])
+          }
+        }
       }
 
-      // attach the elements to their updated initial states
-      for (const [index, stateElement] of entries(nextStateElements)) {
-        stateElement._replaceInitial(
-          monitor,
-          initialElements.at(index),
-          !elementsStates.at(index)?._hasSameRootWith(stateElement),
-        )
-      }
-
-      this._state._elements.write(nextStateElements)
+      this._state._elements.write(
+        map(nextStateElements, (element) => this._state._parentOf(element)),
+      )
     })
   }
 }

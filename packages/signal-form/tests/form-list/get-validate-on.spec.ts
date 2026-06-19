@@ -3,30 +3,16 @@ import { z } from "zod"
 
 import { params } from "~/tools/params"
 
-import {
-  FormList,
-  type FormListOptions,
-  FormUnit,
-  type FormUnitSchemaOptions,
-  type ValidateStrategy,
-} from "../../src"
+import { FormList, type FormListOptions, FormUnit, type ValidateStrategy } from "../../src"
 
-function setup<TError>(
-  elements: ReadonlyArray<FormUnit<number, TError>>,
-  options?: FormListOptions<FormUnit<number, TError>>,
-) {
-  return FormList(elements, options)
-}
+type Element = FormUnit<number, ReadonlyArray<string>>
 
-function setupElement(initial: number, options?: Partial<FormUnitSchemaOptions<number>>) {
-  return FormUnit(initial, {
-    schema: z.number(),
-    ...options,
-  })
+function setup(options?: FormListOptions<Element>) {
+  return FormList<Element>((input: number) => FormUnit(input, { schema: z.number() }), options)
 }
 
 it("matches the type definition", ({ monitor }) => {
-  const form = setup([setupElement(0)])
+  const form = setup({ initial: [0] })
 
   expectTypeOf(form.getValidateOn).toEqualTypeOf<{
     (monitor: Monitor): ValidateStrategy | ReadonlyArray<ValidateStrategy>
@@ -51,7 +37,7 @@ it("matches the type definition", ({ monitor }) => {
 })
 
 it("returns 'onTouch' for empty list", ({ monitor }) => {
-  const form = setup([])
+  const form = setup()
 
   expect(form.getValidateOn(monitor)).toBe("onTouch")
   expect(form.getValidateOn(monitor, params._first)).toBe("onTouch")
@@ -59,11 +45,10 @@ it("returns 'onTouch' for empty list", ({ monitor }) => {
 })
 
 it("returns verbose when elements use more than a single strategy", ({ monitor }) => {
-  const form = setup([
-    setupElement(0, { validateOn: "onInit" }),
-    setupElement(1),
-    setupElement(2, { validateOn: "onSubmit" }),
-  ])
+  const form = setup({
+    initial: [0, 1, 2],
+    validateOn: ["onInit", undefined, "onSubmit"],
+  })
 
   const expected = ["onInit", "onTouch", "onSubmit"]
 
@@ -73,11 +58,10 @@ it("returns verbose when elements use more than a single strategy", ({ monitor }
 })
 
 it("returns concise when all elements use the same strategy", ({ monitor }) => {
-  const form = setup([
-    setupElement(0, { validateOn: "onChange" }),
-    setupElement(1, { validateOn: "onChange" }),
-    setupElement(2, { validateOn: "onChange" }),
-  ])
+  const form = setup({
+    initial: [0, 1, 2],
+    validateOn: "onChange",
+  })
 
   expect(form.getValidateOn(monitor)).toBe("onChange")
   expect(form.getValidateOn(monitor, params._first)).toBe("onChange")

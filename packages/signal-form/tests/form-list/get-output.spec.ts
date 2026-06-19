@@ -5,23 +5,24 @@ import { params } from "~/tools/params"
 
 import { FormList, FormUnit } from "../../src"
 
-function setup<TError>(elements: ReadonlyArray<FormUnit<number, TError, string>>) {
-  return FormList(elements, {
-    validateOn: "onInit",
-  })
-}
-
-function setupElement(initial: number) {
-  return FormUnit(initial, {
-    schema: z
-      .number()
-      .min(1)
-      .transform((x) => x.toFixed(0)),
-  })
+function setup(initial: ReadonlyArray<number>) {
+  return FormList(
+    (input: number) =>
+      FormUnit(input, {
+        schema: z
+          .number()
+          .min(1)
+          .transform((x) => x.toFixed(0)),
+      }),
+    {
+      initial,
+      validateOn: "onInit",
+    },
+  )
 }
 
 it("matches the type definition", ({ monitor }) => {
-  const form = setup([setupElement(0)])
+  const form = setup([0])
 
   expectTypeOf(form.getOutput).toEqualTypeOf<{
     (monitor: Monitor): null | ReadonlyArray<string>
@@ -46,7 +47,7 @@ it("matches the type definition", ({ monitor }) => {
 })
 
 it("returns all items when valid", ({ monitor }) => {
-  const form = setup([setupElement(1), setupElement(2), setupElement(3)])
+  const form = setup([1, 2, 3])
 
   expect(form.getOutput(monitor)).toStrictEqual(["1", "2", "3"])
   expect(form.getOutput(monitor, params._first)).toStrictEqual(["1", "2", "3"])
@@ -62,7 +63,7 @@ it("returns empty array for empty list", ({ monitor }) => {
 })
 
 it("returns null if a single element is not valid", ({ monitor }) => {
-  const form = setup([setupElement(0)])
+  const form = setup([0])
 
   expect(form.getOutput(monitor)).toBeNull()
   expect(form.getOutput(monitor, params._first)).toBeNull()
@@ -70,7 +71,7 @@ it("returns null if a single element is not valid", ({ monitor }) => {
 })
 
 it("returns null if at least one element is not valid", ({ monitor }) => {
-  const form = setup([setupElement(1), setupElement(0), setupElement(3)])
+  const form = setup([1, 0, 3])
 
   expect(form.getOutput(monitor)).toBeNull()
   expect(form.getOutput(monitor, params._first)).toBeNull()

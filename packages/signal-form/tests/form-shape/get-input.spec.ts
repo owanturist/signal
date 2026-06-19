@@ -8,7 +8,6 @@ it("selects input", ({ monitor }) => {
       one: FormUnit(true),
       two: FormUnit(["1"]),
     }),
-    fourth: ["anything"],
   })
 
   const input0 = shape.getInput(monitor)
@@ -19,7 +18,6 @@ it("selects input", ({ monitor }) => {
       one: true,
       two: ["1"],
     },
-    fourth: ["anything"],
   })
 
   expectTypeOf(input0).toEqualTypeOf<{
@@ -29,7 +27,6 @@ it("selects input", ({ monitor }) => {
       readonly one: boolean
       readonly two: Array<string>
     }
-    readonly fourth: Array<string>
   }>()
   expectTypeOf(shape.fields.third.getInput(monitor)).toEqualTypeOf<{
     readonly one: boolean
@@ -47,7 +44,6 @@ it("selects input", ({ monitor }) => {
       one: true,
       two: ["1"],
     },
-    fourth: ["anything"],
   })
 
   shape.setInput({
@@ -63,7 +59,6 @@ it("selects input", ({ monitor }) => {
       one: true,
       two: ["1", "12"],
     },
-    fourth: ["anything"],
   })
 })
 

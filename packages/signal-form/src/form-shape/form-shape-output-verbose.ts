@@ -1,7 +1,7 @@
 import type { FormShapeFields } from "./form-shape-fields"
 import type { GetFormShapeParam } from "./get-form-shape-param"
 
-type FormShapeOutputVerbose<TFields extends FormShapeFields> = GetFormShapeParam<
+type FormShapeOutputVerbose<TFields extends FormShapeFields<TFields>> = GetFormShapeParam<
   TFields,
   "output.schema.verbose"
 >

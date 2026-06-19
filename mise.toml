@@ -2,4 +2,4 @@
 node = "26.3"
 # fetch pnpm from npm registry, not the default aqua backend
 # (aqua looks up release metadata via the GitHub API, which is rate-limited)
-"npm:pnpm" = "11.5.1"
+"npm:pnpm" = "11.6.0"

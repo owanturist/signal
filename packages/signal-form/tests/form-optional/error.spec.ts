@@ -21,7 +21,7 @@ describe("types", () => {
     _0: FormUnit(0, {
       schema: z.number(),
     }),
-    _1: FormUnit("0", {
+    _1: FormUnit<string, null, number>("0", {
       transform: (input) => input.length,
     }),
     _2: FormUnit(true),

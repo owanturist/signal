@@ -10,7 +10,6 @@ it("selects initial", ({ monitor }) => {
       one: FormUnit(true, { initial: false }),
       two: FormUnit(["1"]),
     }),
-    fourth: ["anything"],
   })
 
   const initial0 = shape.getInitial(monitor)
@@ -21,7 +20,6 @@ it("selects initial", ({ monitor }) => {
       one: false,
       two: ["1"],
     },
-    fourth: ["anything"],
   })
 
   expectTypeOf(initial0).toEqualTypeOf<{
@@ -31,7 +29,6 @@ it("selects initial", ({ monitor }) => {
       readonly one: boolean
       readonly two: Array<string>
     }
-    readonly fourth: Array<string>
   }>()
   expectTypeOf(shape.fields.third.getInitial(monitor)).toEqualTypeOf<{
     readonly one: boolean
@@ -50,7 +47,6 @@ it("selects initial", ({ monitor }) => {
       one: false,
       two: ["1"],
     },
-    fourth: ["anything"],
   })
 
   shape.setInitial({
@@ -66,7 +62,6 @@ it("selects initial", ({ monitor }) => {
       one: false,
       two: ["1", "12"],
     },
-    fourth: ["anything"],
   })
 })
 

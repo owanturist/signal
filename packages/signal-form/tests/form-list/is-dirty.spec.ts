@@ -11,17 +11,7 @@ import {
   type FormShapeOptions,
   FormSwitch,
   FormUnit,
-  type SignalForm,
 } from "../../src"
-
-function setup<T extends SignalForm>(elements: ReadonlyArray<T>, options?: FormListOptions<T>) {
-  return FormList(elements, options)
-}
-
-interface Element {
-  first: FormUnit<number>
-  second: FormUnit<string>
-}
 
 function setupElement(options?: FormShapeOptions<Element>) {
   return FormShape(
@@ -33,8 +23,19 @@ function setupElement(options?: FormShapeOptions<Element>) {
   )
 }
 
+function setup(options?: FormListOptions<FormShape<Element>>) {
+  return FormList((initial) => setupElement({ initial, input: initial }), options)
+}
+
+interface Element {
+  first: FormUnit<number>
+  second: FormUnit<string>
+}
+
 it("matches the type signature", ({ monitor }) => {
-  const form = setup([setupElement()])
+  const form = setup({
+    initial: [{ first: 0, second: "" }],
+  })
 
   expectTypeOf(form.isDirty).toEqualTypeOf<{
     (monitor: Monitor): boolean
@@ -81,7 +82,7 @@ it("matches the type signature", ({ monitor }) => {
 })
 
 it("returns false for empty list", ({ monitor }) => {
-  const form = setup([])
+  const form = setup()
 
   expect(form.isDirty(monitor)).toBe(false)
   expect(form.isDirty(monitor, params._first)).toBe(false)
@@ -89,7 +90,12 @@ it("returns false for empty list", ({ monitor }) => {
 })
 
 it("returns false for pristine list", ({ monitor }) => {
-  const form = setup([setupElement(), setupElement()])
+  const form = setup({
+    initial: [
+      { first: 0, second: "" },
+      { first: 0, second: "" },
+    ],
+  })
 
   expect(form.isDirty(monitor)).toBe(false)
   expect(form.isDirty(monitor, params._first)).toBe(false)
@@ -105,14 +111,16 @@ it("returns false for pristine list", ({ monitor }) => {
 })
 
 it("returns true when at least one element is dirty", ({ monitor }) => {
-  const form = setup([
-    setupElement({
-      initial: {
-        first: 1,
-      },
-    }),
-    setupElement(),
-  ])
+  const form = setup({
+    initial: [
+      { first: 1, second: "" },
+      { first: 0, second: "" },
+    ],
+    input: [
+      { first: 0, second: "" },
+      { first: 0, second: "" },
+    ],
+  })
 
   expect(form.isDirty(monitor)).toBe(true)
   expect(form.isDirty(monitor, params._first)).toStrictEqual([
@@ -131,18 +139,16 @@ it("returns true when at least one element is dirty", ({ monitor }) => {
 })
 
 it("returns true when all elements are dirty", ({ monitor }) => {
-  const form = setup([
-    setupElement({
-      initial: {
-        first: 1,
-      },
-    }),
-    setupElement({
-      initial: {
-        second: "2",
-      },
-    }),
-  ])
+  const form = setup({
+    initial: [
+      { first: 1, second: "" },
+      { first: 0, second: "2" },
+    ],
+    input: [
+      { first: 0, second: "" },
+      { first: 0, second: "" },
+    ],
+  })
 
   expect(form.isDirty(monitor)).toBe(true)
   expect(form.isDirty(monitor, params._first)).toStrictEqual([
@@ -162,16 +168,12 @@ it("returns true when all elements are dirty", ({ monitor }) => {
 
 describe("adding a new element to the list's end", () => {
   it("returns true for a new pristine element and a pristine list", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 1, second: "1" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 2, second: "2" },
-        initial: { first: 2, second: "2" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+      ],
+    })
 
     form.setElements((elements) => [...elements, setupElement()])
 
@@ -191,16 +193,16 @@ describe("adding a new element to the list's end", () => {
   })
 
   it("returns true for a new pristine element and a dirty list", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 1, second: "1" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 3, second: "2" },
-        initial: { first: 2, second: "2" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+      ],
+      input: [
+        { first: 1, second: "1" },
+        { first: 3, second: "2" },
+      ],
+    })
 
     form.setElements((elements) => [...elements, setupElement()])
 
@@ -224,16 +226,12 @@ describe("adding a new element to the list's end", () => {
   })
 
   it("returns true for a new dirty element and a pristine list", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 1, second: "1" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 2, second: "2" },
-        initial: { first: 2, second: "2" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+      ],
+    })
 
     form.setElements((elements) => [
       ...elements,
@@ -258,16 +256,16 @@ describe("adding a new element to the list's end", () => {
   })
 
   it("returns true for a new dirty element and a dirty list", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 1, second: "4" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 2, second: "2" },
-        initial: { first: 2, second: "2" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+      ],
+      input: [
+        { first: 1, second: "4" },
+        { first: 2, second: "2" },
+      ],
+    })
 
     form.setElements((elements) => [
       ...elements,
@@ -298,16 +296,12 @@ describe("adding a new element to the list's end", () => {
 
 describe("adding a new element to the list's beginning", () => {
   it("returns true for a new pristine element and a pristine list", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 1, second: "1" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 2, second: "2" },
-        initial: { first: 2, second: "2" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+      ],
+    })
 
     form.setElements((elements) => [setupElement(), ...elements])
 
@@ -327,16 +321,16 @@ describe("adding a new element to the list's beginning", () => {
   })
 
   it("returns true for a new pristine element and a dirty list", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 1, second: "1" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 3, second: "2" },
-        initial: { first: 2, second: "2" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+      ],
+      input: [
+        { first: 1, second: "1" },
+        { first: 3, second: "2" },
+      ],
+    })
 
     form.setElements((elements) => [setupElement(), ...elements])
 
@@ -356,16 +350,12 @@ describe("adding a new element to the list's beginning", () => {
   })
 
   it("returns true for a new dirty element and a pristine list", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 1, second: "1" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 2, second: "2" },
-        initial: { first: 2, second: "2" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+      ],
+    })
 
     form.setElements((elements) => [
       setupElement({
@@ -390,16 +380,16 @@ describe("adding a new element to the list's beginning", () => {
   })
 
   it("returns true for a new dirty element and a dirty list", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 1, second: "4" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 2, second: "2" },
-        initial: { first: 2, second: "2" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+      ],
+      input: [
+        { first: 1, second: "4" },
+        { first: 2, second: "2" },
+      ],
+    })
 
     form.setElements((elements) => [
       setupElement({
@@ -424,16 +414,12 @@ describe("adding a new element to the list's beginning", () => {
   })
 
   it("returns true for a new same element and a pristine list", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 1, second: "1" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 2, second: "2" },
-        initial: { first: 2, second: "2" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+      ],
+    })
 
     form.setElements((elements) => [
       setupElement({
@@ -459,22 +445,15 @@ describe("adding a new element to the list's beginning", () => {
   })
 })
 
-describe("removing an initial element from the list's end", () => {
+describe("removing an trailing element", () => {
   it("returns true for a pristine list", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 1, second: "1" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 2, second: "2" },
-        initial: { first: 2, second: "2" },
-      }),
-      setupElement({
-        input: { first: 3, second: "3" },
-        initial: { first: 3, second: "3" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+        { first: 3, second: "3" },
+      ],
+    })
 
     form.setElements((elements) => elements.slice(0, 2))
 
@@ -493,20 +472,18 @@ describe("removing an initial element from the list's end", () => {
   })
 
   it("returns true a dirty list", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 1, second: "1" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 3, second: "2" },
-        initial: { first: 2, second: "2" },
-      }),
-      setupElement({
-        input: { first: 3, second: "3" },
-        initial: { first: 3, second: "3" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+        { first: 3, second: "3" },
+      ],
+      input: [
+        { first: 1, second: "1" },
+        { first: 3, second: "2" },
+        { first: 3, second: "3" },
+      ],
+    })
 
     form.setElements((elements) => elements.slice(0, 2))
 
@@ -529,22 +506,15 @@ describe("removing an initial element from the list's end", () => {
   })
 })
 
-describe("removing an initial element from the list's beginning", () => {
+describe("removing an initial element", () => {
   it("returns true for a pristine list", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 1, second: "1" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 2, second: "2" },
-        initial: { first: 2, second: "2" },
-      }),
-      setupElement({
-        input: { first: 3, second: "3" },
-        initial: { first: 3, second: "3" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+        { first: 3, second: "3" },
+      ],
+    })
 
     form.setElements((elements) => elements.slice(1))
 
@@ -563,20 +533,18 @@ describe("removing an initial element from the list's beginning", () => {
   })
 
   it("returns true for a dirty list", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 1, second: "1" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 2, second: "2" },
-        initial: { first: 2, second: "2" },
-      }),
-      setupElement({
-        input: { first: 4, second: "3" },
-        initial: { first: 3, second: "3" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+        { first: 3, second: "3" },
+      ],
+      input: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+        { first: 4, second: "3" },
+      ],
+    })
 
     form.setElements((elements) => elements.slice(1))
 
@@ -595,20 +563,13 @@ describe("removing an initial element from the list's beginning", () => {
   })
 
   it("returns true for a deleting the same element", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 1, second: "1" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 1, second: "1" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 2, second: "2" },
-        initial: { first: 2, second: "2" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+      ],
+    })
 
     form.setElements((elements) => elements.slice(1))
 
@@ -627,28 +588,61 @@ describe("removing an initial element from the list's beginning", () => {
   })
 
   describe("when using FormSwitch", () => {
-    function setupElement(count: number) {
+    interface Input {
+      active: string
+      branches: {
+        _1: number
+        _2: {
+          active: string
+          branches: {
+            _3: number
+            _4: number
+          }
+        }
+      }
+    }
+
+    function createSwitchInput(count: number): Input {
+      return {
+        active: "_1",
+        branches: {
+          _1: count,
+          _2: {
+            active: "_3",
+            branches: {
+              _3: count,
+              _4: count,
+            },
+          },
+        },
+      }
+    }
+
+    function setupSwitchElement(input: Input) {
       return FormSwitch(
         FormUnit("_1", {
           schema: z.enum(["_1", "_2"]),
         }),
         {
-          _1: FormUnit(count),
+          _1: FormUnit(0),
           _2: FormSwitch(
             FormUnit("_3", {
               schema: z.enum(["_3", "_4"]),
             }),
             {
-              _3: FormUnit(count),
-              _4: FormUnit(count),
+              _3: FormUnit(0),
+              _4: FormUnit(0),
             },
           ),
         },
+        { input, initial: input },
       )
     }
 
     it("returns true for a removed switch", ({ monitor }) => {
-      const form = FormList([setupElement(1)])
+      const form = FormList((input: Input) => setupSwitchElement(input), {
+        initial: [createSwitchInput(1)],
+      })
 
       form.setElements([])
 
@@ -672,9 +666,11 @@ describe("removing an initial element from the list's beginning", () => {
     })
 
     it("returns true for a added switch", ({ monitor }) => {
-      const form = FormList([setupElement(1)])
+      const form = FormList((input: Input) => setupSwitchElement(input), {
+        initial: [createSwitchInput(1)],
+      })
 
-      form.setElements((elements) => [...elements, setupElement(2)])
+      form.setElements((elements) => [...elements, setupSwitchElement(createSwitchInput(2))])
 
       expect(form.isDirty(monitor)).toBe(true)
       expect(form.isDirty(monitor, params._first)).toStrictEqual([false, true])
@@ -710,12 +706,36 @@ describe("removing an initial element from the list's beginning", () => {
   })
 
   describe("when using FormOptional", () => {
-    function setupElement(count: number) {
-      return FormOptional(FormUnit(true), FormOptional(FormUnit(true), FormUnit(count)))
+    interface Input {
+      enabled: boolean
+      element: {
+        enabled: boolean
+        element: number
+      }
+    }
+
+    function createOptionalInput(count: number): Input {
+      return {
+        enabled: true,
+        element: {
+          enabled: true,
+          element: count,
+        },
+      }
+    }
+
+    function setupOptionalElement(input: Input) {
+      return FormOptional(
+        FormUnit(input.enabled),
+
+        FormOptional(FormUnit(input.element.enabled), FormUnit(input.element.element)),
+      )
     }
 
     it("returns true for a removed optional", ({ monitor }) => {
-      const form = FormList([setupElement(1)])
+      const form = FormList((input: Input) => setupOptionalElement(input), {
+        initial: [createOptionalInput(1)],
+      })
 
       form.setElements([])
 
@@ -733,9 +753,11 @@ describe("removing an initial element from the list's beginning", () => {
     })
 
     it("returns true for a added switch", ({ monitor }) => {
-      const form = FormList([setupElement(1)])
+      const form = FormList((input: Input) => setupOptionalElement(input), {
+        initial: [createOptionalInput(1)],
+      })
 
-      form.setElements((elements) => [...elements, setupElement(2)])
+      form.setElements((elements) => [...elements, setupOptionalElement(createOptionalInput(2))])
 
       expect(form.isDirty(monitor)).toBe(true)
       expect(form.isDirty(monitor, params._first)).toStrictEqual([false, true])
@@ -761,20 +783,13 @@ describe("removing an initial element from the list's beginning", () => {
 
 describe("swapping elements", () => {
   it("returns true for two pristine unequal elements", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 1, second: "1" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 2, second: "2" },
-        initial: { first: 2, second: "2" },
-      }),
-      setupElement({
-        input: { first: 3, second: "3" },
-        initial: { first: 3, second: "3" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+        { first: 3, second: "3" },
+      ],
+    })
 
     form.setElements(([first, second, third]) => [third!, second!, first!])
 
@@ -812,20 +827,13 @@ describe("swapping elements", () => {
   })
 
   it("returns false for two pristine equal elements", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 1, second: "1" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 2, second: "2" },
-        initial: { first: 2, second: "2" },
-      }),
-      setupElement({
-        input: { first: 1, second: "1" },
-        initial: { first: 1, second: "1" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+        { first: 1, second: "1" },
+      ],
+    })
 
     form.setElements(([first, second, third]) => [third!, second!, first!])
 
@@ -847,17 +855,18 @@ describe("swapping elements", () => {
 
 describe("after FormList#reset()", () => {
   it("resets original to initial values", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        initial: { first: 2, second: "2" },
-      }),
-      setupElement({
-        initial: { first: 3, second: "3" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+        { first: 3, second: "3" },
+      ],
+      input: [
+        { first: 10, second: "10" },
+        { first: 20, second: "20" },
+        { first: 30, second: "30" },
+      ],
+    })
 
     form.reset()
 
@@ -877,20 +886,13 @@ describe("after FormList#reset()", () => {
   })
 
   it("restores a removed element", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 1, second: "1" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 2, second: "2" },
-        initial: { first: 2, second: "2" },
-      }),
-      setupElement({
-        input: { first: 3, second: "3" },
-        initial: { first: 3, second: "3" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+        { first: 3, second: "3" },
+      ],
+    })
 
     form.setElements((elements) => elements.slice(0, 2))
 
@@ -912,20 +914,13 @@ describe("after FormList#reset()", () => {
   })
 
   it("restores all removed elements", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 1, second: "1" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 2, second: "2" },
-        initial: { first: 2, second: "2" },
-      }),
-      setupElement({
-        input: { first: 3, second: "3" },
-        initial: { first: 3, second: "3" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+        { first: 3, second: "3" },
+      ],
+    })
 
     form.setElements([])
 
@@ -947,16 +942,12 @@ describe("after FormList#reset()", () => {
   })
 
   it("removes new elements", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 1, second: "1" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 2, second: "2" },
-        initial: { first: 2, second: "2" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+      ],
+    })
 
     form.setElements((elements) => [setupElement(), ...elements, setupElement()])
 
@@ -976,7 +967,7 @@ describe("after FormList#reset()", () => {
   })
 
   it("removes all elements for an empty initial list", ({ monitor }) => {
-    const form = setup<ReturnType<typeof setupElement>>([])
+    const form = setup()
 
     form.setElements([setupElement(), setupElement()])
 
@@ -992,16 +983,16 @@ describe("after FormList#reset()", () => {
 
 describe("after FormList#setInitial()", () => {
   it("returns false when dirty elements set as initial", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 2, second: "2" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 3, second: "3" },
-        initial: { first: 2, second: "2" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+      ],
+      input: [
+        { first: 2, second: "2" },
+        { first: 3, second: "3" },
+      ],
+    })
 
     form.setInitial((_, input) => input)
 
@@ -1019,16 +1010,12 @@ describe("after FormList#setInitial()", () => {
   })
 
   it("returns true when pristine elements change initial", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 1, second: "1" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 2, second: "2" },
-        initial: { first: 2, second: "2" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+      ],
+    })
 
     form.setInitial([
       { first: 2, second: "2" },
@@ -1051,16 +1038,12 @@ describe("after FormList#setInitial()", () => {
   it("returns false when initial elements are assigned from the new elements' original values", ({
     monitor,
   }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 1, second: "1" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 2, second: "2" },
-        initial: { first: 2, second: "2" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+      ],
+    })
 
     form.setElements((elements) => [
       setupElement({
@@ -1095,16 +1078,12 @@ describe("after FormList#setInitial()", () => {
   it("returns false when initial elements are extended by the new elements' initial values", ({
     monitor,
   }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 1, second: "1" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 2, second: "2" },
-        initial: { first: 2, second: "2" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+      ],
+    })
 
     form.setElements((elements) => [
       setupElement({
@@ -1122,9 +1101,9 @@ describe("after FormList#setInitial()", () => {
     ])
 
     form.setInitial(([_0, _2, ...rest]) => [
-      _0,
+      _0!,
       { first: 1, second: "1" },
-      _2,
+      _2!,
       { first: 3, second: "3" },
       ...rest,
     ])
@@ -1147,20 +1126,13 @@ describe("after FormList#setInitial()", () => {
   })
 
   it("returns false when removes initial value of deleted element", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        input: { first: 1, second: "1" },
-        initial: { first: 1, second: "1" },
-      }),
-      setupElement({
-        input: { first: 2, second: "2" },
-        initial: { first: 2, second: "2" },
-      }),
-      setupElement({
-        input: { first: 3, second: "3" },
-        initial: { first: 3, second: "3" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+        { first: 3, second: "3" },
+      ],
+    })
 
     form.setElements((elements) => elements.slice(0, 2))
     form.setInitial((initial) => initial.slice(0, 2))
@@ -1181,16 +1153,12 @@ describe("after FormList#setInitial()", () => {
 
 describe("after FormList#getElements()#at()#setInitial()", () => {
   it("return true after updating pristine element's initial value", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        initial: { first: 1, second: "1" },
-        input: { first: 1, second: "1" },
-      }),
-      setupElement({
-        initial: { first: 2, second: "2" },
-        input: { first: 2, second: "2" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+      ],
+    })
 
     form.getElements(monitor).at(0)!.setInitial({ first: 2 })
 
@@ -1211,16 +1179,16 @@ describe("after FormList#getElements()#at()#setInitial()", () => {
   })
 
   it("return false after updating dirty element's initial value", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        initial: { first: 2, second: "1" },
-        input: { first: 1, second: "1" },
-      }),
-      setupElement({
-        initial: { first: 2, second: "2" },
-        input: { first: 2, second: "2" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 2, second: "1" },
+        { first: 2, second: "2" },
+      ],
+      input: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+      ],
+    })
 
     form.getElements(monitor).at(0)!.setInitial({ first: 1 })
 
@@ -1238,16 +1206,12 @@ describe("after FormList#getElements()#at()#setInitial()", () => {
   })
 
   it("ignores setting initial value for a new dirty element at the end", ({ monitor }) => {
-    const form = setup([
-      setupElement({
-        initial: { first: 1, second: "1" },
-        input: { first: 1, second: "1" },
-      }),
-      setupElement({
-        initial: { first: 2, second: "2" },
-        input: { first: 2, second: "2" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+      ],
+    })
 
     form.setElements((elements) => [
       ...elements,
@@ -1276,16 +1240,12 @@ describe("after FormList#getElements()#at()#setInitial()", () => {
   it("updates list element initial value for a new dirty element in the beginning", ({
     monitor,
   }) => {
-    const form = setup([
-      setupElement({
-        initial: { first: 1, second: "1" },
-        input: { first: 1, second: "1" },
-      }),
-      setupElement({
-        initial: { first: 2, second: "2" },
-        input: { first: 2, second: "2" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+      ],
+    })
 
     form.setElements((elements) => [
       setupElement({
@@ -1314,16 +1274,12 @@ describe("after FormList#getElements()#at()#setInitial()", () => {
   it("keeps the updated initial value after adding one more element to the beginning", ({
     monitor,
   }) => {
-    const form = setup([
-      setupElement({
-        initial: { first: 1, second: "1" },
-        input: { first: 1, second: "1" },
-      }),
-      setupElement({
-        initial: { first: 2, second: "2" },
-        input: { first: 2, second: "2" },
-      }),
-    ])
+    const form = setup({
+      initial: [
+        { first: 1, second: "1" },
+        { first: 2, second: "2" },
+      ],
+    })
 
     form.setElements((elements) => [
       setupElement({

@@ -10,17 +10,17 @@ import { isUndefined } from "~/tools/is-undefined"
 import { Lazy } from "~/tools/lazy"
 import { map } from "~/tools/map"
 import { mapValues } from "~/tools/map-values"
-import type { OmitValues } from "~/tools/omit-values"
 import { values } from "~/tools/values"
 
 import { toConcise } from "../../_internal/to-concise"
+import type { GetSignalFormParams } from "../../signal-form/_internal/get-signal-form-params"
 import {
   type SignalFormChild,
   SignalFormState,
 } from "../../signal-form/_internal/signal-form-state"
 import type { SignalForm } from "../../signal-form/signal-form"
 import type { SignalFormParams } from "../../signal-form/signal-form-params"
-import { VALIDATE_ON_TOUCH, type ValidateStrategy } from "../../validate-strategy"
+import { VALIDATE_ON_TOUCH } from "../../validate-strategy"
 import type { FormShapeError } from "../form-shape-error"
 import type { FormShapeErrorSetter } from "../form-shape-error-setter"
 import type { FormShapeErrorVerbose } from "../form-shape-error-verbose"
@@ -39,65 +39,33 @@ import type { FormShapeValidateOnVerbose } from "../form-shape-validate-on-verbo
 
 import { FormShape } from "./form-shape"
 
-type FormShapeStateFields<TFields extends FormShapeFields> = OmitValues<
-  {
-    [TField in keyof TFields]: TFields[TField] extends SignalForm<infer TParams>
-      ? SignalFormState<TParams>
-      : never
-  },
-  never
->
+type FormShapeStateFields<TFields extends FormShapeFields<TFields>> = {
+  [TField in keyof TFields]: SignalFormState<GetSignalFormParams<TFields[TField]>>
+}
 
-type FormShapeStateMeta<TFields extends FormShapeFields> = OmitValues<
-  {
-    [TField in keyof TFields]: TFields[TField] extends SignalForm ? never : Signal<TFields[TField]>
-  },
-  never
->
-
-class FormShapeState<TFields extends FormShapeFields = FormShapeFields> extends SignalFormState<
-  FormShapeParams<TFields>
-> {
+class FormShapeState<
+  TFields extends FormShapeFields<TFields> = Record<string, SignalForm>,
+> extends SignalFormState<FormShapeParams<TFields>> {
   public readonly _host = Lazy(() => new FormShape(this))
 
   public readonly _fields: FormShapeStateFields<TFields>
 
-  public readonly _meta: FormShapeStateMeta<TFields>
-
-  public constructor(
-    parent: null | SignalFormState,
-    fields: FormShapeStateFields<TFields>,
-    meta: FormShapeStateMeta<TFields>,
-  ) {
+  public constructor(parent: null | SignalFormState, fields: FormShapeStateFields<TFields>) {
     super(parent)
 
     this._fields = mapValues(fields, (field) => this._parentOf(field))
-    this._meta = mapValues(meta, (field) => field.clone()) as unknown as FormShapeStateMeta<TFields>
   }
 
   public _childOf(parent: null | SignalFormState): FormShapeState<TFields> {
-    return new FormShapeState(parent, this._fields, this._meta)
+    return new FormShapeState(parent, this._fields)
   }
 
   // I N I T I A L
 
-  public readonly _initial = Signal((monitor): FormShapeInput<TFields> => {
-    const initial = mapValues(this._fields, ({ _initial }) => _initial.read(monitor))
-
-    const meta = mapValues(this._meta, (field) => field.read(monitor))
-
-    return { ...initial, ...meta } as FormShapeInput<TFields>
-  })
-
-  public _replaceInitial(
-    monitor: Monitor,
-    state: undefined | FormShapeState<TFields>,
-    isMounting: boolean,
-  ): void {
-    for (const [key, field] of entries(this._fields)) {
-      field._replaceInitial(monitor, state?._fields[key], isMounting)
-    }
-  }
+  public readonly _initial = Signal(
+    (monitor): FormShapeInput<TFields> =>
+      mapValues(this._fields, ({ _initial }) => _initial.read(monitor)),
+  )
 
   public _setInitial(monitor: Monitor, setter: FormShapeInputSetter<TFields>): void {
     const setters = isFunction(setter)
@@ -109,23 +77,20 @@ class FormShapeState<TFields extends FormShapeFields = FormShapeFields> extends 
         field._setInitial(monitor, setters[key])
       }
     }
+  }
 
-    for (const [key, field] of entries(this._meta)) {
-      if (hasProperty(setters, key) && !isUndefined(setters[key])) {
-        field.write(setters[key] as TFields[typeof key])
-      }
+  public _patchInitial(monitor: Monitor, initials: FormShapeInput<TFields>): void {
+    for (const [key, field] of entries(this._fields)) {
+      field._patchInitial(monitor, initials[key])
     }
   }
 
   // I N P U T
 
-  public readonly _input = Signal((monitor): FormShapeInput<TFields> => {
-    const input = mapValues(this._fields, ({ _input }) => _input.read(monitor))
-
-    const meta = mapValues(this._meta, (field) => field.read(monitor))
-
-    return { ...input, ...meta } as FormShapeInput<TFields>
-  })
+  public readonly _input = Signal(
+    (monitor): FormShapeInput<TFields> =>
+      mapValues(this._fields, ({ _input }) => _input.read(monitor)),
+  )
 
   public _setInput(monitor: Monitor, setter: FormShapeInputSetter<TFields>): void {
     const setters = isFunction(setter)
@@ -148,14 +113,13 @@ class FormShapeState<TFields extends FormShapeFields = FormShapeFields> extends 
       return null
     }
 
-    return error as FormShapeError<TFields>
+    return error
   })
 
-  public readonly _errorVerbose = Signal((monitor): FormShapeErrorVerbose<TFields> => {
-    const errorVerbose = mapValues(this._fields, ({ _errorVerbose }) => _errorVerbose.read(monitor))
-
-    return errorVerbose as FormShapeErrorVerbose<TFields>
-  })
+  public readonly _errorVerbose = Signal(
+    (monitor): FormShapeErrorVerbose<TFields> =>
+      mapValues(this._fields, ({ _errorVerbose }) => _errorVerbose.read(monitor)),
+  )
 
   public _setError(monitor: Monitor, setter: FormShapeErrorSetter<TFields>): void {
     const setters = isFunction(setter) ? setter(this._errorVerbose.read(monitor)) : setter
@@ -174,21 +138,13 @@ class FormShapeState<TFields extends FormShapeFields = FormShapeFields> extends 
   public readonly _validateOn = Signal((monitor): FormShapeValidateOn<TFields> => {
     const validateOn = mapValues(this._fields, ({ _validateOn }) => _validateOn.read(monitor))
 
-    return toConcise(
-      values(validateOn),
-      isString as (input: unknown) => input is ValidateStrategy,
-      VALIDATE_ON_TOUCH,
-      validateOn as FormShapeValidateOn<TFields>,
-    )
+    return toConcise(values(validateOn), isString, VALIDATE_ON_TOUCH, validateOn)
   })
 
-  public readonly _validateOnVerbose = Signal((monitor): FormShapeValidateOnVerbose<TFields> => {
-    const validateOnVerbose = mapValues(this._fields, ({ _validateOnVerbose }) =>
-      _validateOnVerbose.read(monitor),
-    )
-
-    return validateOnVerbose as FormShapeValidateOnVerbose<TFields>
-  })
+  public readonly _validateOnVerbose = Signal(
+    (monitor): FormShapeValidateOnVerbose<TFields> =>
+      mapValues(this._fields, ({ _validateOnVerbose }) => _validateOnVerbose.read(monitor)),
+  )
 
   public _setValidateOn(monitor: Monitor, setter: FormShapeValidateOnSetter<TFields>): void {
     const setters = isFunction(setter) ? setter(this._validateOnVerbose.read(monitor)) : setter
@@ -207,16 +163,13 @@ class FormShapeState<TFields extends FormShapeFields = FormShapeFields> extends 
   public readonly _touched = Signal((monitor): FormShapeFlag<TFields> => {
     const touched = mapValues(this._fields, ({ _touched }) => _touched.read(monitor))
 
-    return toConcise(values(touched), isBoolean, false, touched as FormShapeFlag<TFields>)
+    return toConcise(values(touched), isBoolean, false, touched)
   })
 
-  public readonly _touchedVerbose = Signal((monitor): FormShapeFlagVerbose<TFields> => {
-    const touchedVerbose = mapValues(this._fields, ({ _touchedVerbose }) =>
-      _touchedVerbose.read(monitor),
-    )
-
-    return touchedVerbose as FormShapeFlagVerbose<TFields>
-  })
+  public readonly _touchedVerbose = Signal(
+    (monitor): FormShapeFlagVerbose<TFields> =>
+      mapValues(this._fields, ({ _touchedVerbose }) => _touchedVerbose.read(monitor)),
+  )
 
   public _setTouched(monitor: Monitor, setter: FormShapeFlagSetter<TFields>): void {
     const setters = isFunction(setter) ? setter(this._touchedVerbose.read(monitor)) : setter
@@ -239,69 +192,52 @@ class FormShapeState<TFields extends FormShapeFields = FormShapeFields> extends 
       return null
     }
 
-    const meta = mapValues(this._meta, (field) => field.read(monitor))
-
-    return { ...output, ...meta } as FormShapeOutput<TFields>
+    return output
   })
 
-  public readonly _outputVerbose = Signal((monitor): FormShapeOutputVerbose<TFields> => {
-    const outputVerbose = mapValues(this._fields, ({ _outputVerbose }) =>
-      _outputVerbose.read(monitor),
-    )
-
-    const meta = mapValues(this._meta, (field) => field.read(monitor))
-
-    return {
-      ...outputVerbose,
-      ...meta,
-    } as FormShapeOutputVerbose<TFields>
-  })
+  public readonly _outputVerbose = Signal(
+    (monitor): FormShapeOutputVerbose<TFields> =>
+      mapValues(this._fields, ({ _outputVerbose }) => _outputVerbose.read(monitor)),
+  )
 
   // V A L I D
 
   public readonly _valid = Signal((monitor): FormShapeFlag<TFields> => {
     const valid = mapValues(this._fields, ({ _valid }) => _valid.read(monitor))
 
-    return toConcise(values(valid), isBoolean, false, valid as FormShapeFlag<TFields>)
+    return toConcise(values(valid), isBoolean, false, valid)
   })
 
-  public readonly _validVerbose = Signal((monitor): FormShapeFlagVerbose<TFields> => {
-    const validVerbose = mapValues(this._fields, ({ _validVerbose }) => _validVerbose.read(monitor))
-
-    return validVerbose as FormShapeFlagVerbose<TFields>
-  })
+  public readonly _validVerbose = Signal(
+    (monitor): FormShapeFlagVerbose<TFields> =>
+      mapValues(this._fields, ({ _validVerbose }) => _validVerbose.read(monitor)),
+  )
 
   // I N V A L I D
 
   public readonly _invalid = Signal((monitor): FormShapeFlag<TFields> => {
     const invalid = mapValues(this._fields, ({ _invalid }) => _invalid.read(monitor))
 
-    return toConcise(values(invalid), isBoolean, false, invalid as FormShapeFlag<TFields>)
+    return toConcise(values(invalid), isBoolean, false, invalid)
   })
 
-  public readonly _invalidVerbose = Signal((monitor): FormShapeFlagVerbose<TFields> => {
-    const invalidVerbose = mapValues(this._fields, ({ _invalidVerbose }) =>
-      _invalidVerbose.read(monitor),
-    )
-
-    return invalidVerbose as FormShapeFlagVerbose<TFields>
-  })
+  public readonly _invalidVerbose = Signal(
+    (monitor): FormShapeFlagVerbose<TFields> =>
+      mapValues(this._fields, ({ _invalidVerbose }) => _invalidVerbose.read(monitor)),
+  )
 
   // V A L I D A T E D
 
   public readonly _validated = Signal((monitor): FormShapeFlag<TFields> => {
     const validated = mapValues(this._fields, ({ _validated }) => _validated.read(monitor))
 
-    return toConcise(values(validated), isBoolean, false, validated as FormShapeFlag<TFields>)
+    return toConcise(values(validated), isBoolean, false, validated)
   })
 
-  public readonly _validatedVerbose = Signal((monitor): FormShapeFlagVerbose<TFields> => {
-    const validatedVerbose = mapValues(this._fields, ({ _validatedVerbose }) =>
-      _validatedVerbose.read(monitor),
-    )
-
-    return validatedVerbose as FormShapeFlagVerbose<TFields>
-  })
+  public readonly _validatedVerbose = Signal(
+    (monitor): FormShapeFlagVerbose<TFields> =>
+      mapValues(this._fields, ({ _validatedVerbose }) => _validatedVerbose.read(monitor)),
+  )
 
   public _forceValidated(monitor: Monitor): void {
     for (const field of values(this._fields)) {
@@ -314,28 +250,18 @@ class FormShapeState<TFields extends FormShapeFields = FormShapeFields> extends 
   public readonly _dirty = Signal((monitor): FormShapeFlag<TFields> => {
     const dirty = mapValues(this._fields, ({ _dirty }) => _dirty.read(monitor))
 
-    return toConcise(values(dirty), isBoolean, false, dirty as FormShapeFlag<TFields>)
+    return toConcise(values(dirty), isBoolean, false, dirty)
   })
 
-  public readonly _dirtyVerbose = Signal((monitor): FormShapeFlagVerbose<TFields> => {
-    const dirtyVerbose = mapValues(this._fields, ({ _dirtyVerbose }) => _dirtyVerbose.read(monitor))
+  public readonly _dirtyVerbose = Signal(
+    (monitor): FormShapeFlagVerbose<TFields> =>
+      mapValues(this._fields, ({ _dirtyVerbose }) => _dirtyVerbose.read(monitor)),
+  )
 
-    return dirtyVerbose as FormShapeFlagVerbose<TFields>
-  })
-
-  public readonly _dirtyOn = Signal((monitor): FormShapeFlag<TFields> => {
-    const dirtyOn = mapValues(this._fields, ({ _dirtyOn }) => _dirtyOn.read(monitor))
-
-    return toConcise(values(dirtyOn), isBoolean, false, dirtyOn as FormShapeFlag<TFields>)
-  })
-
-  public readonly _dirtyOnVerbose = Signal((monitor): FormShapeFlagVerbose<TFields> => {
-    const dirtyOnVerbose = mapValues(this._fields, ({ _dirtyOnVerbose }) =>
-      _dirtyOnVerbose.read(monitor),
-    )
-
-    return dirtyOnVerbose as FormShapeFlagVerbose<TFields>
-  })
+  public readonly _dirtyOnVerbose = Signal(
+    (monitor): FormShapeFlagVerbose<TFields> =>
+      mapValues(this._fields, ({ _dirtyOnVerbose }) => _dirtyOnVerbose.read(monitor)),
+  )
 
   // R E S E T
 
@@ -356,10 +282,10 @@ class FormShapeState<TFields extends FormShapeFields = FormShapeFields> extends 
   > {
     return map(entries(this._fields), ([key, field]) => ({
       _state: field as unknown as SignalFormState<TChildParams>,
-      _mapToChild: (output) => output[key as keyof FormShapeOutput<TFields>],
+      _mapToChild: (output) => output[key],
     }))
   }
 }
 
-export type { FormShapeStateFields, FormShapeStateMeta }
+export type { FormShapeStateFields }
 export { FormShapeState }

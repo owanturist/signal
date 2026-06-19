@@ -34,7 +34,6 @@ function setup(
       one: FormUnit<boolean, ReadonlyArray<string>>
       two: FormUnit<Array<string>, ReadonlyArray<string>>
     }>
-    fourth: Array<string>
   }>,
 ) {
   return FormShape(
@@ -53,7 +52,6 @@ function setup(
           schema: z.array(z.string()),
         }),
       }),
-      fourth: ["anything"],
     },
     options,
   )

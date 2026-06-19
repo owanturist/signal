@@ -2,18 +2,18 @@ import type { Monitor } from "@owanturist/signal"
 
 import type { Setter } from "~/tools/setter"
 
-import { FormList, FormUnit, type FormUnitOptions } from "../../src"
+import { FormList, FormUnit } from "../../src"
 
-function setup(elements: ReadonlyArray<FormUnit<number>>) {
-  return FormList(elements)
+function setup(initial: ReadonlyArray<number>) {
+  return FormList((input: number) => setupElement(input), { initial })
 }
 
-function setupElement(initial: number, options?: FormUnitOptions<number>) {
-  return FormUnit(initial, options)
+function setupElement(initial: number) {
+  return FormUnit(initial)
 }
 
 it("matches the type definition", () => {
-  const form = setup([setupElement(0)])
+  const form = setup([0])
 
   expectTypeOf(form.setElements).toEqualTypeOf<
     (
@@ -23,7 +23,7 @@ it("matches the type definition", () => {
 })
 
 it("subsequently selects equal elements", ({ monitor }) => {
-  const form = setup([setupElement(0), setupElement(1), setupElement(2)])
+  const form = setup([0, 1, 2])
 
   const elements = form.getElements(monitor)
 
@@ -35,14 +35,14 @@ it("subsequently selects equal elements", ({ monitor }) => {
 })
 
 it("replaces all elements", ({ monitor }) => {
-  const form = setup([setupElement(0), setupElement(1), setupElement(2)])
+  const form = setup([0, 1, 2])
 
   form.setElements([setupElement(3), setupElement(4), setupElement(5)])
   expect(form.getInput(monitor)).toStrictEqual([3, 4, 5])
 })
 
 it("filters some elements", ({ monitor }) => {
-  const form = setup([setupElement(0), setupElement(1), setupElement(2)])
+  const form = setup([0, 1, 2])
 
   form.setElements((elements, monitor) =>
     elements.filter((element) => element.getInput(monitor) > 1),
@@ -51,21 +51,21 @@ it("filters some elements", ({ monitor }) => {
 })
 
 it("modifies existing elements", ({ monitor }) => {
-  const form = setup([setupElement(0), setupElement(1), setupElement(2)])
+  const form = setup([0, 1, 2])
 
   form.setElements((elements) => [...elements, setupElement(3)])
   expect(form.getInput(monitor)).toStrictEqual([0, 1, 2, 3])
 })
 
 it("adding new elements", ({ monitor }) => {
-  const form = setup([setupElement(0), setupElement(1), setupElement(2)])
+  const form = setup([0, 1, 2])
 
   form.setElements((elements) => [...elements, setupElement(3)])
   expect(form.getInput(monitor)).toStrictEqual([0, 1, 2, 3])
 })
 
 it("attach the new elements to the form root", ({ monitor }) => {
-  const form = setup([setupElement(0), setupElement(1), setupElement(2)])
+  const form = setup([0, 1, 2])
 
   form.setElements((current) => [...current, setupElement(3)])
   form.submit()
@@ -77,7 +77,7 @@ it("attach the new elements to the form root", ({ monitor }) => {
 })
 
 it("persists elements reference", ({ monitor }) => {
-  const form = setup([setupElement(0), setupElement(1)])
+  const form = setup([0, 1])
 
   const [first0, second0] = form.getElements(monitor)
 

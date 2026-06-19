@@ -1,7 +1,7 @@
 import type { FormShapeFields } from "./form-shape-fields"
 import type { GetFormShapeParam } from "./get-form-shape-param"
 
-type FormShapeFlag<TFields extends FormShapeFields> =
+type FormShapeFlag<TFields extends FormShapeFields<TFields>> =
   | boolean
   | GetFormShapeParam<TFields, "flag.schema">
 

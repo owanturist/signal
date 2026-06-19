@@ -10,7 +10,6 @@ function setup(
       _1: FormUnit<undefined | boolean, ReadonlyArray<string>, boolean>
       _2: FormUnit<Array<string>, ReadonlyArray<string>>
     }>
-    _4: Array<string>
   }>,
 ) {
   const form = FormShape(
@@ -29,7 +28,6 @@ function setup(
           schema: z.array(z.string()).min(2),
         }),
       }),
-      _4: ["anything"],
     },
     {
       touched: true,

@@ -3,7 +3,9 @@ import type { Setter } from "~/tools/setter"
 import { FormList, FormUnit } from "../../src"
 
 it("matches the type definition", ({ monitor }) => {
-  const form = FormList([FormUnit(0)])
+  const form = FormList((input: number) => FormUnit(input), {
+    initial: [0],
+  })
 
   expectTypeOf(form.setTouched).toEqualTypeOf<
     (
@@ -20,7 +22,9 @@ it("matches the type definition", ({ monitor }) => {
 })
 
 it("touches all items", ({ monitor }) => {
-  const form = FormList([FormUnit(0), FormUnit(1), FormUnit(2)])
+  const form = FormList((input: number) => FormUnit(input), {
+    initial: [0, 1, 2],
+  })
 
   form.setTouched(true)
   expect(form.isTouched(monitor)).toBe(true)

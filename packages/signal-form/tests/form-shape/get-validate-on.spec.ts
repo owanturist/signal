@@ -39,7 +39,6 @@ function setup(
       one: FormUnit<boolean>
       two: FormUnit<Array<string>>
     }>
-    fourth: Array<string>
   }>,
 ) {
   return FormShape(
@@ -50,7 +49,6 @@ function setup(
         one: FormUnit(true, { validate: (input) => [null, input] }),
         two: FormUnit([""], { validate: (input) => [null, input] }),
       }),
-      fourth: ["anything"],
     },
     options,
   )

@@ -3,7 +3,7 @@ import type { ValidateStrategy } from "../validate-strategy"
 import type { FormShapeFields } from "./form-shape-fields"
 import type { GetFormShapeParam } from "./get-form-shape-param"
 
-type FormShapeValidateOn<TFields extends FormShapeFields> =
+type FormShapeValidateOn<TFields extends FormShapeFields<TFields>> =
   | ValidateStrategy
   | GetFormShapeParam<TFields, "validateOn.schema">
 

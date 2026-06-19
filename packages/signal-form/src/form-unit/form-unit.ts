@@ -213,15 +213,13 @@ function FormUnit<TInput, TError = null, TOutput = TInput>(
   | FormUnit<TInput, TError, TOutput> /* enforce syntax highlight */ {
   const isInputEqual = options?.isInputEqual ?? isStrictEqual
   const isInputDirty = options?.isInputDirty ?? ((left, right) => !isInputEqual(left, right))
+  const isInitialExplicit = !isUndefined(options?.initial)
   const initialOrInput = options?.initial ?? input_
 
   const input = Signal(input_, { equals: isInputEqual })
 
-  const initial = Signal({
-    _explicit: Signal(!isUndefined(options?.initial)),
-    _current: Signal(isInputEqual(initialOrInput, input_) ? input_ : initialOrInput, {
-      equals: isInputEqual,
-    }),
+  const initial = Signal(isInputEqual(initialOrInput, input_) ? input_ : initialOrInput, {
+    equals: isInputEqual,
   })
 
   const touched = Signal(options?.touched ?? false)
@@ -243,9 +241,9 @@ function FormUnit<TInput, TError = null, TOutput = TInput>(
       touched,
       Signal(transform),
       isInputDirty,
-      isInputEqual,
       isOutputEqual,
       isErrorEqual,
+      isInitialExplicit,
     )._host()
   }
 
@@ -273,9 +271,9 @@ function FormUnit<TInput, TError = null, TOutput = TInput>(
       touched,
       Signal(transform),
       isInputDirty,
-      isInputEqual,
       isOutputEqual,
       isErrorEqual,
+      isInitialExplicit,
     )._host()
   }
 
@@ -295,9 +293,9 @@ function FormUnit<TInput, TError = null, TOutput = TInput>(
       touched,
       Signal(transform as FormUnitTransform<TInput, TError, TOutput>),
       isInputDirty,
-      isInputEqual,
       isOutputEqual,
       isErrorEqual,
+      isInitialExplicit,
     )._host()
   }
 
@@ -310,9 +308,9 @@ function FormUnit<TInput, TError = null, TOutput = TInput>(
     touched,
     Signal(transformFromInput as FormUnitTransform<TInput, TError, TInput>),
     isInputDirty,
-    isInputEqual,
     createIsUnionEqual(isNull, isInputEqual),
     isErrorEqual,
+    isInitialExplicit,
   )._host()
 }
 

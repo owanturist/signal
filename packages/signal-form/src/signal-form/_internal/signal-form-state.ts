@@ -42,13 +42,12 @@ abstract class SignalFormState<
 
   public abstract readonly _initial: ReadonlySignal<TParams["input.schema"]>
 
-  public abstract _replaceInitial(
-    monitor: Monitor,
-    state: undefined | this,
-    isMounting: boolean,
-  ): void
-
   public abstract _setInitial(monitor: Monitor, setter: TParams["input.setter"]): void
+
+  /**
+   * Like {@link _setInitial} but a no-op for explicitly set initials.
+   */
+  public abstract _patchInitial(monitor: Monitor, initial: TParams["input.schema"]): void
 
   // I N P U T
 
@@ -100,7 +99,6 @@ abstract class SignalFormState<
   public abstract readonly _dirty: ReadonlySignal<TParams["flag.schema"]>
   public abstract readonly _dirtyVerbose: ReadonlySignal<TParams["flag.schema.verbose"]>
 
-  public abstract readonly _dirtyOn: ReadonlySignal<TParams["flag.schema"]>
   public abstract readonly _dirtyOnVerbose: ReadonlySignal<TParams["flag.schema.verbose"]>
 
   // F O C U S   I N V A L I D

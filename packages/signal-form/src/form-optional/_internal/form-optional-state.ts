@@ -122,13 +122,9 @@ class FormOptionalState<
     }
   }
 
-  public _replaceInitial(
-    monitor: Monitor,
-    state: undefined | FormOptionalState<TEnabled, TElement>,
-    isMounting: boolean,
-  ): void {
-    this._enabled._replaceInitial(monitor, state?._enabled, isMounting)
-    this._element._replaceInitial(monitor, state?._element, isMounting)
+  public _patchInitial(monitor: Monitor, initial: FormOptionalInput<TEnabled, TElement>): void {
+    this._enabled._patchInitial(monitor, initial.enabled)
+    this._element._patchInitial(monitor, initial.element)
   }
 
   // I N P U T
@@ -362,14 +358,6 @@ class FormOptionalState<
   public readonly _dirtyVerbose = Signal(
     (monitor): FormOptionalFlagVerbose<TEnabled, TElement> =>
       this._toVerbose(monitor, ({ _dirtyVerbose }) => _dirtyVerbose) as FormOptionalFlagVerbose<
-        TEnabled,
-        TElement
-      >,
-  )
-
-  public readonly _dirtyOn = Signal(
-    (monitor): FormOptionalFlag<TEnabled, TElement> =>
-      this._toConcise<boolean>(monitor, ({ _dirtyOn }) => _dirtyOn, isBoolean) as FormOptionalFlag<
         TEnabled,
         TElement
       >,

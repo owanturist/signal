@@ -10,7 +10,6 @@ it("updates original value", ({ monitor }) => {
       one: FormUnit(true),
       two: FormUnit([""]),
     }),
-    fourth: ["anything"],
   })
 
   expect(shape.getInput(monitor)).toStrictEqual({
@@ -20,7 +19,6 @@ it("updates original value", ({ monitor }) => {
       one: true,
       two: [""],
     },
-    fourth: ["anything"],
   })
 
   shape.setInput({
@@ -36,7 +34,6 @@ it("updates original value", ({ monitor }) => {
       one: false,
       two: [""],
     },
-    fourth: ["anything"],
   })
 
   shape.setInput({
@@ -51,7 +48,6 @@ it("updates original value", ({ monitor }) => {
       one: false,
       two: ["", "hi"],
     },
-    fourth: ["anything"],
   })
 
   shape.setInput({
@@ -69,7 +65,6 @@ it("updates original value", ({ monitor }) => {
       one: true,
       two: ["two"],
     },
-    fourth: ["anything"],
   })
 
   shape.setInput((root) => {
@@ -80,7 +75,6 @@ it("updates original value", ({ monitor }) => {
         one: true,
         two: ["two"],
       },
-      fourth: ["anything"],
     })
 
     return {
@@ -122,7 +116,6 @@ it("updates original value", ({ monitor }) => {
       one: false,
       two: ["two", "three"],
     },
-    fourth: ["anything"],
   })
 
   expectTypeOf(shape.getInput(monitor)).toEqualTypeOf<{
@@ -132,7 +125,6 @@ it("updates original value", ({ monitor }) => {
       readonly one: boolean
       readonly two: Array<string>
     }
-    readonly fourth: Array<string>
   }>()
 
   expect(shape.fields.third.getInput(monitor)).toStrictEqual({
@@ -175,7 +167,6 @@ it("updates original value", ({ monitor }) => {
             readonly one: boolean
             readonly two: Array<string>
           }
-          readonly fourth: Array<string>
         },
         {
           readonly first: string
@@ -184,7 +175,6 @@ it("updates original value", ({ monitor }) => {
             readonly one: boolean
             readonly two: Array<string>
           }
-          readonly fourth: Array<string>
         },
       ]
     >

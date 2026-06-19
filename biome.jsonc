@@ -128,7 +128,12 @@
       "linter": {
         "rules": {
           "complexity": {
-            "noExcessiveLinesPerFunction": "info", // it should indicate potential for refactoring, but not too strict
+            "noExcessiveLinesPerFunction": {
+              "level": "info",
+              "options": {
+                "skipBlankLines": true
+              }
+            }, // it should indicate potential for refactoring, but not too strict
             "noExcessiveCognitiveComplexity": "info", // it should indicate potential for refactoring, but not too strict
             "useMaxParams": "off", // ignore it since sometimes it's necessary to have many parameters
             "noUselessUndefined": "off", // explicit `return undefined` is preferred for readability
@@ -251,7 +256,12 @@
             },
 
             "useDestructuring": "info",
-            "noExcessiveLinesPerFile": "info",
+            "noExcessiveLinesPerFile": {
+              "level": "info",
+              "options": {
+                "skipBlankLines": true
+              }
+            },
             "noMultiAssign": "info"
           }
         }

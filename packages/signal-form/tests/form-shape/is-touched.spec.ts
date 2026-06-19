@@ -10,7 +10,6 @@ it("selects touched", ({ monitor }) => {
       one: FormUnit(true),
       two: FormUnit([""]),
     }),
-    fourth: ["anything"],
   })
 
   expect(shape.isTouched(monitor)).toBe(false)
@@ -153,14 +152,6 @@ it("does not allow to specify isTouched custom type without selector", ({ monito
 
 it("returns false for empty shape", ({ monitor }) => {
   const shape = FormShape({})
-
-  expect(shape.isTouched(monitor)).toBe(false)
-})
-
-it("returns false for shape without forms", ({ monitor }) => {
-  const shape = FormShape({
-    first: "one",
-  })
 
   expect(shape.isTouched(monitor)).toBe(false)
 })

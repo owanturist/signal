@@ -15,7 +15,6 @@ it("selects error", ({ monitor }) => {
           schema: z.array(z.string().max(1)),
         }),
       }),
-      fourth: ["anything"],
     },
     { touched: true },
   )

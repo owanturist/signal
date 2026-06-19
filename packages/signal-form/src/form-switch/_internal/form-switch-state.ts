@@ -152,15 +152,11 @@ class FormSwitchState<
     }
   }
 
-  public _replaceInitial(
-    monitor: Monitor,
-    state: undefined | FormSwitchState<TKind, TBranches>,
-    isMounting: boolean,
-  ): void {
-    this._active._replaceInitial(monitor, state?._active, isMounting)
+  public _patchInitial(monitor: Monitor, initial: FormSwitchInput<TKind, TBranches>): void {
+    this._active._patchInitial(monitor, initial.active)
 
-    for (const [key, branch] of entries(this._branches)) {
-      branch._replaceInitial(monitor, state?._branches[key], isMounting)
+    for (const [kind, branch] of entries(this._branches)) {
+      branch._patchInitial(monitor, initial.branches[kind])
     }
   }
 
@@ -495,11 +491,6 @@ class FormSwitchState<
   public readonly _dirtyVerbose = Signal(
     (monitor): FormSwitchFlagVerbose<TKind, TBranches> =>
       this._toVerbose<"flag.schema.verbose">(monitor, ({ _dirtyVerbose }) => _dirtyVerbose),
-  )
-
-  public readonly _dirtyOn = Signal(
-    (monitor): FormSwitchFlag<TKind, TBranches> =>
-      this._toConcise<"flag.schema", boolean>(monitor, ({ _dirtyOn }) => _dirtyOn, isBoolean),
   )
 
   public readonly _dirtyOnVerbose = Signal(

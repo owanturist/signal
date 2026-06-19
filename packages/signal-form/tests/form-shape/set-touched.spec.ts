@@ -11,7 +11,6 @@ it("specifies touched", ({ monitor }) => {
       one: FormUnit(true),
       two: FormUnit([""]),
     }),
-    fourth: ["anything"],
   })
 
   shape.setTouched(true)
