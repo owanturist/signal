@@ -1,6 +1,6 @@
 import type { Setter } from "~/tools/setter"
 
-import { FormList, FormUnit } from "../../src"
+import { FormList, FormShape, FormUnit } from "../../src"
 
 it("matches the type definition", ({ monitor }) => {
   const form = FormList((input: number) => FormUnit(input), {
@@ -8,12 +8,7 @@ it("matches the type definition", ({ monitor }) => {
   })
 
   expectTypeOf(form.setInput).toEqualTypeOf<
-    (
-      setter: Setter<
-        ReadonlyArray<Setter<number, [number, number]>>,
-        [ReadonlyArray<number>, ReadonlyArray<number>]
-      >,
-    ) => void
+    (setter: Setter<ReadonlyArray<number>, [ReadonlyArray<number>, ReadonlyArray<number>]>) => void
   >()
 
   expectTypeOf(form.getElements(monitor).at(0)!.setInput).toEqualTypeOf<
@@ -67,24 +62,6 @@ it("passes the list in the transform function", ({ monitor }) => {
   expect(form.getInput(monitor)).toStrictEqual([1, 2, 3])
 })
 
-it("passes an element in the transform function", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), {
-    initial: [0, 1, 2],
-  })
-
-  form.setInput([10, (x) => x + 3])
-  expect(form.getInput(monitor)).toStrictEqual([10, 4])
-})
-
-it("passes an element in the list transform function", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), {
-    initial: [0, 1, 2],
-  })
-
-  form.setInput((elements) => elements.map(() => (x) => x + 1))
-  expect(form.getInput(monitor)).toStrictEqual([1, 2, 3])
-})
-
 it("preserves inner list's getInitial after remove + re-add via outer setInput", ({ monitor }) => {
   const outer = FormList(
     (input: ReadonlyArray<number>) => FormList((n: number) => FormUnit(n), { input }),
@@ -103,4 +80,28 @@ it("preserves inner list's getInitial after remove + re-add via outer setInput",
 
   // But the inner list's own getInitial reads from the stale (empty) _initialInputs.
   expect(inner.getInitial(monitor)).toStrictEqual([1, 2, 3])
+})
+
+it("does not allow to set partial initial", ({ monitor }) => {
+  const form = FormList(
+    (input: { first: number; second: string }) =>
+      FormShape({
+        first: FormUnit(input.first),
+        second: FormUnit(input.second),
+      }),
+    {
+      initial: [
+        // @ts-expect-error
+        { first: 1 },
+      ],
+    },
+  )
+
+  // @ts-expect-error
+  form.setInput([{ first: 10 }, { first: 20 }])
+
+  expect(form.getInput(monitor)).toStrictEqual([
+    { first: 10, second: undefined },
+    { first: 20, second: undefined },
+  ])
 })
