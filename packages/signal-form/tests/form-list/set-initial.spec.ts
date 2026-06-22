@@ -23,12 +23,7 @@ it("matches the type definition", ({ monitor }) => {
   })
 
   expectTypeOf(form.setInitial).toEqualTypeOf<
-    (
-      setter: Setter<
-        ReadonlyArray<Setter<number, [number, number]>>,
-        [ReadonlyArray<number>, ReadonlyArray<number>]
-      >,
-    ) => void
+    (setter: Setter<ReadonlyArray<number>, [ReadonlyArray<number>, ReadonlyArray<number>]>) => void
   >()
 
   expectTypeOf(form.getElements(monitor).at(0)!.setInitial).toEqualTypeOf<
@@ -48,24 +43,14 @@ it("matches the nested type definition", ({ monitor }) => {
   expectTypeOf(form.setInitial).toEqualTypeOf<
     (
       setter: Setter<
-        ReadonlyArray<
-          Setter<
-            ReadonlyArray<Setter<number, [number, number]>>,
-            [ReadonlyArray<number>, ReadonlyArray<number>]
-          >
-        >,
+        ReadonlyArray<ReadonlyArray<number>>,
         [ReadonlyArray<ReadonlyArray<number>>, ReadonlyArray<ReadonlyArray<number>>]
       >,
     ) => void
   >()
 
   expectTypeOf(form.getElements(monitor).at(0)!.setInitial).toEqualTypeOf<
-    (
-      setter: Setter<
-        ReadonlyArray<Setter<number, [number, number]>>,
-        [ReadonlyArray<number>, ReadonlyArray<number>]
-      >,
-    ) => void
+    (setter: Setter<ReadonlyArray<number>, [ReadonlyArray<number>, ReadonlyArray<number>]>) => void
   >()
 
   expectTypeOf(
@@ -184,24 +169,6 @@ it("updates list's initial value from an element's setInitial", ({ monitor }) =>
     { first: 1, second: "1" },
     { first: 3, second: "3" },
   ])
-})
-
-it("passes an element in the transform function", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), {
-    initial: [0, 1, 2],
-  })
-
-  form.setInitial([10, (x) => x + 3])
-  expect(form.getInitial(monitor)).toStrictEqual([10, 4])
-})
-
-it("passes an element in the list transform function", ({ monitor }) => {
-  const form = FormList((input: number) => FormUnit(input), {
-    initial: [0, 1, 2],
-  })
-
-  form.setInitial((elements) => elements.map(() => (x) => x + 1))
-  expect(form.getInitial(monitor)).toStrictEqual([1, 2, 3])
 })
 
 describe("adding a new element to the list's beginning", () => {
