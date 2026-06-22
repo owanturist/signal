@@ -8,7 +8,12 @@ it("matches the type definition", ({ monitor }) => {
   })
 
   expectTypeOf(form.setInput).toEqualTypeOf<
-    (setter: Setter<ReadonlyArray<number>, [ReadonlyArray<number>, ReadonlyArray<number>]>) => void
+    (
+      setter: Setter<
+        ReadonlyArray<Setter<number, [number, number]>>,
+        [ReadonlyArray<number>, ReadonlyArray<number>]
+      >,
+    ) => void
   >()
 
   expectTypeOf(form.getElements(monitor).at(0)!.setInput).toEqualTypeOf<
@@ -59,6 +64,24 @@ it("passes the list in the transform function", ({ monitor }) => {
   })
 
   form.setInput((elements) => elements.map((x) => x + 1))
+  expect(form.getInput(monitor)).toStrictEqual([1, 2, 3])
+})
+
+it("passes an element in the transform function", ({ monitor }) => {
+  const form = FormList((input: number) => FormUnit(input), {
+    initial: [0, 1, 2],
+  })
+
+  form.setInput([10, (x) => x + 3])
+  expect(form.getInput(monitor)).toStrictEqual([10, 4])
+})
+
+it("passes an element in the list transform function", ({ monitor }) => {
+  const form = FormList((input: number) => FormUnit(input), {
+    initial: [0, 1, 2],
+  })
+
+  form.setInput((elements) => elements.map(() => (x) => x + 1))
   expect(form.getInput(monitor)).toStrictEqual([1, 2, 3])
 })
 

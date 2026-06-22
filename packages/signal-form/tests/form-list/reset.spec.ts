@@ -20,7 +20,10 @@ it("matches the type definition", ({ monitor }) => {
 
   expectTypeOf(form.reset).toEqualTypeOf<
     (
-      resetter?: Setter<ReadonlyArray<number>, [ReadonlyArray<number>, ReadonlyArray<number>]>,
+      resetter?: Setter<
+        ReadonlyArray<Setter<number, [number, number]>>,
+        [ReadonlyArray<number>, ReadonlyArray<number>]
+      >,
     ) => void
   >()
 
