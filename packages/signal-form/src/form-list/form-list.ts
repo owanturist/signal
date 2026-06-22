@@ -8,7 +8,7 @@ import type { SignalForm } from "../signal-form/signal-form"
 
 import type { FormListErrorSetter } from "./form-list-error-setter"
 import type { FormListFlagSetter } from "./form-list-flag-setter"
-import type { FormListInputSetter } from "./form-list-input-setter"
+import type { FormListInput } from "./form-list-input"
 import type { FormListValidateOnSetter } from "./form-list-validate-on-setter"
 import { FormList as FormListImpl } from "./_internal/form-list"
 import { FormListState } from "./_internal/form-list-state"
@@ -24,12 +24,12 @@ interface FormListOptions<TElement extends SignalForm> {
   /**
    * @default []
    */
-  readonly initial?: FormListInputSetter<TElement>
+  readonly initial?: FormListInput<TElement>
 
   /**
    * @default {@link initial}
    */
-  readonly input?: FormListInputSetter<TElement>
+  readonly input?: FormListInput<TElement>
 
   readonly touched?: FormListFlagSetter<TElement>
   readonly validateOn?: FormListValidateOnSetter<TElement>
