@@ -3,8 +3,9 @@ packages:
   - "docs"
 
 allowBuilds:
+  es5-ext: true
   esbuild: true
-  sharp: set this to true or false
+  sharp: true
 
 # do not require -w flag when installing to the root
 ignoreWorkspaceRootCheck: true
