@@ -1,0 +1,430 @@
+---
+title: Composing State
+description: Learn how to organise signal state into self-contained modules that compose into a tree mirroring your component hierarchy
+---
+
+In this tutorial you'll build the state layer for a text editor toolbar - a real-world example with multiple controls working together. Each control owns its state, and the toolbar composes them into a single tree. A text preview component then consumes that same state to render styled text - without knowing anything about how the controls work. TypeScript infers the complete state type from the factory functions - no manual type declarations needed. When you need to change a control's internals, the rest of the tree stays untouched.
+
+## What you'll build
+
+<SandpackBundle
+  entry="/app.tsx"
+  files={{
+    "/align/state.ts": {
+      code: `import { Signal } from "@owanturist/signal"
+
+export type Alignment = "left" | "center" | "right" | "justify"
+
+export function initState() {
+  return {
+    alignment: Signal<Alignment>("left"),
+  }
+}
+
+export type State = ReturnType<typeof initState>
+`
+    },
+    "/align/index.tsx": {
+      code: `import { useComputed } from "@owanturist/signal-react"
+import { type Alignment, type State } from "./state"
+
+const ALIGNMENTS: ReadonlyArray<Alignment> = ["left", "center", "right", "justify"]
+
+interface Props {
+  state: State
+}
+
+export function Align({ state }: Props) {
+  const alignment = useComputed(state.alignment)
+
+  return (
+    <div style={{ display: "flex", gap: 4 }}>
+      {ALIGNMENTS.map((value) => (
+        <button
+          key={value}
+          onClick={() => state.alignment.write(value)}
+          style={{
+            fontWeight: alignment === value ? "bold" : "normal",
+            border: "1px solid #ccc",
+            padding: "2px 8px",
+            cursor: "pointer",
+          }}
+        >
+          {value}
+        </button>
+      ))}
+    </div>
+  )
+}
+`
+    },
+    "/font/state.ts": {
+      code: `import { Signal } from "@owanturist/signal"
+
+export function initState() {
+  return {
+    family: Signal("serif"),
+    size: Signal(16),
+  }
+}
+
+export type State = ReturnType<typeof initState>
+`
+    },
+    "/font/index.tsx": {
+      code: `import { useMonitor } from "@owanturist/signal-react"
+import type { State } from "./state"
+
+interface Props {
+  state: State
+}
+
+export function Font({ state }: Props) {
+  const monitor = useMonitor()
+  const family = state.family.read(monitor)
+  const size = state.size.read(monitor)
+
+  return (
+    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+      <select
+        value={family}
+        onChange={(e) => state.family.write(e.target.value)}
+        style={{ border: "1px solid #ccc", padding: "2px 4px" }}
+      >
+        <option value="serif">serif</option>
+        <option value="sans-serif">sans-serif</option>
+        <option value="monospace">monospace</option>
+      </select>
+      <input
+        type="number"
+        value={size}
+        min={8}
+        max={72}
+        onChange={(e) => state.size.write(Number(e.target.value))}
+        style={{ width: 60, border: "1px solid #ccc", padding: "2px 4px" }}
+      />
+      <span>px</span>
+    </div>
+  )
+}
+`
+    },
+    "/toolbar/state.ts": {
+      code: `import { initState as initAlignState } from "../align/state"
+import { initState as initFontState } from "../font/state"
+
+export function initState() {
+  return {
+    align: initAlignState(),
+    font: initFontState(),
+  }
+}
+
+export type State = ReturnType<typeof initState>
+`
+    },
+    "/toolbar/index.tsx": {
+      code: `import type { State } from "./state"
+import { Align } from "../align"
+import { Font } from "../font"
+
+interface Props {
+  state: State
+}
+
+export function Toolbar({ state }: Props) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: 16, border: "1px solid #ccc" }}>
+      <Align state={state.align} />
+      <Font state={state.font} />
+    </div>
+  )
+}
+`
+    },
+    "/text-preview/index.tsx": {
+      code: `import { useMonitor } from "@owanturist/signal-react"
+import type { State as ToolbarState } from "../toolbar/state"
+
+interface Props {
+  state: ToolbarState
+}
+
+export function TextPreview({ state }: Props) {
+  const monitor = useMonitor()
+  const alignment = state.align.alignment.read(monitor)
+  const family = state.font.family.read(monitor)
+  const size = state.font.size.read(monitor)
+
+  return (
+    <p
+      style={{
+        textAlign: alignment,
+        fontFamily: family,
+        fontSize: size,
+        padding: 16,
+        border: "1px solid #ccc",
+        minHeight: 80,
+        margin: 0,
+      }}
+    >
+      The quick brown fox jumps over the lazy dog.
+    </p>
+  )
+}
+`
+    },
+    "/app.tsx": {
+      code: `import { useState } from "react"
+import { initState } from "./toolbar/state"
+import { Toolbar } from "./toolbar"
+import { TextPreview } from "./text-preview"
+
+export default function App() {
+  const [state] = useState(initState)
+
+  return (
+    <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
+      <Toolbar state={state} />
+      <TextPreview state={state} />
+    </div>
+  )
+}
+`
+    }
+  }}
+/>
+
+Explore the file tree. You'll build these files step by step.
+
+## The alignment state
+
+The alignment control has a single piece of state: which alignment is currently active.
+
+```ts title="align/state.ts"
+import { Signal } from "@owanturist/signal"
+
+export type Alignment = "left" | "center" | "right" | "justify"
+
+export function initState() {
+  return {
+    alignment: Signal<Alignment>("left"),
+  }
+}
+
+export type State = ReturnType<typeof initState>
+```
+
+<Callout>`State{:ts}` is derived from `initState{:ts}` via `ReturnType<typeof initState>{:ts}`. Add a field to the return value and the type updates everywhere automatically - no manual sync needed.</Callout>
+
+## The font state
+
+The font control tracks two independent values.
+
+```ts title="font/state.ts"
+import { Signal } from "@owanturist/signal"
+
+export function initState() {
+  return {
+    family: Signal("serif"),
+    size: Signal(16),
+  }
+}
+
+export type State = ReturnType<typeof initState>
+```
+
+`State{:ts}` follows the same pattern: TypeScript infers the type from the return value of `initState{:ts}`. The two Signals are independent - changing `family{:ts}` doesn't affect `size{:ts}`, and a component that only reads `size{:ts}` won't re-render when `family{:ts}` changes.
+
+## The toolbar state
+
+The toolbar owns both controls by composing their state.
+
+```ts title="toolbar/state.ts"
+import { initState as initAlignState } from "../align/state"
+import { initState as initFontState } from "../font/state"
+
+export function initState() {
+  return {
+    align: initAlignState(),
+    font: initFontState(),
+  }
+}
+
+export type State = ReturnType<typeof initState>
+```
+
+`toolbar/state.ts{:ts}` only imports factory functions - it never imports types. TypeScript infers the full nested shape of `State{:ts}` from the return values of `initAlignState{:ts}` and `initFontState{:ts}`. Add a field anywhere in the tree and the change propagates up automatically.
+
+This is the key insight: the tree of state modules mirrors the component hierarchy, and each node is independently changeable.
+
+## Testing state in isolation
+
+Because each state module is a plain object of Signals, you can unit-test it without mounting React.
+
+```ts title="align/state.test.ts"
+import { initState } from "./state"
+
+it("starts with left alignment", ({ monitor }) => {
+  const { alignment } = initState()
+  expect(alignment.read(monitor)).toBe("left")
+})
+
+it("updates alignment", ({ monitor }) => {
+  const { alignment } = initState()
+  alignment.write("center")
+  expect(alignment.read(monitor)).toBe("center")
+})
+```
+
+The `monitor` fixture is injected automatically per test - no manual setup needed.
+
+<Callout>How the `monitor` fixture is configured is covered in [Test Signals](/docs/tutorials/test-signals).</Callout>
+
+## Wiring React components
+
+With the state layer complete, the React components are thin wrappers that read from and write to the state they receive as props.
+
+```tsx title="align/index.tsx"
+import { useComputed } from "@owanturist/signal-react"
+import { type Alignment, type State } from "./state"
+
+const ALIGNMENTS: ReadonlyArray<Alignment> = ["left", "center", "right", "justify"]
+
+interface Props {
+  state: State
+}
+
+export function Align({ state }: Props) {
+  const alignment = useComputed(state.alignment)
+
+  return (
+    <div style={{ display: "flex", gap: 4 }}>
+      {ALIGNMENTS.map((value) => (
+        <button
+          key={value}
+          onClick={() => state.alignment.write(value)}
+          style={{ fontWeight: alignment === value ? "bold" : "normal" }}
+        >
+          {value}
+        </button>
+      ))}
+    </div>
+  )
+}
+```
+
+```tsx title="font/index.tsx"
+import { useMonitor } from "@owanturist/signal-react"
+import type { State } from "./state"
+
+interface Props {
+  state: State
+}
+
+export function Font({ state }: Props) {
+  const monitor = useMonitor()
+  const family = state.family.read(monitor)
+  const size = state.size.read(monitor)
+
+  return (
+    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+      <select value={family} onChange={(e) => state.family.write(e.target.value)}>
+        <option value="serif">serif</option>
+        <option value="sans-serif">sans-serif</option>
+        <option value="monospace">monospace</option>
+      </select>
+      <input
+        type="number"
+        value={size}
+        onChange={(e) => state.size.write(Number(e.target.value))}
+      />
+    </div>
+  )
+}
+```
+
+```tsx title="toolbar/index.tsx"
+import type { State } from "./state"
+import { Align } from "../align"
+import { Font } from "../font"
+
+interface Props {
+  state: State
+}
+
+export function Toolbar({ state }: Props) {
+  return (
+    <div>
+      <Align state={state.align} />
+      <Font state={state.font} />
+    </div>
+  )
+}
+```
+
+```tsx title="app.tsx"
+import { useState } from "react"
+import { initState } from "./toolbar/state"
+import { Toolbar } from "./toolbar"
+import { TextPreview } from "./text-preview"
+
+export default function App() {
+  const [state] = useState(initState)
+
+  return (
+    <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
+      <Toolbar state={state} />
+      <TextPreview state={state} />
+    </div>
+  )
+}
+```
+
+```tsx title="text-preview/index.tsx"
+import { useMonitor } from "@owanturist/signal-react"
+import type { State as ToolbarState } from "../toolbar/state"
+
+interface Props {
+  state: ToolbarState
+}
+
+export function TextPreview({ state }: Props) {
+  const monitor = useMonitor()
+  const alignment = state.align.alignment.read(monitor)
+  const family = state.font.family.read(monitor)
+  const size = state.font.size.read(monitor)
+
+  return (
+    <p style={{ textAlign: alignment, fontFamily: family, fontSize: size }}>
+      The quick brown fox jumps over the lazy dog.
+    </p>
+  )
+}
+```
+
+Four things to notice:
+
+- Props are typed against the state interface - `Props{:ts}` accepts the `State{:ts}` imported from the sibling `state.ts`, not a broader type
+- `app.tsx` passes `initState{:ts}` (without calling it) to `useState{:ts}` - React calls it once as the lazy initialiser
+- `toolbar/index.tsx` doesn't know what's inside each state module; it just passes the right piece to the right child
+- `TextPreview{:ts}` reads signals two levels deep (`state.align.alignment{:ts}`, `state.font.family{:ts}`, `state.font.size{:ts}`) - it is a consumer of `ToolbarState{:ts}` and only re-renders when the specific signals it reads change
+
+## What you've built
+
+- Three state modules - `align/state.ts{:ts}`, `font/state.ts{:ts}`, `toolbar/state.ts{:ts}` - each exporting a `State{:ts}` type derived via `ReturnType<typeof initState>{:ts}`
+- A composition tree that mirrors the component hierarchy
+- Unit-testable state modules that need no React context
+- React components typed against state interfaces, not against implementation details
+- A `TextPreview{:ts}` component that consumes state from multiple levels of the tree and re-renders only when its signals change
+
+## What's next
+
+<Cards>
+  <Card title="Using Signals in React" href="/docs/guides/using-signals-in-react" description="Learn how useComputed and useMonitor work under the hood" />
+  <Card title="Reading and Writing Signals" href="/docs/guides/reading-and-writing-signals" description="All the ways to read from and write to a Signal" />
+  <Card title="Signals in Data Structures" href="/docs/tutorials/signals-in-data-structures" description="Encapsulate signals inside classes or closures" />
+  <Card title="Test Signals" href="/docs/tutorials/test-signals" description="Set up the monitor fixture and test state modules without React" />
+</Cards>
+
+<Callout>If you prefer encapsulating state inside a class with methods rather than a plain object of Signals, signals support that pattern too - the state interface approach still applies.</Callout>
