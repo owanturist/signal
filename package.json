@@ -18,7 +18,8 @@
     "check:fix": "biome check --write",
     "typecheck": "nx run-many -t typecheck",
     "build": "nx run-many -t build",
-    "build:minified": "pnpm build --minify"
+    "build:minified": "pnpm build --minify",
+    "build:docs": "pnpm --filter docs build"
   },
   "engines": {
     "node": ">=24.13.0"
