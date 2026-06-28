@@ -17,8 +17,9 @@
     "check": "biome check",
     "check:fix": "biome check --write",
     "typecheck": "tsgo --noEmit && pnpm --recursive typecheck",
-    "build": "pnpm --recursive build",
-    "build:minified": "pnpm build --env.NODE_ENV=production --minify=terser"
+    "build": "pnpm --filter './packages/*' build",
+    "build:minified": "pnpm build:packages --env.NODE_ENV=production --minify=terser",
+    "build:docs": "pnpm --filter docs build"
   },
   "engines": {
     "node": ">=24.13.0"
