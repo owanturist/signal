@@ -19,7 +19,8 @@
     "typecheck": "tsgo --noEmit && pnpm --recursive typecheck",
     "build": "pnpm --filter './packages/*' build",
     "build:minified": "pnpm build:packages --env.NODE_ENV=production --minify=terser",
-    "build:docs": "pnpm --filter docs build"
+    "docs:build": "pnpm --filter docs build",
+    "docs:dev": "pnpm --filter docs dev"
   },
   "engines": {
     "node": ">=24.13.0"
