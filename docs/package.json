@@ -1,0 +1,33 @@
+{
+  "name": "docs",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "react-router dev",
+    "build": "react-router build",
+    "typecheck": "tsc --noEmit",
+    "preview": "react-router dev --mode production"
+  },
+  "dependencies": {
+    "@codesandbox/sandpack-react": "^2.19.9",
+    "@owanturist/signal": "workspace:*",
+    "clsx": "^2.1.1",
+    "fumadocs-core": "^16.6.7",
+    "fumadocs-mdx": "14.2.8",
+    "fumadocs-ui": "^16.6.7",
+    "lucide-react": "^0.575.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-resizable-panels": "^4.6.5",
+    "react-router": "^7"
+  },
+  "devDependencies": {
+    "@react-router/dev": "^7",
+    "@tailwindcss/vite": "^4.1.18",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "tailwindcss": "^4.2.1",
+    "vite": "^7"
+  }
+}

@@ -9,6 +9,9 @@ node_modules
 coverage
 .nyc_output
 
+# typescript
+*.tsbuildinfo
+
 # production
 dist
 changeset-status.json
@@ -25,3 +28,9 @@ yarn-error.log*
 lerna-debug.log*
 
 cypress/videos
+
+# docs
+docs/.next
+docs/.react-router
+docs/.source
+docs/next-env.d.ts

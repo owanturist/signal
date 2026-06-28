@@ -147,6 +147,7 @@
           "style": {
             "noParameterProperties": "off", // parameter properties are encouraged in this codebase
             "noNestedTernary": "off", // sometimes nested ternary improves code conciseness and readability
+            "noImplicitBoolean": "off", // implicit boolean is encouraged in this codebase
             "useDefaultSwitchClause": "off", // having default clause prevents TS exhaustiveness checks
             "useConsistentCurlyBraces": {
               "fix": "safe", // allow autofix
@@ -236,33 +237,39 @@
           },
 
           "nursery": {
-            "useVueMultiWordComponentNames": "off", // irrelevant
-            "useVueDefineMacrosOrder": "off", // irrelevant
-            "noReactNativeRawText": "off", // irrelevant
+            // Framework-specific rules (irrelevant for this React project)
+            "useQwikMethodUsage": "off",
+            "useQwikValidLexicalScope": "off",
+            "useVueMultiWordComponentNames": "off",
+            "useVueDefineMacrosOrder": "off",
+            "noVueReservedProps": "off",
+            "noVueReservedKeys": "off",
+            "noVueDuplicateKeys": "off",
+            "noVueDataObjectDeclaration": "off",
+
+            // Project-specific overrides
             "noEqualsToNull": "off", // == null is used to check for both null and undefined
             "noLeakedRender": "off", // many false-positives for boolean && JSX expressions
             "noTernary": "off", // ternary is useful in many cases
-
-            "useExplicitType": "off", // it is too much noise to enforce explicit types everywhere, even none module-public exports
-            "useExplicitReturnType": "off", // same reasoning as useExplicitType: too noisy on non module-public exports
+            "noUnresolvedImports": "off", // handled by TS
+            "noUselessUndefined": "off", // explicit undefined values improve readability
+            "useExplicitType": "off", // too noisy for non-public exports
+            "useMaxParams": "off", // common pattern in this codebase
             "useAwaitThenable": "off", // false-positives
-            "noJsxPropsBind": "off", // it is madness to follow this rule
-            "useThisInClassMethods": "off", // false-positives for overridable hooks (e.g. _clone, _getChildren) where subclasses depend on the instance-method shape
+            "noJsxPropsBind": "off", // impractical to follow
 
-            "useConsistentMethodSignatures": {
-              // property-style enables stricter variance checks under strictFunctionTypes
-              "level": "error",
-              "fix": "safe" // promote the unsafe fix to safe so check:fix auto-applies it
-            },
-
+            // Informational hints
             "useDestructuring": "info",
-            "noExcessiveLinesPerFile": {
+            "noExcessiveLinesPerFile": "info",
+            "noMultiAssign": "info",
+            // Add cx and cv functions used for className composition.
+            "useSortedClasses": {
               "level": "info",
+              "fix": "safe",
               "options": {
-                "skipBlankLines": true
+                "functions": ["cx"]
               }
-            },
-            "noMultiAssign": "info"
+            }
           }
         }
       }
@@ -314,7 +321,7 @@
 
     // dev env setup
     {
-      "includes": ["./*.{mjs,ts}", "./packages/*/*.{js,ts}"],
+      "includes": ["./*.{mjs,ts}", "./packages/*/*.{js,ts}", "docs/*.{mjs,ts}"],
       "linter": {
         "rules": {
           "style": {
@@ -323,6 +330,20 @@
           },
           "suspicious": {
             "noConsole": "off" // devtools often use console
+          }
+        }
+      }
+    },
+
+    // docs env setup
+    {
+      "includes": ["docs/**/*.{ts,tsx,mjs,jsx}"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noDefaultExport": "off", // docs use default exports
+            "useComponentExportOnlyModules": "off", // docs might export non-component modules from roots
+            "useExportsLast": "off" // nextjs expects exports throughout the file
           }
         }
       }
@@ -337,7 +358,8 @@
             "useExportsLast": "off" // declaration files often have exports throughout the file
           },
           "correctness": {
-            "noUnusedImports": "off" // declaration files often have unused imports
+            "noUnusedImports": "off", // declaration files often have unused imports
+            "noUnusedVariables": "off" // declaration files often have unused variables
           },
           "nursery": {
             "noShadow": "off" // shadowing is common in declaration files
@@ -399,6 +421,54 @@
                 ]
               }
             }
+          }
+        }
+      }
+    },
+
+    // docs app
+    {
+      "includes": ["docs/*.{ts,tsx}", "docs/src/**/*.{ts,tsx}"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noNodejsModules": "off" // docs config files and src use Node.js modules
+          },
+          "style": {
+            "noHeadElement": "off" // React Router apps use the native <head> element in root layout
+          },
+          "nursery": {
+            "noJsxLiterals": "off" // landing page and docs components use literal strings
+          }
+        }
+      }
+    },
+
+    // docs routes - React Router uses dots as path separators in filenames (e.g. docs.$.tsx)
+    {
+      "includes": ["docs/src/routes/**/*.{ts,tsx}"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useFilenamingConvention": "off" // React Router file-based routing uses dots as path separators
+          }
+        }
+      }
+    },
+
+    // docs example files - Sandpack examples embedded in tutorial pages
+    {
+      "includes": ["docs/content/**/*.example.{ts,tsx}"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noMagicNumbers": "off" // example code uses inline values for clarity
+          },
+          "correctness": {
+            "noUndeclaredDependencies": "off" // examples import from packages not in docs/package.json
+          },
+          "nursery": {
+            "noJsxLiterals": "off" // example code uses literal strings in JSX
           }
         }
       }

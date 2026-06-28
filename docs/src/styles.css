@@ -1,0 +1,44 @@
+@import "tailwindcss";
+@import "fumadocs-ui/css/solar.css";
+@import "fumadocs-ui/css/preset.css";
+
+@layer components {
+  .typedef {
+    @apply pl-2 border-l border-fd-border relative;
+
+    /* description */
+    & > p {
+      @apply mt-0!;
+    }
+
+    /* tags */
+    & > ul {
+      @apply pl-0! list-none!;
+    }
+
+    & > ul:has(+ hr) {
+      @apply mb-0!;
+    }
+
+    & > ul > li + li {
+      @apply mt-4!;
+    }
+
+    & > ul + hr {
+      @apply my-0!;
+    }
+
+    & > ul > li .shiki {
+      @apply leading-5;
+    }
+
+    /* @example tag */
+    & > ul > li:has(figure) {
+      @apply grid grid-cols-[auto_1fr] gap-4 items-start;
+    }
+
+    & > ul > li > figure {
+      @apply m-0!;
+    }
+  }
+}

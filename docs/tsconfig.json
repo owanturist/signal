@@ -1,0 +1,18 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "incremental": true,
+    "verbatimModuleSyntax": false,
+    "types": ["vite/client"],
+    "paths": {
+      "@/*": ["./src/*"],
+      "~/tools/*": ["../packages/tools/src/*"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx", "**/*.mdx"],
+  "exclude": ["dist", "build", "node_modules"]
+}

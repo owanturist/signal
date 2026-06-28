@@ -1,0 +1,104 @@
+---
+title: Composing State
+description: Learn how to organise signal state into self-contained modules that compose into a tree mirroring your component hierarchy
+collapsible: false
+---
+
+In this tutorial you'll build the state layer for a text editor toolbar - a real-world example with multiple controls working together. Each control owns its state, and the toolbar composes them into a single tree. A text preview component then consumes that same state to render styled text - without knowing anything about how the controls work. TypeScript infers the complete state type from the factory functions - no manual type declarations needed. When you need to change a control's internals, the rest of the tree stays untouched.
+
+## What you'll build
+
+<Sandpack entry="/app.tsx" />
+
+Explore the file tabs. You'll build these files step by step.
+
+## The alignment state
+
+The alignment control has a single piece of state: which alignment is currently active.
+
+<include lang="ts" meta='title="align/state.ts"'>./align/state.example.ts#code</include>
+
+<Callout>`State{:ts}` is derived from `initState{:ts}` via `ReturnType<typeof initState>{:ts}`. Add a field to the return value and the type updates everywhere automatically - no manual sync needed.</Callout>
+
+## The font state
+
+The font control tracks two independent values.
+
+<include lang="ts" meta='title="font/state.ts"'>./font/state.example.ts#code</include>
+
+`State{:ts}` follows the same pattern: TypeScript infers the type from the return value of `initState{:ts}`. The two Signals are independent - changing `family{:ts}` doesn't affect `size{:ts}`, and a component that only reads `size{:ts}` won't re-render when `family{:ts}` changes.
+
+## The toolbar state
+
+The toolbar owns both controls by composing their state.
+
+<include lang="ts" meta='title="toolbar/state.ts"'>./toolbar/state.example.ts#code</include>
+
+`toolbar/state.ts{:ts}` only imports factory functions - it never imports types. TypeScript infers the full nested shape of `State{:ts}` from the return values of `initAlignState{:ts}` and `initFontState{:ts}`. Add a field anywhere in the tree and the change propagates up automatically.
+
+This is the key insight: the tree of state modules mirrors the component hierarchy, and each node is independently changeable.
+
+## Testing state in isolation
+
+Because each state module is a plain object of Signals, you can unit-test it without mounting React.
+
+```ts title="align/state.test.ts"
+import { initState } from "./state"
+
+it("starts with left alignment", ({ monitor }) => {
+  const { alignment } = initState()
+  expect(alignment.read(monitor)).toBe("left")
+})
+
+it("updates alignment", ({ monitor }) => {
+  const { alignment } = initState()
+  alignment.write("center")
+  expect(alignment.read(monitor)).toBe("center")
+})
+```
+
+The `monitor` fixture is injected automatically per test - no manual setup needed.
+
+<Callout>How the `monitor` fixture is configured is covered in [Test Signals](/docs/tutorials/test-signals).</Callout>
+
+## Wiring React components
+
+With the state layer complete, the React components are thin wrappers that read from and write to the state they receive as props.
+
+Each component wraps its output in `RenderBoundary{:ts}` - a helper that flashes pink on re-render in the live example above. In your own code you would use a plain element instead.
+
+<include lang="tsx" meta='title="align/index.tsx"'>./align/index.example.tsx#code</include>
+
+<include lang="tsx" meta='title="font/index.tsx"'>./font/index.example.tsx#code</include>
+
+<include lang="tsx" meta='title="toolbar/index.tsx"'>./toolbar/index.example.tsx#code</include>
+
+<include lang="tsx" meta='title="app.tsx"'>./app.example.tsx#code</include>
+
+<include lang="tsx" meta='title="text-preview/index.tsx"'>./text-preview/index.example.tsx#code</include>
+
+Four things to notice:
+
+- Props are typed against the state interface - `Props{:ts}` accepts the `State{:ts}` imported from the sibling `state.ts`, not a broader type
+- `app.tsx` passes `initState{:ts}` (without calling it) to `useState{:ts}` - React calls it once as the lazy initialiser
+- `toolbar/index.tsx` doesn't know what's inside each state module; it just passes the right piece to the right child
+- `TextPreview{:ts}` reads signals two levels deep (`state.align.alignment{:ts}`, `state.font.family{:ts}`, `state.font.size{:ts}`) - it is a consumer of `ToolbarState{:ts}` and only re-renders when the specific signals it reads change
+
+## What you've built
+
+- Three state modules - `align/state.ts{:ts}`, `font/state.ts{:ts}`, `toolbar/state.ts{:ts}` - each exporting a `State{:ts}` type derived via `ReturnType<typeof initState>{:ts}`
+- A composition tree that mirrors the component hierarchy
+- Unit-testable state modules that need no React context
+- React components typed against state interfaces, not against implementation details
+- A `TextPreview{:ts}` component that consumes state from multiple levels of the tree and re-renders only when its signals change
+
+## What's next
+
+<Cards>
+  <Card title="Using Signals in React" href="/docs/guides/using-signals-in-react" description="Learn how useComputed and useMonitor work under the hood" />
+  <Card title="Reading and Writing Signals" href="/docs/guides/reading-and-writing-signals" description="All the ways to read from and write to a Signal" />
+  <Card title="Signals in Data Structures" href="/docs/tutorials/signals-in-data-structures" description="Encapsulate signals inside classes or closures" />
+  <Card title="Test Signals" href="/docs/tutorials/test-signals" description="Set up the monitor fixture and test state modules without React" />
+</Cards>
+
+<Callout>If you prefer encapsulating state inside a class with methods rather than a plain object of Signals, signals support that pattern too - the state interface approach still applies.</Callout>
