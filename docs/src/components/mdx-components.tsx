@@ -3,7 +3,7 @@ import { Accordion, Accordions } from "fumadocs-ui/components/accordion"
 import { TypeTable } from "fumadocs-ui/components/type-table"
 import defaultComponents from "fumadocs-ui/mdx"
 
-import { Sandpack } from "./sandpack-editor"
+import { Sandpack } from "./sandpack"
 
 export const MDXComponents = {
   ...defaultComponents,
