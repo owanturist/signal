@@ -1,7 +1,6 @@
 ---
 title: Composing State
 description: Learn how to organise signal state into self-contained modules that compose into a tree mirroring your component hierarchy
-collapsible: false
 ---
 
 In this tutorial you'll build the state layer for a text editor toolbar - a real-world example with multiple controls working together. Each control owns its state, and the toolbar composes them into a single tree. A text preview component then consumes that same state to render styled text - without knowing anything about how the controls work. TypeScript infers the complete state type from the factory functions - no manual type declarations needed. When you need to change a control's internals, the rest of the tree stays untouched.

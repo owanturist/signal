@@ -1,7 +1,7 @@
-import { RootProvider as FumadocsRouterProvider } from "fumadocs-ui/provider/react-router"
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router"
+import { HeadContent, Outlet, Scripts, createRootRoute } from "@tanstack/react-router"
+import { RootProvider } from "fumadocs-ui/provider/tanstack"
 
-import "@/styles.css"
+import "@/app.css"
 
 const initTheme = `
 (() => {
@@ -19,7 +19,11 @@ const initTheme = `
   .trim()
   .replace(/\s+/g, " ")
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export const Route = createRootRoute({
+  component: RootComponent,
+})
+
+function RootComponent() {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -27,22 +31,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         {/** biome-ignore lint/security/noDangerouslySetInnerHtml: This is safe because it only sets the initial theme */}
         <script dangerouslySetInnerHTML={{ __html: initTheme }} />
-        <Meta />
-        <Links />
+        <HeadContent />
       </head>
       <body>
-        {children}
-        <ScrollRestoration />
+        <RootProvider theme={{ enabled: false }} 
+        >
+          <Outlet />
+        </RootProvider>
         <Scripts />
       </body>
     </html>
-  )
-}
-
-export default function App() {
-  return (
-    <FumadocsRouterProvider search={{ options: { type: "static" } }} theme={{ enabled: false }}>
-      <Outlet />
-    </FumadocsRouterProvider>
   )
 }
