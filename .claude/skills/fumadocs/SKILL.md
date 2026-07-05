@@ -145,7 +145,8 @@ icon: IconName             # requires custom icon handler in loader()
 | `description` | string | Meta description shown in search and SEO |
 | `icon` | string | Icon name resolved via `icon` handler in `loader()` |
 | `full` | boolean | Expands page to fill available width; forces TOC into popover mode. Requires adding to `frontmatterSchema` and wiring `page.data.full` to `<DocsPage full={...}>`. |
-| `collapsible` | boolean | For `index.mdx` pages acting as folder roots: `false` removes the sidebar expand arrow |
+
+> **Note:** Folder-level fields (`collapsible`, `defaultOpen`, `root`) must be declared in `meta.json`, not MDX frontmatter - fumadocs-core silently ignores them in frontmatter.
 
 ### meta.json (folder configuration)
 
@@ -168,7 +169,7 @@ icon: IconName             # requires custom icon handler in loader()
 | `icon` | string | — | Icon name resolved via `icon` handler in `loader()` |
 | `root` | boolean | `false` | Marks folder as a root (sidebar tab); only one root visible at a time |
 | `defaultOpen` | boolean | — | Opens the folder by default in the sidebar |
-| `collapsible` | boolean | `true` | When `false`, removes the expand/collapse arrow entirely. Use on `index.mdx` folders with no children to make them render as plain page links |
+| `collapsible` | boolean | `true` | When `false`, removes the sidebar expand arrow and disables collapsing. Add a minimal `meta.json` with `{"collapsible": false}` to a folder whose `index.mdx` should appear as a plain sidebar link (e.g. a page co-located with example files fumadocs doesn't index) |
 
 **Pages array syntax:**
 - `"page-name"` or `"./path/to/page"` - reference page or folder

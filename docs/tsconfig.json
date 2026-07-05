@@ -9,8 +9,7 @@
     "verbatimModuleSyntax": false,
     "types": ["vite/client"],
     "paths": {
-      "@/*": ["./src/*"],
-      "~/tools/*": ["../packages/tools/src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.mdx"],
