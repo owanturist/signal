@@ -17,7 +17,7 @@ const initTheme = `
 })()
 `
   .trim()
-  .replace(/\s+/g, " ")
+  .replace(/\s+/gu, " ")
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -34,8 +34,7 @@ function RootComponent() {
         <HeadContent />
       </head>
       <body>
-        <RootProvider theme={{ enabled: false }} 
-        >
+        <RootProvider theme={{ enabled: false }}>
           <Outlet />
         </RootProvider>
         <Scripts />

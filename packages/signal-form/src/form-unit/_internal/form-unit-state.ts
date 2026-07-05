@@ -281,6 +281,7 @@ class FormUnitState<TInput, TError, TOutput> extends SignalFormState<
 
   // C H I L D R E N
 
+  // biome-ignore lint/nursery/useThisInClassMethods: polymorphic override of abstract SignalFormState._getChildren (leaf has no children)
   public _getChildren(): ReadonlyArray<never> {
     return []
   }
