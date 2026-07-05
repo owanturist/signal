@@ -22,8 +22,8 @@ const THEME_TO_LABEL = {
 } satisfies Record<Theme, unknown>
 
 function normalizeTheme(theme: string): string {
-  if (theme === "system" && "matchMedia" in window) {
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+  if (theme === "system" && "matchMedia" in globalThis) {
+    return globalThis.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
   }
 
   return theme

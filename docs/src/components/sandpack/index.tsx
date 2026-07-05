@@ -4,9 +4,9 @@ import type { CSSProperties } from "react"
 import { SandpackEditor, type SandpackEditorProps } from "./_editor"
 import localPackageFiles from "virtual:local-packages"
 
-const RE_TS_NOCHECK = /^\/\/ @ts-nocheck\n\n?/
-const RE_REGION_START = /^\/\/#region \w+\n/gm
-const RE_REGION_END = /^\/\/#endregion \w+\n?/gm
+const RE_TS_NOCHECK = /^\/\/ @ts-nocheck\n\n?/u
+const RE_REGION_START = /^\/\/#region \w+\n/gmu
+const RE_REGION_END = /^\/\/#endregion \w+\n?/gmu
 
 function stripExampleMeta(code: string): string {
   return code.replace(RE_TS_NOCHECK, "").replace(RE_REGION_START, "").replace(RE_REGION_END, "")
