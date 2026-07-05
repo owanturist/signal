@@ -30,7 +30,6 @@ lerna-debug.log*
 cypress/videos
 
 # docs
-docs/.next
-docs/.react-router
 docs/.source
-docs/next-env.d.ts
+docs/.tanstack
+docs/src/route-tree.gen.ts

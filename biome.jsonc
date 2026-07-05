@@ -343,7 +343,7 @@
           "style": {
             "noDefaultExport": "off", // docs use default exports
             "useComponentExportOnlyModules": "off", // docs might export non-component modules from roots
-            "useExportsLast": "off" // nextjs expects exports throughout the file
+            "useExportsLast": "off" // TanStack route files place `export const Route` before the component
           }
         }
       }
@@ -435,7 +435,7 @@
             "noNodejsModules": "off" // docs config files and src use Node.js modules
           },
           "style": {
-            "noHeadElement": "off" // React Router apps use the native <head> element in root layout
+            "noHeadElement": "off" // TanStack Start __root route renders the native <head> element
           },
           "nursery": {
             "noJsxLiterals": "off" // landing page and docs components use literal strings
@@ -444,13 +444,13 @@
       }
     },
 
-    // docs routes - React Router uses dots as path separators in filenames (e.g. docs.$.tsx)
+    // docs routes - TanStack Start uses $ and __ prefixes in route filenames (e.g. $.tsx, __root.tsx)
     {
       "includes": ["docs/src/routes/**/*.{ts,tsx}"],
       "linter": {
         "rules": {
           "style": {
-            "useFilenamingConvention": "off" // React Router file-based routing uses dots as path separators
+            "useFilenamingConvention": "off" // TanStack Start uses $ and __ prefixes in route filenames
           }
         }
       }

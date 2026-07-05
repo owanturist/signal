@@ -1,9 +1,7 @@
+import { createFileRoute } from "@tanstack/react-router"
 import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock"
 import { Tab, Tabs } from "fumadocs-ui/components/tabs"
 import { HomeLayout } from "fumadocs-ui/layouts/home"
-
-import { MDXComponents } from "@/components/mdx-components"
-import { ThemeSwitcher } from "@/components/theme-switcher"
 
 import ComposeExample from "./compose-nested-example.mdx"
 import BothExample from "./reactive-js-both-example.mdx"
@@ -14,8 +12,14 @@ import SelectiveRerenderExample from "./selective-update-partial-example.mdx"
 import SignalPropExample from "./skip-rerenders-signal-prop-example.mdx"
 import StringPropExample from "./skip-rerenders-string-prop-example.mdx"
 import TypeInferenceExample from "./type-inference-example.mdx"
+import { MDXComponents } from "@/components/mdx-components"
+import { ThemeSwitcher } from "@/components/theme-switcher"
 
-export default function HomePage() {
+export const Route = createFileRoute("/(landing)/")({
+  component: HomePage,
+})
+
+function HomePage() {
   return (
     <HomeLayout
       nav={{

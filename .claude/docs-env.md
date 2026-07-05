@@ -1,260 +1,211 @@
-# TODO
-
-- [ ] Migrate routing to file-based routing conventions (https://reactrouter.com/how-to/file-route-conventions). This will require renaming `docs-md-root.tsx` to `docs.md.tsx`.
-- [ ] Does it make sense to merge `.d.ts` files (`virtual.d.ts` and `mdx.d.ts`) into one?
-- [x] The docs env does not use next anymore, so next-themes must be changed to a different theme solution (custom one is fine).
-- [ ] @owanturist/signal is library from THIS project - it does not require mention.
-- [ ] is it possible to colocate all routes/_index.tsx files in a single directory rather than scattering them across src/routes/?
-- [ ] is there any indication in the generated .html files that they have .md version for llms?
-- [ ] it does not make sense to list vite plugins here, instead move it to the Vite config section and describe it in more detail (what each plugin does, why it's needed, etc.)
-- [ ] I see some artefacts of Next.js project. Make sure they are all gone/replaced.
-- [ ] do not explain sandpack integration here - move the description to the source code and link it in the tech stack list.
-- [ ] more general item is to NOT mention too much details of certain setup (similar to sandpack, vite plugins items above) but instead move the detailed explanations to the source code and link them from this doc (tech stack section if possible). This doc should be more of an overview and reference, not a step-by-step explanation of every part of the codebase.
----
-
 # Docs Site Environment Reference
 
-This document describes the architecture, build pipeline, and conventions of the documentation site located in `docs/`. It covers only technical and architectural details - it does not describe or enumerate documentation content (page titles, example names, MDX file contents, etc.).
+This document describes the architecture, build pipeline, and conventions of the documentation site located in `docs/`. It covers only technical and architectural details — it does not describe or enumerate documentation content (page titles, example names, MDX file contents, etc.).
+
+Detailed implementation notes live in source files; this document links to them rather than duplicating their contents.
 
 ## 1. Tech Stack
 
-| Package                       | Role                                                                          |
-| ----------------------------- | ----------------------------------------------------------------------------- |
-| `react`                       | UI runtime                                                                    |
-| `react-router`                | File-based routing, loaders, prerendering                                     |
-| `vite`                        | Build tool and dev server                                                     |
-| `tailwindcss`                 | CSS utility framework (v4 - no config file needed)                            |
-| `fumadocs`                    | Documentation framework: source loader, MDX processing, UI components, search |
-| `@codesandbox/sandpack-react` | In-browser code editor and preview                                            |
-| `@owanturist/signal`          | Local workspace package - used by Sandpack examples at runtime                |
+| Package                       | Role                                                                                |
+| ----------------------------- | ----------------------------------------------------------------------------------- |
+| `react`                       | UI runtime                                                                          |
+| `@tanstack/react-router`      | File-based routing, route tree generation                                           |
+| `@tanstack/react-start`       | Application framework: SSR/prerender pipeline, client/server entry points           |
+| `vite`                        | Build tool and dev server                                                           |
+| `tailwindcss`                 | CSS utility framework (v4 - configured entirely through `@tailwindcss/vite`)        |
+| `fumadocs-core` / `fumadocs-mdx` / `fumadocs-ui` | Documentation framework: source loader, MDX processing, layouts, search  |
+| `@codesandbox/sandpack-react` | In-browser code editor and preview (see [`src/components/sandpack/`](../docs/src/components/sandpack/)) |
 
 ## 2. Project Structure
 
 ```
 docs/
-  vite.config.ts                      # Vite plugin pipeline, path aliases, custom plugins
-  react-router.config.ts              # React Router config: SSR mode, prerender list, app directory
+  vite.config.ts                      # Vite plugin pipeline, prerender list, custom plugins
   source.config.ts                    # Fumadocs MDX processing: syntax themes, inline code hints, plugins
-  content/                            # MDX documentation pages and co-located example files
+  tsconfig.json                       # docs-specific TS overrides on top of monorepo root
+  .env                                # Public theme env vars (VITE_DARK_THEME_CLASS, VITE_THEME_STORAGE_KEY)
+  content/docs/                       # MDX documentation pages and co-located `.example.{ts,tsx}` files
   src/
-    root.tsx                          # Application shell: HTML skeleton, RootProvider, global styles import
-    entry.server.tsx                  # Server-side rendering entry: renderToString for prerendering
-    source.ts                         # Fumadocs source loader adapter wrapping generated .source/server module
-    styles.css                        # Global CSS: Tailwind 4, fumadocs theme imports, .typedef component
-    tools/                            # Utility functions (LLM text generation, className helpers, hooks)
+    route-tree.gen.ts                 # Auto-generated by @tanstack/router-plugin (gitignored)
+    router.tsx                        # createRouter() factory used by both client and SSR entries
+    client.tsx                        # Browser entry: hydrateRoot(<StartClient />)
+    _static-export.ts                 # Private bundling target for the staticFilesPlugin (NOT a route)
+    app.css                           # Tailwind + fumadocs CSS imports + .typedef component layer
+    source.ts                         # Fumadocs source loader adapter wrapping generated .source/server
+    env.d.ts / mdx.d.ts / virtual.d.ts # Vite/MDX/virtual-module type augmentations
+    routes/                           # TanStack Start file-based routes
+      __root.tsx                      # Document shell, RootProvider, anti-flicker theme init script
+      (landing)/                      # Route group (parens stripped from URL - matches /)
+        index.tsx                     # Landing page (/)
+        *.mdx                         # Landing-page MDX snippets colocated with the route
+      docs/
+        route.tsx                     # /docs layout (DocsLayout with sidebar)
+        index.tsx                     # /docs index (renders content/docs/index.mdx)
+        $.tsx                         # /docs/$ catch-all for every nested doc page
     components/
-      mdx-components.tsx              # MDX component registry: static set + factory with auto-resolved Sandpack dir
-      sandpack/                       # Sandpack integration: glob-loads .example files, lazy editor, templates
-    routes/                           # React Router route files (file-based routing conventions)
+      mdx-components.tsx              # MDX component registry + Sandpack dir-defaulting factory
+      icons.ts                        # Re-exports of lucide-react icons
+      sandpack/                       # Sandpack integration (see directory README for details)
+      theme-switcher/                 # Custom theme switcher (replaces next-themes)
 ```
+
+The `.tanstack/` and `.source/` directories are build artifacts (gitignored).
 
 ## 3. Build System
 
-### Vite plugin pipeline
+### vite.config.ts
 
-The plugin order in `docs/vite.config.ts` matters. The five plugins are registered in this sequence:
+The entire build pipeline is defined in [`docs/vite.config.ts`](../docs/vite.config.ts). It declares five plugins, registered in this order:
 
-1. **`mdx()`** (fumadocs-mdx/vite) - Processes MDX content files, generates the `.source/` directory with page metadata, bodies, and processed markdown. Receives the `docs` collection and the default config from `source.config.ts`.
-2. **`tailwindcss()`** (@tailwindcss/vite) - Tailwind 4 integration; scans source files for utility classes at build time.
-3. **`reactRouter()`** (@react-router/dev/vite) - Provides file-based routing, code splitting, prerendering, and the dev server.
-4. **`localPackagesPlugin()`** - Custom plugin that creates a `virtual:local-packages` module containing the built source of `@owanturist/signal` and `@owanturist/signal-react` as Sandpack-compatible file objects. Reads each package's `dist/` directory and `package.json` at build time.
-5. **`generateMdFilesPlugin()`** - Custom post-build plugin that generates static `.md` files for every docs page. Runs only during the SSR build pass (see section 6 for details).
+1. **`nodePathPolyfillPlugin()`** — In-file plugin. Provides minimal browser shims for `node:path` and `node:fs/promises` because `fumadocs-core` and `fumadocs-mdx` import them for pure string operations even from code that ends up in the client bundle. Implementation notes are in the JSDoc comment above the function.
+2. **`mdx({ docs, default: sourceConfigDefault })`** (`fumadocs-mdx/vite`) — Processes MDX content files. Generates the `.source/` directory with page metadata, bodies, and processed markdown. The fumadocs Vite plugin requires both a default export (global MDX config) and a named export for each content collection from `source.config.ts`.
+3. **`tailwindcss()`** (`@tailwindcss/vite`) — Tailwind 4 integration. Scans source files for utility classes at build time.
+4. **`localPackagesPlugin()`** — In-file plugin. Exposes the built `@owanturist/signal` and `@owanturist/signal-react` packages as a `virtual:local-packages` module so Sandpack can preview them without fetching from npm. Requires `pnpm build` to have run for both packages.
+5. **`tanstackStart({ pages, prerender })`** (`@tanstack/react-start/plugin/vite`) — TanStack Start framework integration. Generates the client/server entry points, performs prerendering, and writes static HTML to `dist/client/`. The `pages` list is built from a recursive scan of `content/docs/` because TanStack auto-discovery skips dynamic routes (`$.tsx` paths) and we need every concrete doc URL enumerated. `crawlLinks: false` keeps the set strictly closed.
+6. **`staticFilesPlugin()`** — In-file plugin. Generates the `.md` and `.txt` files served alongside the HTML output. See section 6 for the design and the implementation notes in the source comment.
 
 ### Build target and aliases
 
-The build target is `esnext` (no downleveling). Two path aliases are configured, mirrored in both `vite.config.ts` and `tsconfig.json`:
+The build target is `esnext` (no downleveling). One path alias is configured, mirrored in both `vite.config.ts` and `tsconfig.json`:
 
 - `@/` resolves to `docs/src/`
-- `~/tools/` resolves to `packages/tools/src/`
 
-### source.config.ts import pattern
+### Static output
 
-The fumadocs MDX Vite plugin requires both a default export (the global MDX config) and a named export for each content collection. In `docs/source.config.ts`, `defineConfig()` is the default export and `docs` is a named export from `defineDocs()`. The Vite config imports both and passes them as `mdx({ docs, default: sourceConfigDefault })`.
-
-### SSR mode
-
-`react-router.config.ts` sets `ssr: false`. This means the site is fully statically prerendered - there is no runtime Node.js server. The React Router build produces static HTML files for every route returned by `prerender()`.
+The site is fully statically prerendered. No runtime Node.js server. TanStack Start emits an SSR server bundle during the build (used internally for prerendering only) and a client bundle. The static HTML is written to `dist/client/` for any file-based host to serve.
 
 ### Prerender route discovery
 
-The `prerender()` function in `react-router.config.ts` uses `getMdxRoutes()` to recursively scan `docs/content/docs/` for `.mdx` files and convert them to URL paths. The full prerender list is: `/`, `/llms.txt`, `/llms-full.txt`, every MDX-derived docs route, and `/docs.md` (appended last).
+`getMdxRoutes()` in `vite.config.ts` recursively scans `docs/content/docs/` for `.mdx` files and converts them to URL paths. The resulting list (`/`, `/docs`, every docs subpath) is passed to `tanstackStart({ pages })`. The `/llms.txt`, `/llms-full.txt`, `/docs.md`, and per-page `.md` files are produced by `staticFilesPlugin` (section 6), not by prerendering routes.
 
 ## 4. Application Shell
 
-### entry.server.tsx
+### src/routes/\_\_root.tsx
 
-Uses `renderToString` from `react-dom/server` to produce static HTML during the prerender build. This is the simplest possible server entry - no streaming, no progressive rendering. It sets `Content-Type: text/html` and prepends `<!DOCTYPE html>`.
+The root TanStack route. Renders the outer `<html>` / `<head>` / `<body>` skeleton plus:
 
-### root.tsx
+- An inline anti-flicker `<script>` that reads `localStorage[VITE_THEME_STORAGE_KEY]` and toggles `documentElement.classList[VITE_DARK_THEME_CLASS]` before React hydrates. Required because TanStack Start does not include a theme provider — the script avoids a flash of incorrect theme on first paint.
+- `<HeadContent />` and `<Scripts />` from `@tanstack/react-router` for head tags and runtime scripts.
+- `RootProvider` from `fumadocs-ui/provider/tanstack` configured with `search.options.type: "static"` (client-side static search index, no server API needed) and `theme.enabled: false` (theme is handled by the custom `ThemeSwitcher`, not by fumadocs).
 
-Exports two things, both required by React Router:
+### src/client.tsx and src/router.tsx
 
-- **`Layout`** - The outer HTML document structure (`<html>`, `<head>`, `<body>`) with React Router's `<Meta>`, `<Links>`, `<Scripts>`, and `<ScrollRestoration>`. Sets `suppressHydrationWarning` on `<html>` for theme script injection. Imports `@/styles.css` as a side effect.
-- **`App`** (default export) - Wraps the route outlet in fumadocs `RootProvider` from `fumadocs-ui/provider/react-router`. Configures search with `type: "static"` (client-side static search index, no server API needed).
+`client.tsx` hydrates the document with `<StartClient />`. `router.tsx` exports `getRouter()` and `createAppRouter()` factories that the TanStack Start tooling expects.
 
 ## 5. Route Architecture
 
-The site uses React Router file-based routing conventions. Route files live in `docs/src/routes/`.
+The site uses TanStack Start file-based routing. Route files live in `docs/src/routes/`.
 
-| Path             | Type               | Purpose                                                                                  |
-| ---------------- | ------------------ | ---------------------------------------------------------------------------------------- |
-| `/`              | Component          | Landing page with feature demos using inline MDX snippets                                |
-| `/docs`          | Layout             | Wraps all `/docs/*` child routes in `DocsLayout` with sidebar navigation                 |
-| `/docs/**`       | Component + Loader | Renders individual doc pages (component branch) or returns `.md` content (loader branch) |
-| `/docs.md`       | Resource           | Returns the docs index page as markdown                                                  |
-| `/llms.txt`      | Resource           | Returns a page index linking to individual `.md` files                                   |
-| `/llms-full.txt` | Resource           | Returns all doc pages concatenated as plain text                                         |
+| File                     | Route URL          | Purpose                                                                                                            |
+| ------------------------ | ------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `__root.tsx`             | (root layout)      | Document shell, providers, theme init                                                                              |
+| `(landing)/index.tsx`    | `/`                | Landing page with feature demos using MDX snippets colocated in the `(landing)/` route group       |
+| `docs/route.tsx`         | `/docs/*` layout   | Wraps all `/docs/*` routes in fumadocs `DocsLayout` with sidebar navigation and the custom `ThemeSwitcher`         |
+| `docs/index.tsx`         | `/docs`            | Renders `content/docs/index.mdx` via `source.getPage([])`                                                          |
+| `docs/$.tsx`             | `/docs/<splat>`    | Catch-all that renders any other docs page via `source.getPage(splatSegments)`                                     |
 
-### Resource route pattern
+TanStack Start auto-generates `src/route-tree.gen.ts` from these files on every build/dev run. The file is gitignored (matching how fumadocs's `.source/` is treated); fresh clones need to run `pnpm --filter docs build` or `pnpm --filter docs dev` once before `pnpm typecheck` passes.
 
-Routes that export only a `loader` function (no default component export) are resource routes. React Router serves them as raw responses rather than rendering them into the HTML shell. The resource routes for `/docs.md`, `/llms.txt`, and `/llms-full.txt` all follow this pattern - they return `Response` objects with text or markdown content types.
-
-### The docs splat route dual behavior
-
-The docs splat route serves two purposes through a single splat parameter:
-
-- **HTML branch** (default export): When the URL has no `.md` extension, the component renders the MDX page using fumadocs `DocsPage`, `DocsTitle`, `DocsDescription`, and `DocsBody` components. The loader returns an empty object `{}` in this case.
-- **Markdown branch** (loader): When the URL ends in `.md`, the loader strips the extension, looks up the page via `source.getPage()`, and returns a `Response` with `Content-Type: text/markdown; charset=utf-8`.
-
-However, there is a fundamental React Router limitation: because the route has a default component export, React Router always treats it as a component route during prerendering. Even when the loader returns a `Response`, React Router wraps it in the HTML shell instead of serving the raw response. This means the `.md` URLs cannot be prerendered through normal means. The `generateMdFilesPlugin` works around this limitation (see section 6).
+The TanStack route filename/directory conventions used in this project: `__root.tsx` (the root layout), `route.tsx` (a layout route), `index.tsx` (an index route under its parent), `$.tsx` (a catch-all splat route), and `(name)/` (a route group - the parenthesized directory name is stripped from the URL). The leading `__` and `$` characters violate the default Biome filenaming convention, so `docs/src/routes/**` has `useFilenamingConvention: off` (see section 12).
 
 ## 6. LLM / Markdown Endpoints
 
-### /llms.txt
+All four endpoints are written as static files into `dist/client/` by `staticFilesPlugin` during the build. None of them are routes; serving them is the responsibility of the static host.
 
-- **Content-Type**: `text/plain; charset=utf-8`
-- **Content**: A structured index page with the project title, description, and a list of all doc pages. Each entry links to the page's `.md` URL (e.g., `/docs/api/signal.md`) with an optional description. Ends with a link to `/llms-full.txt` for the complete content.
-- **Data source**: `source.getPages()` provides the page list; titles and descriptions come from frontmatter.
+| Path                     | Content                                                                                                           |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `/docs.md`               | The docs index page (`source.getPage([])`) rendered as markdown via `getLLMText()`.                               |
+| `/docs/<slug>.md`        | Each individual non-root doc page rendered as markdown via `getLLMText()`.                                        |
+| `/llms.txt`              | A structured index page with the project title, description, and a flat list of every doc page's `.md` URL.       |
+| `/llms-full.txt`         | Every doc page's full processed markdown, concatenated.                                                           |
 
-### /llms-full.txt
+### Why a separate plugin instead of routes
 
-- **Content-Type**: `text/plain; charset=utf-8`
-- **Content**: Every doc page's full processed markdown, concatenated with double newlines. Each page section includes YAML frontmatter (title, description, url, lastModified) and the processed markdown body.
-- **Data source**: `source.getPages()` mapped through `getLLMText()`.
+TanStack Start in this version (`@tanstack/react-start@1.168.25`) does not expose a `createServerFileRoute` or `createServerRoute` API, and its prerender pipeline always renders routes through the React shell, producing HTML output regardless of the loader's return value. Producing raw `.md` and `.txt` content therefore must happen outside the route system.
 
-### /docs.md
+### Implementation
 
-- **Content-Type**: `text/markdown; charset=utf-8`
-- **Content**: The docs index page (`source.getPage([])`) rendered as markdown via `getLLMText()`.
+`staticFilesPlugin` (in `vite.config.ts`) runs as a Vite `writeBundle` hook, gated to fire only after the SSR/server bundle has been written. It then:
 
-### /docs/**/*.md
+1. Runs a separate `vite.build()` against `src/_static-export.ts` (a private re-export of `{ source, getLLMText }`) to produce a self-contained ESM bundle at `.tanstack/static-export/_static-export.mjs`.
+2. Dynamically imports that bundle.
+3. Iterates `source.getPages()` and writes one `.md` per page plus the `/docs.md`, `/llms.txt`, and `/llms-full.txt` files into `dist/client/`.
 
-- **Content-Type**: `text/markdown; charset=utf-8`
-- **Served by**: The docs splat route loader at runtime (detects `.md` extension in the splat parameter and returns a markdown `Response`). Also written as static files to `docs/dist/client/` during the build by `generateMdFilesPlugin` — this is a prerendering workaround because React Router cannot prerender `.md` variants of routes that also have a default component export. Static hosting therefore serves the pre-generated `.md` files without hitting any server.
-- **Content**: Each individual doc page as markdown with frontmatter, identical to what the loader would return for `.md` requests.
+The reason a separate `vite.build()` is used (rather than `createServer` + `ssrLoadModule` against `src/source.ts` directly) is a Vite/fumadocs-mdx interaction: Vite dev mode forces `environment.mode === "dev"`, which makes `fumadocs-mdx` compile MDX with the `jsxDEV` runtime — that runtime is absent from the production React bundled into the SSR build, causing a crash. A real `vite.build()` sets `environment.mode === "build"`, so MDX compiles with the standard `jsx` runtime. The full rationale is in the JSDoc comments at the top of both `staticFilesPlugin` (in `vite.config.ts`) and `src/_static-export.ts`.
 
 ### getLLMText helper
 
-Located at `docs/src/tools/get-llm-text.ts`. Accepts a fumadocs page object and returns a markdown string. It calls `data.getText("processed")` to get the processed markdown content (this requires `includeProcessedMarkdown: true` in the fumadocs docs collection config). It prepends YAML frontmatter with title, description, url, and lastModified, followed by a level-1 heading and the processed body.
-
-### generateMdFilesPlugin mechanism
-
-**Why it exists**: React Router cannot prerender the `.md` variant of a route that also has a default component export. When the docs splat route exports both a loader and a component, React Router always renders the component into HTML during prerendering, ignoring the `Response` returned by the loader for `.md` URLs.
-
-**What it does**: The plugin runs as a Vite `writeBundle` hook during the SSR build pass only. After the server bundle has been written to `docs/dist/server/index.js`, the plugin:
-
-1. Dynamically imports the compiled server bundle.
-2. Locates the docs splat route module by its route ID.
-3. Scans `docs/content/docs/` for all `.mdx` files using `getMdxRoutes()`.
-4. For each page (excluding `/docs` itself, which is handled by the `/docs.md` resource route), calls the route's loader directly with a synthetic `Request` and the appropriate splat parameter.
-5. Writes each `Response` body as a static file to `docs/dist/client/` (e.g., `dist/client/docs/api/signal.md`).
-
-This bypasses the React Router HTTP handler entirely, calling the loader function as a plain async function. The resulting `.md` files are served as static assets by any file-based hosting.
-
-**Implementation**: `docs/vite.config.ts`, in the `generateMdFilesPlugin()` and `generateMdRoute()` functions.
+Located at [`docs/src/tools/get-llm-text.ts`](../docs/src/tools/get-llm-text.ts). Accepts a fumadocs page object and returns a markdown string with YAML frontmatter (title, description, url, lastModified) followed by a level-1 heading and the processed body. Requires `includeProcessedMarkdown: true` in the fumadocs docs collection config to make `data.getText("processed")` available.
 
 ## 7. Fumadocs Integration
 
 ### source.config.ts
 
-Located at `docs/source.config.ts`. Configures two things:
+[`docs/source.config.ts`](../docs/source.config.ts) configures two things:
 
-- **`defineDocs()`** (named export `docs`): Declares the content collection rooted at `content/docs`. Sets `includeProcessedMarkdown: true` in `postprocess`, which is required for the `data.getText("processed")` call in `getLLMText()`.
-- **`defineConfig()`** (default export): Global MDX processing options. Adds the `lastModified` plugin (populates `data.lastModified` from git history). Configures `rehypeCode` with `github-light`/`github-dark` themes and `inline: "tailing-curly-colon"` for inline code language hints (e.g., `` `Type{:dart}` ``). Includes the default fumadocs transformers for Shiki code annotations.
+- **`defineDocs()`** (named export `docs`): Declares the content collection rooted at `content/docs`. Sets `includeProcessedMarkdown: true` in `postprocess`, required for `getLLMText()`.
+- **`defineConfig()`** (default export): Global MDX processing. Adds the `lastModified` plugin (populates `data.lastModified` from git history). Configures `rehypeCode` with `github-light`/`github-dark` themes and `inline: "tailing-curly-colon"` for inline code language hints (e.g., `` `Type{:dart}` ``).
 
-### source.ts
+### src/source.ts
 
-Located at `docs/src/source.ts`. Wraps the generated `.source/server` module with the fumadocs `loader()` utility, setting `baseUrl: "/docs"`. The resulting `source` object exposes three methods used throughout the codebase:
+[`docs/src/source.ts`](../docs/src/source.ts) wraps the generated `.source/server` module with the fumadocs `loader()` utility, setting `baseUrl: "/docs"`. The resulting `source` object exposes:
 
-- `source.getPage(slugArray)` - Returns a single page by its slug segments (e.g., `["api", "signal"]`)
-- `source.getPages()` - Returns all pages in the collection
-- `source.pageTree` - The hierarchical page tree used by `DocsLayout` for sidebar navigation
+- `source.getPage(slugArray)` — Returns a single page by slug segments
+- `source.getPages()` — Returns all pages
+- `source.pageTree` — Hierarchical page tree used by `DocsLayout` for sidebar navigation
 
 ### The .source/ directory
 
-Generated automatically by `fumadocs-mdx` during the build (or dev server startup). Contains compiled MDX modules, page metadata, and the `server` entry point imported by `source.ts`. This directory is not committed to version control.
+Generated automatically by `fumadocs-mdx` during the build (or dev server startup). Contains compiled MDX modules, page metadata, and the `server` entry point imported by `source.ts`. Gitignored.
 
 ## 8. MDX Components
 
-File: `docs/src/components/mdx-components.tsx`
+[`docs/src/components/mdx-components.tsx`](../docs/src/components/mdx-components.tsx) exports two things:
 
-Exports a static `MDXComponents` object containing the default fumadocs UI MDX components plus `Accordion`, `Accordions`, `TypeTable`, and `Sandpack`.
+- **`MDXComponents`** — A static registry combining fumadocs default UI components with `Accordion`, `Accordions`, `TypeTable`, and `Sandpack`.
+- **`createMDXComponents(filePath)`** — Factory that returns the same set but with `Sandpack` pre-filled with `dir` extracted from the MDX file path. This lets content authors write `<Sandpack />` with no props and have it default to the file's own directory.
 
-Also exports a `createMDXComponents(filePath)` factory that returns the same component set but with `Sandpack` pre-filled: it extracts the directory from `filePath` and passes the result as the `dir` prop. This means MDX content files can write `<Sandpack />` with no props and have the dir automatically resolve to their own directory.
+The Sandpack integration itself (glob loading, file resolution, lazy editor) is documented in source comments under [`docs/src/components/sandpack/`](../docs/src/components/sandpack/).
 
-## 9. Sandpack Integration
+## 9. Theme Switcher
 
-The full data flow from disk to browser editor:
+The site uses a custom theme switcher under [`docs/src/components/theme-switcher/`](../docs/src/components/theme-switcher/) instead of `next-themes` (which is React Server Components-coupled and pulls in unwanted bundle weight).
 
-### Step 1: Glob all example files
+- `use-theme.ts` — A small hook that manages `theme: "light" | "dark" | "system"`, persists the choice in `localStorage[VITE_THEME_STORAGE_KEY]`, and toggles `documentElement.classList[VITE_DARK_THEME_CLASS]` synchronously via `useLayoutEffect`.
+- `index.tsx` — The radio-group UI used by both the landing page and `DocsLayout`. Uses the View Transitions API (`document.startViewTransition`) for an animated theme switch when supported.
+- `styles.css` — The view-transition keyframes (a circular clip expanding from the toggle position).
 
-`import.meta.glob` eagerly loads two sets of files at build time:
-
-- `/content/**/*.example.{ts,tsx}` - All example files from the content directory, imported as raw strings
-- `/src/components/sandpack/*.example.tsx` - Template files (entry point and render boundary), also as raw strings
-
-### Step 2: Strip example metadata
-
-The `stripExampleMeta()` function removes three things from the raw source before display:
-
-- The `// @ts-nocheck` line at the top (present so VS Code does not report errors in unresolved imports)
-- `//#region code` markers
-- `//#endregion code` markers
-
-### Step 3: Resolve dir to file set
-
-When a `<Sandpack dir="docs/tutorials/composing-state" />` is rendered, `getExampleFiles()` filters the global content examples for paths starting with `/content/docs/tutorials/composing-state/`. Each matching path has its `/content/{dir}/` prefix and `.example` segment stripped to produce the Sandpack virtual filesystem path (e.g., `/content/docs/tutorials/composing-state/align/state.example.ts` becomes `/align/state.ts`).
-
-### Step 4: Inject local packages
-
-The `virtual:local-packages` Vite virtual module provides pre-built `@owanturist/signal` and `@owanturist/signal-react` as Sandpack file objects. The `localPackagesPlugin` in `vite.config.ts` reads each package's `dist/` directory and `package.json`, then exports them as hidden files under `/node_modules/`.
-
-### Step 5: Merge file sets
-
-The final Sandpack file set is assembled by merging in this order (later entries override earlier ones):
-
-1. Template files (`/index.tsx` hidden entry point, `/render-boundary.tsx` utility)
-2. Local package files (hidden `/node_modules/` entries)
-3. Dir-loaded example files (from `getExampleFiles()`)
-4. Explicit `files` prop (if provided by the MDX author)
-
-### Step 6: Lazy-loaded editor
-
-The editor component lazy-loads the actual Sandpack and `react-resizable-panels` libraries via `React.lazy()`. This avoids loading the editor bundle during SSR or on pages that do not use Sandpack. The layout uses `react-resizable-panels` with a horizontal split (file explorer | main panel) and a vertical split within the main panel (code editor | preview). The theme follows the site theme via a custom `useTheme` hook.
+The anti-flicker script in `__root.tsx` (section 4) runs before hydration and uses the same `localStorage` key and class name so the initial paint matches the persisted theme.
 
 ## 10. Styling
 
-Three CSS imports in `docs/src/styles.css`:
+Three CSS imports in [`docs/src/app.css`](../docs/src/app.css):
 
-1. `@import "tailwindcss"` - Tailwind 4 base styles and utilities. Tailwind 4 requires no config file; it is integrated entirely through the `@tailwindcss/vite` plugin.
-2. `@import "fumadocs-ui/css/solar.css"` - The solar color theme for fumadocs UI components.
-3. `@import "fumadocs-ui/css/preset.css"` - Base fumadocs UI preset styles.
+1. `@import "tailwindcss"` — Tailwind 4 base styles and utilities.
+2. `@import "fumadocs-ui/css/solar.css"` — Solar color theme for fumadocs UI.
+3. `@import "fumadocs-ui/css/preset.css"` — Base fumadocs UI preset.
 
-One custom component class is defined in the `@layer components` block:
+One custom component class in the `@layer components` block:
 
-- **`.typedef`** - Used in API reference pages to style parameter and return-value documentation blocks. Adds a left border, removes default list markers, collapses spacing between list items and horizontal rules, adjusts inline code line height, and provides grid layout for `@example` tags that contain code figures.
+- **`.typedef`** — Used in API reference pages to style parameter and return-value documentation blocks. Adds a left border, removes default list markers, collapses spacing between list items and horizontal rules, adjusts inline code line height, and provides grid layout for `@example` tags that contain code figures.
 
 ## 11. TypeScript Configuration
 
-`docs/tsconfig.json` extends the monorepo root `tsconfig.json` and overrides several settings:
+[`docs/tsconfig.json`](../docs/tsconfig.json) extends the monorepo root and overrides:
 
-- **`target: "ESNext"`** and **`lib: ["DOM", "DOM.Iterable", "ESNext"]`** - Browser environment with latest language features.
-- **`types: ["vite/client"]`** - Needed for `import.meta.glob`, `import.meta.dirname`, and other Vite-specific APIs.
-- **`verbatimModuleSyntax: false`** - Required because React Router generates dynamic imports that are incompatible with verbatim module syntax enforcement.
-- **`paths`** - `@/*` maps to `./src/*` and `~/tools/*` maps to `../packages/tools/src/*`, mirroring the Vite resolve aliases.
-- **`include: ["**/*.ts", "**/*.tsx", "**/*.mdx"]`** - Includes MDX files for type checking.
-- **`resolveJsonModule: true`** - Allows importing JSON files (used by the local packages plugin).
-- **`incremental: true`** - Speeds up repeated type checks.
+- **`target: "ESNext"`** and **`lib: ["DOM", "DOM.Iterable", "ESNext"]`** — Browser environment with latest language features.
+- **`types: ["vite/client"]`** — Needed for `import.meta.glob`, `import.meta.env`, and other Vite APIs.
+- **`verbatimModuleSyntax: false`** — Required because TanStack Router generates code that mixes value and type imports.
+- **`paths`** — `@/*` maps to `./src/*`, mirroring the Vite resolve alias.
+- **`include: ["**/*.ts", "**/*.tsx", "**/*.mdx"]`** — Includes MDX files for type checking.
+- **`resolveJsonModule: true`** — Allows importing JSON (used by `localPackagesPlugin`).
+- **`incremental: true`** — Speeds up repeated type checks.
+
+Three small type-augmentation files live in `src/`:
+
+- `env.d.ts` — Declares the shape of `import.meta.env` for the two `VITE_*` theme variables.
+- `mdx.d.ts` — Declares `*.mdx` as a default-exporting React component module.
+- `virtual.d.ts` — Declares the `virtual:local-packages` module exposed by `localPackagesPlugin`.
 
 ## 12. Linting
 
@@ -264,34 +215,47 @@ The root `biome.jsonc` contains several overrides that apply to docs files. Each
 
 Applies to all docs source files:
 
-- `noDefaultExport: "off"` - React Router routes and config files require default exports.
-- `useComponentExportOnlyModules: "off"` - Docs modules often mix component and non-component exports (e.g., `loader` + default component in route files).
-- `useExportsLast: "off"` - React Router patterns place exports throughout the file.
+- `noDefaultExport: "off"` — TanStack routes and config files require default exports.
+- `useComponentExportOnlyModules: "off"` — Docs modules mix component and non-component exports (e.g., `Route` + component in the same file).
+- `useExportsLast: "off"` — TanStack route files place `export const Route` before the component.
 
 ### docs/*.{ts,tsx} and docs/src/**
 
-Two overlapping overrides apply to config files and all docs source:
+- `noNodejsModules: "off"` — Config files and some source files (e.g., `localPackagesPlugin`) use Node built-ins.
+- `noHeadElement: "off"` — `__root.tsx` uses the native `<head>` element.
+- `noJsxLiterals: "off"` — Landing page and docs components use literal strings in JSX.
 
-- `noNodejsModules: "off"` - Config files and some source files use Node.js built-in modules like `fs` and `path`.
-- `noHeadElement: "off"` - React Router apps use the native `<head>` element in the root layout rather than a framework-specific component.
-- `noJsxLiterals: "off"` - Landing page and docs components use literal strings in JSX.
-
-### docs/*.{mjs,ts} (config files specifically)
+### docs/*.{mjs,ts} (config files)
 
 Part of the broader "dev env" override:
 
-- `useNamingConvention: "off"` - Config files may use naming conventions dictated by external APIs.
-- `noDefaultExport: "off"` - Config files typically require default exports.
-- `noConsole: "off"` - Build plugins use `console.info` and `console.warn` for logging.
+- `useNamingConvention: "off"` — Config files may use naming dictated by external APIs.
+- `noDefaultExport: "off"` — Config files require default exports.
+- `noConsole: "off"` — Build plugins use `console.info` and `console.warn` for logging.
 
 ### docs/src/routes/**/*.{ts,tsx}
 
-- `useFilenamingConvention: "off"` - React Router uses dot notation in filenames as path separators (e.g., `docs.$.tsx` maps to `/docs/*`). These filenames would otherwise violate the default naming convention rules.
+- `useFilenamingConvention: "off"` — TanStack Start uses `$` for dynamic segments and `__` for pathless layouts (e.g., `$.tsx`, `__root.tsx`); these filenames would otherwise violate the default convention.
 
 ### docs/content/**/*.example.{ts,tsx}
 
 Applies to Sandpack example files co-located with MDX content:
 
-- `noMagicNumbers: "off"` - Example code uses inline numeric values for clarity.
-- `noUndeclaredDependencies: "off"` - Examples import from `@owanturist/signal` and `@owanturist/signal-react`, which are workspace packages not listed in `docs/package.json` dependencies in the standard way.
-- `noJsxLiterals: "off"` - Example code uses literal strings in JSX for readability.
+- `noMagicNumbers: "off"` — Example code uses inline numeric values for clarity.
+- `noUndeclaredDependencies: "off"` — Examples import from `@owanturist/signal` and `@owanturist/signal-react`, which are workspace packages not listed in `docs/package.json`.
+- `noJsxLiterals: "off"` — Example code uses literal strings in JSX for readability.
+
+## 13. Environment Variables
+
+`docs/.env` (committed; non-secret) contains two `VITE_*` variables used by the theme switcher and the anti-flicker init script:
+
+- `VITE_DARK_THEME_CLASS` — The class name applied to `<html>` for dark mode (currently `dark`).
+- `VITE_THEME_STORAGE_KEY` — The `localStorage` key used to persist the user's theme choice (currently `theme`).
+
+Both are typed in `src/env.d.ts`.
+
+## 14. Known Limitations and Open Questions
+
+- **No `<link rel="alternate" type="text/markdown">`** in generated HTML pages. Each doc page has a `.md` companion, but the HTML does not advertise it to clients or crawlers. Adding `<HeadContent>` entries from each route would surface this.
+- **`mdx.d.ts` and `virtual.d.ts`** are separate small files; they could be consolidated into a single `src/types.d.ts` if preferred.
+- **Landing-page MDX snippets** in `src/routes/(landing)/` are imported individually by `(landing)/index.tsx`. If the landing page grows, a dynamic registry would scale better than the current static imports.

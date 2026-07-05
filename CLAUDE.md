@@ -320,7 +320,7 @@ The following skills are available in [`.claude/skills/`](.claude/skills/):
 | [creating-changesets](.claude/skills/creating-changesets/SKILL.md)             | Changesets workflow - version bumps, release notes, semver decisions                       |
 | [fumadocs](.claude/skills/fumadocs/SKILL.md)                                   | Fumadocs documentation framework - layouts, MDX, source API, theming, components           |
 | [docs-sandpack](.claude/skills/docs-sandpack/SKILL.md)                         | Interactive code examples in docs using Sandpack                                           |
-| [react-router-fs](.claude/skills/react-router-fs/SKILL.md)                     | React Router file-based routing conventions - filename patterns, layout nesting, migration |
+| [tanstack-router-best-practices](.claude/skills/tanstack-router-best-practices/SKILL.md) | TanStack Router - type-safe routing, data loaders, search params, code splitting (community) |
 
 ### Utility Skills
 
