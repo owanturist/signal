@@ -149,6 +149,12 @@
             "noNestedTernary": "off", // sometimes nested ternary improves code conciseness and readability
             "noImplicitBoolean": "off", // implicit boolean is encouraged in this codebase
             "useDefaultSwitchClause": "off", // having default clause prevents TS exhaustiveness checks
+            "noTernary": "off", // ternary is useful in many cases (graduated from nursery in biome 2.4)
+            "useVueMultiWordComponentNames": "off", // irrelevant - not a Vue project
+            "useVueDefineMacrosOrder": "off", // irrelevant - not a Vue project
+            "useDestructuring": "info", // graduated from nursery in biome 2.4
+            "noExcessiveLinesPerFile": "info", // graduated from nursery in biome 2.4
+            "noMultiAssign": "info", // graduated from nursery in biome 2.4
             "useConsistentCurlyBraces": {
               "fix": "safe", // allow autofix
               "level": "warn"
@@ -194,10 +200,16 @@
           "correctness": {
             "useQwikClasslist": "off", // irrelevant
             "useQwikValidLexicalScope": "off", // irrelevant
+            "useQwikMethodUsage": "off", // irrelevant - not a Qwik project (graduated from nursery in biome 2.4)
             "noSolidDestructuredProps": "off", // irrelevant
+            "noVueReservedProps": "off", // irrelevant - not a Vue project
+            "noVueReservedKeys": "off", // irrelevant - not a Vue project
+            "noVueDuplicateKeys": "off", // irrelevant - not a Vue project
+            "noVueDataObjectDeclaration": "off", // irrelevant - not a Vue project
 
             "useImportExtensions": "off", // irrelevant,
             "noUndeclaredVariables": "off", // handled by TS
+            "noUnresolvedImports": "off", // handled by TS (graduated from nursery in biome 2.4)
             "noUnusedImports": {
               // enable autofix
               "level": "warn",
@@ -228,40 +240,25 @@
           "performance": {
             "useSolidForComponent": "off", // irrelevant
 
-            "noReExportAll": "off" // re-export all is used in this codebase
+            "noReExportAll": "off", // re-export all is used in this codebase
+            "noJsxPropsBind": "off" // impractical to follow (graduated from nursery in biome 2.4)
           },
 
           "suspicious": {
             "noReactSpecificProps": "off", // react is used in this codebase
-            "noRedeclare": "off" // encouraged in this codebase (e.g. function overloads, type + fabric definitions)
+            "noRedeclare": "off", // encouraged in this codebase (e.g. function overloads, type + fabric definitions)
+            "noEqualsToNull": "off", // == null is used to check for both null and undefined (graduated from nursery in biome 2.4)
+            "noLeakedRender": "off" // many false-positives for boolean && JSX expressions (graduated from nursery in biome 2.4)
           },
 
           "nursery": {
-            // Framework-specific rules (irrelevant for this React project)
-            "useQwikMethodUsage": "off",
-            "useQwikValidLexicalScope": "off",
-            "useVueMultiWordComponentNames": "off",
-            "useVueDefineMacrosOrder": "off",
-            "noVueReservedProps": "off",
-            "noVueReservedKeys": "off",
-            "noVueDuplicateKeys": "off",
-            "noVueDataObjectDeclaration": "off",
-
-            // Project-specific overrides
-            "noEqualsToNull": "off", // == null is used to check for both null and undefined
-            "noLeakedRender": "off", // many false-positives for boolean && JSX expressions
-            "noTernary": "off", // ternary is useful in many cases
-            "noUnresolvedImports": "off", // handled by TS
-            "noUselessUndefined": "off", // explicit undefined values improve readability
             "useExplicitType": "off", // too noisy for non-public exports
-            "useMaxParams": "off", // common pattern in this codebase
+            "useExplicitReturnType": "off", // too noisy for non-public exports (same rationale as useExplicitType)
             "useAwaitThenable": "off", // false-positives
-            "noJsxPropsBind": "off", // impractical to follow
+            "noReactNativeRawText": "off", // irrelevant - not a React Native project
+            "noReactNativeLiteralColors": "off", // irrelevant - not a React Native project
+            "noUndeclaredClasses": "off", // incompatible with Tailwind - utility classes are generated at build time, not defined in imported CSS files
 
-            // Informational hints
-            "useDestructuring": "info",
-            "noExcessiveLinesPerFile": "info",
-            "noMultiAssign": "info",
             // Add cx and cv functions used for className composition.
             "useSortedClasses": {
               "level": "info",
@@ -361,8 +358,8 @@
             "noUnusedImports": "off", // declaration files often have unused imports
             "noUnusedVariables": "off" // declaration files often have unused variables
           },
-          "nursery": {
-            "noShadow": "off" // shadowing is common in declaration files
+          "suspicious": {
+            "noShadow": "off" // shadowing is common in declaration files (graduated from nursery in biome 2.4)
           }
         }
       }
@@ -378,7 +375,10 @@
             "noNonNullAssertion": "off",
             "noDoneCallback": "off", // false-positive for context in hooks like "beforeAll(context => { context.thing = 42 })"
             "useComponentExportOnlyModules": "off", // tests might export non-component modules
-            "noJsxLiterals": "off" // jsx literals are fine in tests (graduated from nursery in biome 2.4)
+            "noJsxLiterals": "off", // jsx literals are fine in tests (graduated from nursery in biome 2.4)
+            "noIncrementDecrement": "off", // increment/decrement is fine in tests (graduated from nursery in biome 2.4)
+            "noExcessiveLinesPerFile": "off", // tests files can be long (graduated from nursery in biome 2.4)
+            "noExcessiveClassesPerFile": "off" // test files can have many test classes (graduated from nursery in biome 2.4)
           },
           "complexity": {
             "noExcessiveLinesPerFunction": "off" // test `describe/it` blocks can be long
@@ -386,19 +386,17 @@
           "suspicious": {
             "noArrayIndexKey": "off", // array index keys are fine in tests
             "noConfusingVoidType": "off", // void is often used to follow source signatures
-            "noMisplacedAssertion": "off" // false-positives when abstracting expect assertions in helper functions
+            "noMisplacedAssertion": "off", // false-positives when abstracting expect assertions in helper functions
+            "noShadow": "off" // shadowing is fine in tests (graduated from nursery in biome 2.4)
           },
           "security": {
             "noSecrets": "off" // too much false-positives in tests
           },
           "nursery": {
-            "noShadow": "off", // shadowing is fine in tests
-            "noIncrementDecrement": "off", // increment/decrement is fine in tests
-            "noExcessiveLinesPerFile": "off", // tests files can be long
-            "noExcessiveClassesPerFile": "off", // test files can have many test classes
             "noConditionalExpect": "off", // conditional expect() is common in test helper utilities
             "noComponentHookFactories": "off", // inline component factories are a common test pattern
-            "noExcessiveNestedCallbacks": "off" // describe/it nesting often exceeds the default threshold
+            "noExcessiveNestedCallbacks": "off", // describe/it nesting often exceeds the default threshold
+            "useReactFunctionComponentDefinition": "off" // tests use inline arrow functions for brevity
           }
         }
       }
@@ -435,10 +433,16 @@
             "noNodejsModules": "off" // docs config files and src use Node.js modules
           },
           "style": {
-            "noHeadElement": "off" // TanStack Start __root route renders the native <head> element
+            "noHeadElement": "off", // TanStack Start __root route renders the native <head> element
+            "noJsxLiterals": "off" // landing page and docs components use literal strings (graduated from nursery in biome 2.4)
+          },
+          "performance": {
+            "noBarrelFile": "off" // docs/src/_static-export.ts is a private bundling target that re-exports intentionally
           },
           "nursery": {
-            "noJsxLiterals": "off" // landing page and docs components use literal strings
+            "noInlineStyles": "off", // docs components use inline styles for demo clarity
+            "noComponentHookFactories": "off", // docs use inline component factories (MDX, sandpack editor)
+            "useDomQuerySelector": "off" // sandpack bootstrap uses getElementById for root mount
           }
         }
       }
@@ -462,13 +466,14 @@
       "linter": {
         "rules": {
           "style": {
-            "noMagicNumbers": "off" // example code uses inline values for clarity
+            "noMagicNumbers": "off", // example code uses inline values for clarity
+            "noJsxLiterals": "off" // example code uses literal strings in JSX (graduated from nursery in biome 2.4)
           },
           "correctness": {
             "noUndeclaredDependencies": "off" // examples import from packages not in docs/package.json
           },
           "nursery": {
-            "noJsxLiterals": "off" // example code uses literal strings in JSX
+            "noInlineStyles": "off" // example code uses inline styles for tutorial clarity
           }
         }
       }

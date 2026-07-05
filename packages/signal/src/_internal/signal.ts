@@ -24,6 +24,7 @@ class Signal<T> extends BaseSignal<T> {
     return false
   }
 
+  // biome-ignore lint/nursery/useThisInClassMethods: polymorphic override of abstract BaseSignal._clone (factory method returns new instance)
   protected _clone(value: T, equals: Equal<T>): Signal<T> {
     return new Signal(value, equals)
   }

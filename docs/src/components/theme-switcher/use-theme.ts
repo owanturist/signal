@@ -6,9 +6,9 @@ const STORAGE_KEY = import.meta.env.VITE_THEME_STORAGE_KEY
 type Theme = "system" | "dark" | "light"
 
 function systemDarkMedia() {
-  return typeof window === "undefined"
+  return typeof globalThis.matchMedia === "undefined"
     ? undefined
-    : window.matchMedia("(prefers-color-scheme: dark)")
+    : globalThis.matchMedia("(prefers-color-scheme: dark)")
 }
 
 function useTheme(): {

@@ -13,7 +13,9 @@ import sourceConfigDefault, { docs } from "./source.config"
 const root = path.resolve(import.meta.dirname, "..")
 const appDir = path.resolve(import.meta.dirname)
 
-const MDX_EXT_RE = /\.mdx$/
+const MDX_EXT_RE = /\.mdx$/u
+const NODE_BUILTIN_RE = /^node:(?:path|fs\/promises)$/u
+const ANY_RE = /./u
 
 function flattenExports(
   input: Record<string, string | Record<string, string>>,
@@ -48,7 +50,6 @@ function nodePathPolyfillPlugin(): Plugin {
   ].join("\n")
   const fsShimId = "\0node-fs-shim"
   const fsShimCode = "export default {}"
-  const nodeBuiltinRe = /^node:(path|fs\/promises)$/
 
   return {
     name: "node-path-polyfill",
@@ -61,11 +62,11 @@ function nodePathPolyfillPlugin(): Plugin {
               {
                 name: "node-path-polyfill",
                 setup(build) {
-                  build.onResolve({ filter: nodeBuiltinRe }, (args) => ({
+                  build.onResolve({ filter: NODE_BUILTIN_RE }, (args) => ({
                     path: args.path,
                     namespace: "node-shim",
                   }))
-                  build.onLoad({ filter: /./, namespace: "node-shim" }, (args) => ({
+                  build.onLoad({ filter: ANY_RE, namespace: "node-shim" }, (args) => ({
                     contents: args.path === "node:path" ? pathShimCode : fsShimCode,
                     loader: "js",
                   }))
@@ -173,13 +174,13 @@ interface SourcePage {
     title: string
     description?: string
     lastModified?: Date
-    getText(kind: "processed" | "raw"): Promise<string>
+    getText: (kind: "processed" | "raw") => Promise<string>
   }
 }
 
 interface SourceLike {
-  getPages(): Array<SourcePage>
-  getPage(slug: Array<string>): SourcePage | undefined
+  getPages: () => Array<SourcePage>
+  getPage: (slug: Array<string>) => SourcePage | undefined
 }
 
 // Writes static `.md` and `.txt` files into `dist/client/` after the SSR build
@@ -207,7 +208,7 @@ function staticFilesPlugin(): Plugin {
     apply: "build",
     async writeBundle(options) {
       // Only run after the SSR/server bundle - skip the client bundle pass.
-      if (!options.dir || !options.dir.endsWith(`${path.sep}server`)) {
+      if (!options.dir?.endsWith(`${path.sep}server`)) {
         return
       }
 
