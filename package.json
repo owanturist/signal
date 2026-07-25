@@ -36,7 +36,7 @@
     "@typescript/native-preview": "7.0.0-dev.20260519.1",
     "@vitest/coverage-v8": "^4.1.9",
     "size-limit": "^12.1.0",
-    "terser": "^5.48.0",
+    "terser": "^5.49.0",
     "tsup": "^8.5.1",
     "vitest": "^4.1.9"
   }
