@@ -146,11 +146,16 @@ jobs:
         uses: ./.github/actions/setup-env
 
       - name: Check size
-        uses: andresz1/size-limit-action@v1
+        uses: andresz1/size-limit-action@v1.8.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           skip_step: install
           build_script: build:minified
+          package_manager: pnpm
+          # npx is blocked by devEngines.packageManager
+          script: pnpm exec size-limit --json
+          # defaults to true, which quotes argv0 and breaks mise shim resolution
+          windows_verbatim_arguments: false
 
   release:
     name: Release on npm
