@@ -8,7 +8,7 @@ runs:
       uses: jdx/mise-action@v2
       with:
         # Pin to local mise version to keep mise.lock stable across environments.
-        version: 2026.3.7
+        version: 2026.10.18
 
     # mise only shims a tool's primary bins (node, npm), so npx/corepack hit a
     # dud fallback shim. Put node's bin dir on PATH so third-party actions
