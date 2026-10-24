@@ -262,7 +262,7 @@
             "useExplicitType": "off", // it is too much noise to enforce explicit types everywhere, even none module-public exports
             "useExplicitReturnType": "off", // same reasoning as useExplicitType: too noisy on non module-public exports
             "useAwaitThenable": "off", // false-positives
-            "noRestrictedDependencies": "off", // dependency choices (e.g. tsup) are made deliberately
+            "noRestrictedDependencies": "off", // TODO(#1102): enable after migrating to tsdown and typescript@7
             "useConsistentFunctionStyle": {
               // function declarations are the codebase style, arrow functions are fine for callbacks
               "level": "error",
