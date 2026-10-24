@@ -187,7 +187,25 @@
               "options": {
                 "style": "auto"
               }
-            }
+            },
+            "useVueMultiWordComponentNames": "off", // irrelevant
+            "useVueDefineMacrosOrder": "off", // irrelevant
+            "noTernary": "off", // ternary is useful in many cases
+
+            "useConsistentMethodSignatures": {
+              // property-style enables stricter variance checks under strictFunctionTypes
+              "level": "error",
+              "fix": "safe" // promote the unsafe fix to safe so check:fix auto-applies it
+            },
+
+            "useDestructuring": "info",
+            "noExcessiveLinesPerFile": {
+              "level": "info",
+              "options": {
+                "skipBlankLines": true
+              }
+            },
+            "noMultiAssign": "info"
           },
 
           "correctness": {
@@ -227,42 +245,32 @@
           "performance": {
             "useSolidForComponent": "off", // irrelevant
 
-            "noReExportAll": "off" // re-export all is used in this codebase
+            "noReExportAll": "off", // re-export all is used in this codebase
+            "noJsxPropsBind": "off" // it is madness to follow this rule
           },
 
           "suspicious": {
             "noReactSpecificProps": "off", // react is used in this codebase
-            "noRedeclare": "off" // encouraged in this codebase (e.g. function overloads, type + fabric definitions)
+            "noRedeclare": "off", // encouraged in this codebase (e.g. function overloads, type + fabric definitions)
+            "noEqualsToNull": "off", // == null is used to check for both null and undefined
+            "noLeakedRender": "off" // many false-positives for boolean && JSX expressions
           },
 
           "nursery": {
-            "useVueMultiWordComponentNames": "off", // irrelevant
-            "useVueDefineMacrosOrder": "off", // irrelevant
             "noReactNativeRawText": "off", // irrelevant
-            "noEqualsToNull": "off", // == null is used to check for both null and undefined
-            "noLeakedRender": "off", // many false-positives for boolean && JSX expressions
-            "noTernary": "off", // ternary is useful in many cases
 
             "useExplicitType": "off", // it is too much noise to enforce explicit types everywhere, even none module-public exports
             "useExplicitReturnType": "off", // same reasoning as useExplicitType: too noisy on non module-public exports
             "useAwaitThenable": "off", // false-positives
-            "noJsxPropsBind": "off", // it is madness to follow this rule
-            "useThisInClassMethods": "off", // false-positives for overridable hooks (e.g. _clone, _getChildren) where subclasses depend on the instance-method shape
-
-            "useConsistentMethodSignatures": {
-              // property-style enables stricter variance checks under strictFunctionTypes
+            "useConsistentFunctionStyle": {
               "level": "error",
-              "fix": "safe" // promote the unsafe fix to safe so check:fix auto-applies it
+              "options": { "style": "declaration", "allowArrowFunctions": true }
             },
-
-            "useDestructuring": "info",
-            "noExcessiveLinesPerFile": {
-              "level": "info",
-              "options": {
-                "skipBlankLines": true
-              }
+            "useReactFunctionComponentDefinition": {
+              "level": "error",
+              "options": { "namedComponents": "arrowFunction" }
             },
-            "noMultiAssign": "info"
+            "useThisInClassMethods": "off" // false-positives for overridable hooks (e.g. _clone, _getChildren) where subclasses depend on the instance-method shape
           }
         }
       }
@@ -339,7 +347,7 @@
           "correctness": {
             "noUnusedImports": "off" // declaration files often have unused imports
           },
-          "nursery": {
+          "suspicious": {
             "noShadow": "off" // shadowing is common in declaration files
           }
         }
@@ -356,7 +364,10 @@
             "noNonNullAssertion": "off",
             "noDoneCallback": "off", // false-positive for context in hooks like "beforeAll(context => { context.thing = 42 })"
             "useComponentExportOnlyModules": "off", // tests might export non-component modules
-            "noJsxLiterals": "off" // jsx literals are fine in tests (graduated from nursery in biome 2.4)
+            "noJsxLiterals": "off", // jsx literals are fine in tests (graduated from nursery in biome 2.4)
+            "noIncrementDecrement": "off", // increment/decrement is fine in tests
+            "noExcessiveLinesPerFile": "off", // tests files can be long
+            "noExcessiveClassesPerFile": "off" // test files can have many test classes
           },
           "complexity": {
             "noExcessiveLinesPerFunction": "off" // test `describe/it` blocks can be long
@@ -364,16 +375,13 @@
           "suspicious": {
             "noArrayIndexKey": "off", // array index keys are fine in tests
             "noConfusingVoidType": "off", // void is often used to follow source signatures
-            "noMisplacedAssertion": "off" // false-positives when abstracting expect assertions in helper functions
+            "noMisplacedAssertion": "off", // false-positives when abstracting expect assertions in helper functions
+            "noShadow": "off" // shadowing is fine in tests
           },
           "security": {
             "noSecrets": "off" // too much false-positives in tests
           },
           "nursery": {
-            "noShadow": "off", // shadowing is fine in tests
-            "noIncrementDecrement": "off", // increment/decrement is fine in tests
-            "noExcessiveLinesPerFile": "off", // tests files can be long
-            "noExcessiveClassesPerFile": "off", // test files can have many test classes
             "noConditionalExpect": "off", // conditional expect() is common in test helper utilities
             "noComponentHookFactories": "off", // inline component factories are a common test pattern
             "noExcessiveNestedCallbacks": "off" // describe/it nesting often exceeds the default threshold

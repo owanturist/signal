@@ -326,161 +326,158 @@ describe("types", () => {
   })
 })
 
-describe.each([
-  "onTouch" as const,
-  "onChange" as const,
-  "onSubmit" as const,
-  "onInit" as const,
-])("when any validateOn (%s)", (validateOn) => {
-  it("selects only the active's error when it has an error", ({ monitor }) => {
-    const form = FormSwitch(
-      FormUnit("_1", {
-        schema: z.enum(["_1"]),
-        error: ["custom"],
-      }),
-      {
-        _1: FormUnit(0, {
-          error: 123,
+describe.each(["onTouch" as const, "onChange" as const, "onSubmit" as const, "onInit" as const])(
+  "when any validateOn (%s)",
+  (validateOn) => {
+    it("selects only the active's error when it has an error", ({ monitor }) => {
+      const form = FormSwitch(
+        FormUnit("_1", {
+          schema: z.enum(["_1"]),
+          error: ["custom"],
         }),
-      },
-      {
-        validateOn,
-      },
-    )
-
-    const concise = {
-      active: ["custom"],
-      branch: null,
-    }
-
-    expect(form.getError(monitor)).toStrictEqual(concise)
-    expect(form.getError(monitor, params._first)).toStrictEqual(concise)
-    expect(form.getError(monitor, params._second)).toStrictEqual({
-      active: ["custom"],
-      branches: {
-        _1: 123,
-      },
-    })
-  })
-
-  it("selects the custom error regardless of the validate strategy", ({ monitor }) => {
-    const form = FormSwitch(
-      FormUnit("_2", {
-        schema: z.enum(["_1", "_2"]),
-      }),
-      {
-        _1: FormUnit(0, {
-          error: 123,
-        }),
-        _2: FormSwitch(
-          FormUnit("_3", {
-            schema: z.enum(["_3", "_4"]),
+        {
+          _1: FormUnit(0, {
+            error: 123,
           }),
-          {
-            _3: FormUnit("0", {
-              error: true,
-            }),
-            _4: FormUnit(1, {
-              error: ["one", "two"],
-            }),
-          },
-        ),
-      },
-      {
-        validateOn,
-      },
-    )
-
-    const concise = {
-      active: null,
-      branch: {
-        kind: "_2",
-        value: {
-          active: null,
-          branch: {
-            kind: "_3",
-            value: true,
-          },
         },
-      },
-    }
-
-    expect(form.getError(monitor)).toStrictEqual(concise)
-    expect(form.getError(monitor, params._first)).toStrictEqual(concise)
-    expect(form.getError(monitor, params._second)).toStrictEqual({
-      active: null,
-      branches: {
-        _1: 123,
-        _2: {
-          active: null,
-          branches: {
-            _3: true,
-            _4: ["one", "two"],
-          },
-        },
-      },
-    })
-  })
-})
-
-describe.each([
-  "onTouch" as const,
-  "onChange" as const,
-  "onSubmit" as const,
-])("when runtime validateOn (%s)", (validateOn) => {
-  it("selects null for validating error", ({ monitor }) => {
-    const form = FormSwitch(
-      FormUnit("_2", {
-        validateOn,
-        schema: z.enum(["_1", "_2"]),
-      }),
-      {
-        _1: FormUnit(0, {
+        {
           validateOn,
-          validate: (input): Result<string, number> => {
-            if (input <= 0) {
-              return ["Too small", null]
-            }
+        },
+      )
 
-            return [null, input]
-          },
+      const concise = {
+        active: ["custom"],
+        branch: null,
+      }
+
+      expect(form.getError(monitor)).toStrictEqual(concise)
+      expect(form.getError(monitor, params._first)).toStrictEqual(concise)
+      expect(form.getError(monitor, params._second)).toStrictEqual({
+        active: ["custom"],
+        branches: {
+          _1: 123,
+        },
+      })
+    })
+
+    it("selects the custom error regardless of the validate strategy", ({ monitor }) => {
+      const form = FormSwitch(
+        FormUnit("_2", {
+          schema: z.enum(["_1", "_2"]),
         }),
-        _2: FormSwitch(
-          FormUnit("_3", {
-            validateOn,
-            schema: z.enum(["_3", "_4"]),
+        {
+          _1: FormUnit(0, {
+            error: 123,
           }),
-          {
-            _3: FormUnit("0", {
-              validateOn,
-              schema: z.string(),
+          _2: FormSwitch(
+            FormUnit("_3", {
+              schema: z.enum(["_3", "_4"]),
             }),
-            _4: FormUnit(1, {
-              validateOn,
-              schema: z.number(),
-            }),
-          },
-        ),
-      },
-    )
+            {
+              _3: FormUnit("0", {
+                error: true,
+              }),
+              _4: FormUnit(1, {
+                error: ["one", "two"],
+              }),
+            },
+          ),
+        },
+        {
+          validateOn,
+        },
+      )
 
-    expect(form.getError(monitor)).toBeNull()
-    expect(form.getError(monitor, params._first)).toBeNull()
-    expect(form.getError(monitor, params._second)).toStrictEqual({
-      active: null,
-      branches: {
-        _1: null,
-        _2: {
-          active: null,
-          branches: {
-            _3: null,
-            _4: null,
+      const concise = {
+        active: null,
+        branch: {
+          kind: "_2",
+          value: {
+            active: null,
+            branch: {
+              kind: "_3",
+              value: true,
+            },
           },
         },
-      },
+      }
+
+      expect(form.getError(monitor)).toStrictEqual(concise)
+      expect(form.getError(monitor, params._first)).toStrictEqual(concise)
+      expect(form.getError(monitor, params._second)).toStrictEqual({
+        active: null,
+        branches: {
+          _1: 123,
+          _2: {
+            active: null,
+            branches: {
+              _3: true,
+              _4: ["one", "two"],
+            },
+          },
+        },
+      })
     })
-  })
-})
+  },
+)
+
+describe.each(["onTouch" as const, "onChange" as const, "onSubmit" as const])(
+  "when runtime validateOn (%s)",
+  (validateOn) => {
+    it("selects null for validating error", ({ monitor }) => {
+      const form = FormSwitch(
+        FormUnit("_2", {
+          validateOn,
+          schema: z.enum(["_1", "_2"]),
+        }),
+        {
+          _1: FormUnit(0, {
+            validateOn,
+            validate: (input): Result<string, number> => {
+              if (input <= 0) {
+                return ["Too small", null]
+              }
+
+              return [null, input]
+            },
+          }),
+          _2: FormSwitch(
+            FormUnit("_3", {
+              validateOn,
+              schema: z.enum(["_3", "_4"]),
+            }),
+            {
+              _3: FormUnit("0", {
+                validateOn,
+                schema: z.string(),
+              }),
+              _4: FormUnit(1, {
+                validateOn,
+                schema: z.number(),
+              }),
+            },
+          ),
+        },
+      )
+
+      expect(form.getError(monitor)).toBeNull()
+      expect(form.getError(monitor, params._first)).toBeNull()
+      expect(form.getError(monitor, params._second)).toStrictEqual({
+        active: null,
+        branches: {
+          _1: null,
+          _2: {
+            active: null,
+            branches: {
+              _3: null,
+              _4: null,
+            },
+          },
+        },
+      })
+    })
+  },
+)
 
 describe("when after trigger", () => {
   function setup(validateOn: ValidateStrategy) {
