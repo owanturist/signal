@@ -1,6 +1,6 @@
 import { Signal } from "@owanturist/signal"
 import { act, render, renderHook } from "@testing-library/react"
-import { Profiler, useEffect } from "react"
+import { type FC, Profiler, useEffect } from "react"
 
 import { useMonitor } from "../src"
 
@@ -31,7 +31,7 @@ it("does not change monitor value unless monitored signal changes", () => {
   expect(spy).toHaveBeenCalledTimes(2)
 })
 
-function Component({ value }: { value: Signal<number> }) {
+const Component: FC<{ value: Signal<number> }> = ({ value }) => {
   const monitor = useMonitor()
 
   return <>{value.read(monitor)}</>

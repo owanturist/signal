@@ -15,6 +15,7 @@ function usePermanent<TValue>(init: () => TValue): TValue {
 
   ref.current ??= { _value: init() }
 
+  // biome-ignore lint/nursery/useReactCompiler: reads the ref initialized once above, see the comment above
   return ref.current._value
 }
 

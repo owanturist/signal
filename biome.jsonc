@@ -262,11 +262,14 @@
             "useExplicitType": "off", // it is too much noise to enforce explicit types everywhere, even none module-public exports
             "useExplicitReturnType": "off", // same reasoning as useExplicitType: too noisy on non module-public exports
             "useAwaitThenable": "off", // false-positives
+            "noRestrictedDependencies": "off", // dependency choices (e.g. tsup) are made deliberately
             "useConsistentFunctionStyle": {
+              // function declarations are the codebase style, arrow functions are fine for callbacks
               "level": "error",
               "options": { "style": "declaration", "allowArrowFunctions": true }
             },
             "useReactFunctionComponentDefinition": {
+              // React components are defined as arrow functions
               "level": "error",
               "options": { "namedComponents": "arrowFunction" }
             },
@@ -384,7 +387,9 @@
           "nursery": {
             "noConditionalExpect": "off", // conditional expect() is common in test helper utilities
             "noComponentHookFactories": "off", // inline component factories are a common test pattern
-            "noExcessiveNestedCallbacks": "off" // describe/it nesting often exceeds the default threshold
+            "noExcessiveNestedCallbacks": "off", // describe/it nesting often exceeds the default threshold
+            "useControlLabel": "off", // test controls are queried by data-testid, not by accessible label
+            "noThisOutsideOfClass": "off" // expect.extend matchers receive MatcherState via `this`
           }
         }
       }
