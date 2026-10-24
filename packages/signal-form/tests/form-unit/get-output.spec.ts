@@ -215,7 +215,7 @@ describe("when transform is defined", () => {
   })
 
   it("selects equal output values when isOutputEqual is specified", ({ monitor }) => {
-    const value = FormUnit(1 as number, {
+    const value = FormUnit(1, {
       transform: (input) => ({ isPositive: input > 0 }),
       isOutputEqual: (left, right) => left.isPositive === right.isPositive,
     })

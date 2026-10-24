@@ -486,7 +486,7 @@ describe("stable output value", () => {
 
   it("selects equal output values when isOutputEqual is specified", ({ monitor }) => {
     const form = FormSwitch(FormUnit<"_1">("_1"), {
-      _1: FormUnit(1 as number, {
+      _1: FormUnit<number, null, Array<number>>(1, {
         isOutputEqual: isShallowArrayEqual,
         transform: (size) => Array.from({ length: Math.max(1, size) }, (_, index) => index),
       }),

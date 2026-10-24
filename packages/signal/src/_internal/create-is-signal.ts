@@ -3,18 +3,18 @@ import type { Monitor } from "./monitor"
 
 function createIsSignal(isSignal: (input: unknown) => input is BaseSignal<unknown>) {
   return (
-    ...[inputOrMonitor, maybeCheck, maybeInput]:
+    ...args:
       | [input: unknown]
       | [monitor: Monitor, check: (input: unknown) => boolean, input: unknown]
   ): boolean => {
-    if (!maybeCheck) {
-      return isSignal(inputOrMonitor)
+    if (args.length === 1) {
+      return isSignal(args[0])
     }
 
-    if (isSignal(maybeInput)) {
-      const value = maybeInput.read(inputOrMonitor as Monitor)
+    const [monitor, check, input] = args
 
-      return maybeCheck(value)
+    if (isSignal(input)) {
+      return check(input.read(monitor))
     }
 
     return false

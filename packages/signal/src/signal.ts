@@ -98,6 +98,7 @@ function Signal<T>(
   const isGetterFunction = isFunction(initialValueOrReadableSignal)
 
   if (!(isGetterFunction || hasProperty(initialValueOrReadableSignal, "read"))) {
+    // biome-ignore lint/nursery/noUnsafeTypeAssertion: overload implementation, the first argument is a plain value here so the overloads guarantee the second one is options
     const directOptions = optionsOrWritableSignal as undefined | SignalOptions<undefined | T>
 
     return new SignalImpl(initialValueOrReadableSignal, directOptions?.equals ?? isStrictEqual)
