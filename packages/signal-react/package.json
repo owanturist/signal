@@ -29,8 +29,8 @@
   "repository": "https://github.com/owanturist/signal/tree/master/packages/signal-react",
   "homepage": "https://github.com/owanturist/signal/packages/signal-react#readme",
   "scripts": {
-    "typecheck": "tsgo --noEmit",
-    "build": "tsup src/index.ts --config ../../tsup.config.ts"
+    "typecheck": "tsc --noEmit",
+    "build": "tsdown src/index.ts --config ../../tsdown.config.mjs"
   },
   "dependencies": {
     "use-sync-external-store": "^1.7.0"

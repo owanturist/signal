@@ -28,8 +28,8 @@
   "repository": "https://github.com/owanturist/signal/tree/master/packages/signal-form",
   "homepage": "https://github.com/owanturist/signal/packages/signal-form#readme",
   "scripts": {
-    "typecheck": "tsgo --noEmit",
-    "build": "tsup src/index.ts --config ../../tsup.config.ts"
+    "typecheck": "tsc --noEmit",
+    "build": "tsdown src/index.ts --config ../../tsdown.config.mjs"
   },
   "peerDependencies": {
     "@owanturist/signal": "^0.0.0"

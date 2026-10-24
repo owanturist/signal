@@ -3,7 +3,7 @@
   "name": "tools",
   "private": true,
   "scripts": {
-    "typecheck": "tsgo --noEmit"
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "vite-tsconfig-paths": "^6.1.1",

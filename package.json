@@ -16,9 +16,9 @@
     "format:fix": "biome format --write",
     "check": "biome check",
     "check:fix": "biome check --write",
-    "typecheck": "tsgo --noEmit && pnpm --recursive typecheck",
+    "typecheck": "pnpm --recursive typecheck",
     "build": "pnpm --recursive build",
-    "build:minified": "pnpm build --env.NODE_ENV=production --minify=terser"
+    "build:minified": "pnpm build --minify"
   },
   "engines": {
     "node": ">=24.13.0"
@@ -39,11 +39,12 @@
     "@changesets/changelog-github": "^0.7.0",
     "@changesets/cli": "^2.31.0",
     "@size-limit/preset-small-lib": "^12.1.0",
-    "@typescript/native-preview": "7.0.0-dev.20260707.2",
+    "@types/node": "^26.6.5",
     "@vitest/coverage-v8": "^4.1.9",
     "size-limit": "^12.1.0",
     "terser": "^5.51.2",
-    "tsup": "^8.5.1",
+    "tsdown": "^0.23.0",
+    "typescript": "^7.0.2",
     "vitest": "^4.1.9"
   }
 }
