@@ -7,7 +7,7 @@ import { isFunction } from "~/tools/is-function"
 import { isNull } from "~/tools/is-null"
 import { isString } from "~/tools/is-string"
 import { isUndefined } from "~/tools/is-undefined"
-import { Lazy } from "~/tools/lazy"
+import { lazy } from "~/tools/lazy"
 import { mapValues } from "~/tools/map-values"
 import { values } from "~/tools/values"
 
@@ -57,7 +57,7 @@ class FormSwitchState<
   TKind extends SignalForm,
   TBranches extends FormSwitchBranches<TKind>,
 > extends SignalFormState<FormSwitchParams<TKind, TBranches>, FormSwitch<TKind, TBranches>> {
-  public readonly _host = Lazy(() => new FormSwitch(this))
+  public readonly _host = lazy(() => new FormSwitch(this))
 
   public readonly _active: GetFormState<TKind>
   public readonly _branches: FormSwitchStateBranches<TBranches>
@@ -134,8 +134,8 @@ class FormSwitchState<
   )
 
   public _setInitial(monitor: Monitor, setter: FormSwitchInputSetter<TKind, TBranches>): void {
-    const initial = Lazy(() => this._initial.read(monitor))
-    const input = Lazy(() => this._input.read(monitor))
+    const initial = lazy(() => this._initial.read(monitor))
+    const input = lazy(() => this._input.read(monitor))
 
     const { active, branches: branchesSetter } = isFunction(setter)
       ? setter(initial(), input())
@@ -172,8 +172,8 @@ class FormSwitchState<
   )
 
   public _setInput(monitor: Monitor, setter: FormSwitchInputSetter<TKind, TBranches>): void {
-    const initial = Lazy(() => this._initial.read(monitor))
-    const input = Lazy(() => this._input.read(monitor))
+    const initial = lazy(() => this._initial.read(monitor))
+    const input = lazy(() => this._input.read(monitor))
 
     const { active, branches: branchesSetter } = isFunction(setter)
       ? setter(input(), initial())
@@ -207,7 +207,7 @@ class FormSwitchState<
   )
 
   public _setError(monitor: Monitor, setter: FormSwitchErrorSetter<TKind, TBranches>): void {
-    const verbose = Lazy(() => this._errorVerbose.read(monitor))
+    const verbose = lazy(() => this._errorVerbose.read(monitor))
     const resolved = isFunction(setter) ? setter(verbose()) : setter
 
     const [activeSetter, branchSetter, branchesSetter] = isNull(resolved)
@@ -289,7 +289,7 @@ class FormSwitchState<
     monitor: Monitor,
     setter: FormSwitchValidateOnSetter<TKind, TBranches>,
   ): void {
-    const verbose = Lazy(() => this._validateOnVerbose.read(monitor))
+    const verbose = lazy(() => this._validateOnVerbose.read(monitor))
     const resolved = isFunction(setter) ? setter(verbose()) : setter
 
     const [activeSetter, branchSetter, branchesSetter] = isString(resolved)
@@ -360,7 +360,7 @@ class FormSwitchState<
   )
 
   public _setTouched(monitor: Monitor, setter: FormSwitchFlagSetter<TKind, TBranches>): void {
-    const verbose = Lazy(() => this._touchedVerbose.read(monitor))
+    const verbose = lazy(() => this._touchedVerbose.read(monitor))
     const resolved = isFunction(setter) ? setter(verbose()) : setter
 
     const [activeSetter, branchSetter, branchesSetter] = isBoolean(resolved)

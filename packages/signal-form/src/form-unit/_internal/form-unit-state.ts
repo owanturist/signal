@@ -4,7 +4,7 @@ import { identity } from "~/tools/identity"
 import { isFunction } from "~/tools/is-function"
 import { isNull } from "~/tools/is-null"
 import { isUndefined } from "~/tools/is-undefined"
-import { Lazy } from "~/tools/lazy"
+import { lazy } from "~/tools/lazy"
 import { resolveSetter } from "~/tools/setter"
 
 import type { Result } from "../../result"
@@ -29,7 +29,7 @@ class FormUnitState<TInput, TError, TOutput> extends SignalFormState<
   FormUnitParams<TInput, TError, TOutput>,
   FormUnit<TInput, TError, TOutput>
 > {
-  public readonly _host = Lazy(() => new FormUnit(this))
+  public readonly _host = lazy(() => new FormUnit(this))
 
   public constructor(
     parent: null | SignalFormState,

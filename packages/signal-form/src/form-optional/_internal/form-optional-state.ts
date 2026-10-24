@@ -6,7 +6,7 @@ import { isNull } from "~/tools/is-null"
 import { isString } from "~/tools/is-string"
 import { isTrue } from "~/tools/is-true"
 import { isUndefined } from "~/tools/is-undefined"
-import { Lazy } from "~/tools/lazy"
+import { lazy } from "~/tools/lazy"
 
 import { toConcise } from "../../_internal/to-concise"
 import type { GetFormState } from "../../signal-form/_internal/get-form-state"
@@ -41,7 +41,7 @@ class FormOptionalState<
   FormOptionalParams<TEnabled, TElement>,
   FormOptional<TEnabled, TElement>
 > {
-  public readonly _host = Lazy(() => new FormOptional(this))
+  public readonly _host = lazy(() => new FormOptional(this))
 
   public readonly _enabled: GetFormState<TEnabled>
   public readonly _element: GetFormState<TElement>

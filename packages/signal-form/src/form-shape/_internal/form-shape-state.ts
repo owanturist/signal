@@ -7,7 +7,7 @@ import { isFunction } from "~/tools/is-function"
 import { isNull } from "~/tools/is-null"
 import { isString } from "~/tools/is-string"
 import { isUndefined } from "~/tools/is-undefined"
-import { Lazy } from "~/tools/lazy"
+import { lazy } from "~/tools/lazy"
 import { map } from "~/tools/map"
 import { mapValues } from "~/tools/map-values"
 import { values } from "~/tools/values"
@@ -43,7 +43,7 @@ type FormShapeStateFields<TFields extends FormShapeFields<TFields>> = GetFormSta
 class FormShapeState<
   TFields extends FormShapeFields<TFields> = Record<string, SignalForm>,
 > extends SignalFormState<FormShapeParams<TFields>, FormShape<TFields>> {
-  public readonly _host = Lazy(() => new FormShape(this))
+  public readonly _host = lazy(() => new FormShape(this))
 
   public readonly _fields: FormShapeStateFields<TFields>
 

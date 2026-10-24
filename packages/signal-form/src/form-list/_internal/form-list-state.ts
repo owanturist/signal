@@ -8,7 +8,7 @@ import { isFunction } from "~/tools/is-function"
 import { isNull } from "~/tools/is-null"
 import { isString } from "~/tools/is-string"
 import { isUndefined } from "~/tools/is-undefined"
-import { Lazy } from "~/tools/lazy"
+import { lazy } from "~/tools/lazy"
 import { map } from "~/tools/map"
 import { take } from "~/tools/take"
 
@@ -47,7 +47,7 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
   FormListParams<TElement>,
   FormList<TElement>
 > {
-  public readonly _host = Lazy(() => new FormList(this))
+  public readonly _host = lazy(() => new FormList(this))
 
   public readonly _elements: Signal<ReadonlyArray<GetFormState<TElement>>>
 
