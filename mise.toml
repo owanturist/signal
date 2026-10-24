@@ -1,5 +1,5 @@
 [settings]
-# read pnpm version from package.json#packageManager
+# read pnpm version from package.json#devEngines.packageManager
 idiomatic_version_file_enable_tools = ["pnpm"]
 
 [tool_alias]
