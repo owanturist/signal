@@ -7,11 +7,16 @@ import { isFunction } from "~/tools/is-function"
 import { isNull } from "~/tools/is-null"
 import { isString } from "~/tools/is-string"
 import { isUndefined } from "~/tools/is-undefined"
-import { Lazy } from "~/tools/lazy"
+import { lazy } from "~/tools/lazy"
 import { mapValues } from "~/tools/map-values"
 import { values } from "~/tools/values"
 
-import type { GetFormParams } from "../../signal-form/_internal/get-form-params"
+import type { GetFormState } from "../../signal-form/_internal/get-form-state"
+import {
+  type GetFormStates,
+  type SignalFormRecord,
+  mapFormStates,
+} from "../../signal-form/_internal/map-form-states"
 import {
   type SignalFormChild,
   SignalFormState,
@@ -40,11 +45,10 @@ import { FormSwitch } from "./form-switch"
 import type { FormSwitchConciseParam } from "./form-switch-concise-param"
 import type { FormSwitchVerboseParam } from "./form-switch-verbose-param"
 
-type FormSwitchStateBranches<TBranches> = {
-  [TBranch in keyof TBranches]: SignalFormState<GetFormParams<TBranches[TBranch]>>
-}
+type FormSwitchStateBranches<TBranches extends SignalFormRecord<TBranches>> =
+  GetFormStates<TBranches>
 
-type ActiveSwitchStateBranch<TBranches> = FormSwitchBranch<
+type ActiveSwitchStateBranch<TBranches extends SignalFormRecord<TBranches>> = FormSwitchBranch<
   keyof TBranches,
   FormSwitchStateBranches<TBranches>[keyof TBranches]
 >
@@ -52,21 +56,21 @@ type ActiveSwitchStateBranch<TBranches> = FormSwitchBranch<
 class FormSwitchState<
   TKind extends SignalForm,
   TBranches extends FormSwitchBranches<TKind>,
-> extends SignalFormState<FormSwitchParams<TKind, TBranches>> {
-  public readonly _host = Lazy(() => new FormSwitch(this))
+> extends SignalFormState<FormSwitchParams<TKind, TBranches>, FormSwitch<TKind, TBranches>> {
+  public readonly _host = lazy(() => new FormSwitch(this))
 
-  public readonly _active: SignalFormState<GetFormParams<TKind>>
+  public readonly _active: GetFormState<TKind>
   public readonly _branches: FormSwitchStateBranches<TBranches>
 
   public constructor(
     parent: null | SignalFormState,
-    active: SignalFormState<GetFormParams<TKind>>,
+    active: GetFormState<TKind>,
     branches: FormSwitchStateBranches<TBranches>,
   ) {
     super(parent)
 
     this._active = this._parentOf(active)
-    this._branches = mapValues(branches, (branch) => this._parentOf(branch))
+    this._branches = mapFormStates(branches, (branch) => this._parentOf(branch))
   }
 
   public _getActiveBranch(monitor: Monitor): undefined | ActiveSwitchStateBranch<TBranches> {
@@ -79,7 +83,7 @@ class FormSwitchState<
   private _toConcise<TKey extends keyof SignalFormParams, TConcise>(
     monitor: Monitor,
     extract: (form: SignalFormState) => ReadableSignal<TConcise>,
-    isConcise: (value: unknown) => value is TConcise,
+    isConcise: (value: unknown) => boolean,
     fallbackInvalid?: TConcise,
   ): FormSwitchConciseParam<TKind, TBranches, TKey, TConcise> {
     const activeBranch = this._getActiveBranch(monitor)
@@ -130,8 +134,8 @@ class FormSwitchState<
   )
 
   public _setInitial(monitor: Monitor, setter: FormSwitchInputSetter<TKind, TBranches>): void {
-    const initial = Lazy(() => this._initial.read(monitor))
-    const input = Lazy(() => this._input.read(monitor))
+    const initial = lazy(() => this._initial.read(monitor))
+    const input = lazy(() => this._input.read(monitor))
 
     const { active, branches: branchesSetter } = isFunction(setter)
       ? setter(initial(), input())
@@ -168,8 +172,8 @@ class FormSwitchState<
   )
 
   public _setInput(monitor: Monitor, setter: FormSwitchInputSetter<TKind, TBranches>): void {
-    const initial = Lazy(() => this._initial.read(monitor))
-    const input = Lazy(() => this._input.read(monitor))
+    const initial = lazy(() => this._initial.read(monitor))
+    const input = lazy(() => this._input.read(monitor))
 
     const { active, branches: branchesSetter } = isFunction(setter)
       ? setter(input(), initial())
@@ -203,7 +207,7 @@ class FormSwitchState<
   )
 
   public _setError(monitor: Monitor, setter: FormSwitchErrorSetter<TKind, TBranches>): void {
-    const verbose = Lazy(() => this._errorVerbose.read(monitor))
+    const verbose = lazy(() => this._errorVerbose.read(monitor))
     const resolved = isFunction(setter) ? setter(verbose()) : setter
 
     const [activeSetter, branchSetter, branchesSetter] = isNull(resolved)
@@ -211,7 +215,7 @@ class FormSwitchState<
       : [
           resolved.active,
 
-          hasProperty(resolved, "branch") ? resolved.branch : undefined,
+          typeof resolved === "object" && "branch" in resolved ? resolved.branch : undefined,
 
           hasProperty(resolved, "branches")
             ? isFunction(resolved.branches)
@@ -251,7 +255,7 @@ class FormSwitchState<
       if (isNull(activeBranchSetter)) {
         activeBranch?.value._setError(monitor, activeBranchSetter)
       } else if (!isUndefined(activeBranchSetter)) {
-        const { kind, value } = activeBranchSetter as FormSwitchBranch<keyof TBranches, unknown>
+        const { kind, value } = activeBranchSetter
 
         const targetBranch = hasProperty(this._branches, kind) ? this._branches[kind] : undefined
 
@@ -269,7 +273,7 @@ class FormSwitchState<
       this._toConcise<"validateOn.schema", ValidateStrategy>(
         monitor,
         ({ _validateOn }) => _validateOn,
-        isString as (value: unknown) => value is ValidateStrategy,
+        isString,
       ),
   )
 
@@ -285,7 +289,7 @@ class FormSwitchState<
     monitor: Monitor,
     setter: FormSwitchValidateOnSetter<TKind, TBranches>,
   ): void {
-    const verbose = Lazy(() => this._validateOnVerbose.read(monitor))
+    const verbose = lazy(() => this._validateOnVerbose.read(monitor))
     const resolved = isFunction(setter) ? setter(verbose()) : setter
 
     const [activeSetter, branchSetter, branchesSetter] = isString(resolved)
@@ -293,7 +297,7 @@ class FormSwitchState<
       : [
           resolved.active,
 
-          hasProperty(resolved, "branch") ? resolved.branch : undefined,
+          typeof resolved === "object" && "branch" in resolved ? resolved.branch : undefined,
 
           hasProperty(resolved, "branches")
             ? isFunction(resolved.branches)
@@ -333,7 +337,7 @@ class FormSwitchState<
       if (isString(activeBranchSetter)) {
         activeBranch?.value._setValidateOn(monitor, activeBranchSetter)
       } else if (!isUndefined(activeBranchSetter)) {
-        const { kind, value } = activeBranchSetter as FormSwitchBranch<keyof TBranches, unknown>
+        const { kind, value } = activeBranchSetter
         const targetBranch = hasProperty(this._branches, kind) ? this._branches[kind] : undefined
 
         if (targetBranch) {
@@ -356,7 +360,7 @@ class FormSwitchState<
   )
 
   public _setTouched(monitor: Monitor, setter: FormSwitchFlagSetter<TKind, TBranches>): void {
-    const verbose = Lazy(() => this._touchedVerbose.read(monitor))
+    const verbose = lazy(() => this._touchedVerbose.read(monitor))
     const resolved = isFunction(setter) ? setter(verbose()) : setter
 
     const [activeSetter, branchSetter, branchesSetter] = isBoolean(resolved)
@@ -364,7 +368,7 @@ class FormSwitchState<
       : [
           resolved.active,
 
-          hasProperty(resolved, "branch") ? resolved.branch : undefined,
+          typeof resolved === "object" && "branch" in resolved ? resolved.branch : undefined,
 
           hasProperty(resolved, "branches")
             ? isFunction(resolved.branches)
@@ -404,7 +408,7 @@ class FormSwitchState<
       if (isBoolean(activeBranchSetter)) {
         activeBranch?.value._setTouched(monitor, activeBranchSetter)
       } else if (!isUndefined(activeBranchSetter)) {
-        const { kind, value } = activeBranchSetter as FormSwitchBranch<keyof TBranches, unknown>
+        const { kind, value } = activeBranchSetter
         const targetBranch = hasProperty(this._branches, kind) ? this._branches[kind] : undefined
 
         if (targetBranch) {
@@ -517,11 +521,11 @@ class FormSwitchState<
 
   // C H I L D R E N
 
-  public _getChildren<TChildParams extends SignalFormParams>(
+  public _getChildren(
     monitor: Monitor,
-  ): ReadonlyArray<SignalFormChild<TChildParams, FormSwitchParams<TKind, TBranches>>> {
-    const activeChild: SignalFormChild<TChildParams, FormSwitchParams<TKind, TBranches>> = {
-      _state: this._active as unknown as SignalFormState<TChildParams>,
+  ): ReadonlyArray<SignalFormChild<FormSwitchParams<TKind, TBranches>>> {
+    const activeChild: SignalFormChild<FormSwitchParams<TKind, TBranches>> = {
+      _state: this._active,
       _mapToChild: (output) => output.kind,
     }
 
@@ -534,7 +538,7 @@ class FormSwitchState<
     return [
       activeChild,
       {
-        _state: activeBranch.value as unknown as SignalFormState<TChildParams>,
+        _state: activeBranch.value,
         _mapToChild: (output) => output.value,
       },
     ]

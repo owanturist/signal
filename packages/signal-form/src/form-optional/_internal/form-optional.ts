@@ -16,12 +16,12 @@ class FormOptional<TEnabled extends SignalForm, TElement extends SignalForm> ext
   public constructor(public readonly _state: FormOptionalState<TEnabled, TElement>) {
     super()
 
-    this.enabled = _state._enabled._host() as TEnabled
-    this.element = _state._element._host() as TElement
+    this.enabled = _state._enabled._host()
+    this.element = _state._element._host()
   }
 
   public getEnabledElement(monitor: Monitor): undefined | TElement {
-    return this._state._getEnabledElement(monitor)?._host() as undefined | TElement
+    return this._state._getEnabledElement(monitor)?._host()
   }
 }
 

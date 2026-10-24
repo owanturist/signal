@@ -1,7 +1,6 @@
 import type { Monitor } from "@owanturist/signal"
 
-import { mapValues } from "~/tools/map-values"
-
+import { mapFormHosts } from "../../signal-form/_internal/map-form-states"
 import { SignalForm } from "../../signal-form/_internal/signal-form"
 import type { FormSwitchActiveBranch } from "../form-switch-active-branch"
 import type { FormSwitchBranches } from "../form-switch-branches"
@@ -22,9 +21,9 @@ class FormSwitch<
   public constructor(public readonly _state: FormSwitchState<TKind, TBranches>) {
     super()
 
-    this.active = _state._active._host() as TKind
+    this.active = _state._active._host()
 
-    this.branches = mapValues(_state._branches, ({ _host }) => _host()) as Readonly<TBranches>
+    this.branches = mapFormHosts(_state._branches)
   }
 
   public getActiveBranch(monitor: Monitor): undefined | FormSwitchActiveBranch<TBranches> {
@@ -37,7 +36,7 @@ class FormSwitch<
     return {
       kind: result.kind,
       value: result.value._host(),
-    } as FormSwitchActiveBranch<TBranches>
+    }
   }
 }
 

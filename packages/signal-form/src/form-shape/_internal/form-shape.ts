@@ -1,5 +1,4 @@
-import { mapValues } from "~/tools/map-values"
-
+import { mapFormHosts } from "../../signal-form/_internal/map-form-states"
 import { SignalForm } from "../../signal-form/_internal/signal-form"
 import type { FormShapeFields } from "../form-shape-fields"
 import type { FormShapeParams } from "../form-shape-params"
@@ -16,7 +15,7 @@ class FormShape<TFields extends FormShapeFields<TFields>> extends SignalForm<
   public constructor(public readonly _state: FormShapeState<TFields>) {
     super()
 
-    this.fields = mapValues(_state._fields, ({ _host }) => _host()) as TFields
+    this.fields = mapFormHosts(_state._fields)
   }
 }
 

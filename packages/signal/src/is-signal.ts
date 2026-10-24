@@ -3,42 +3,48 @@ import { BaseSignal } from "./_internal/base-signal"
 import { createIsSignal } from "./_internal/create-is-signal"
 import type { Monitor } from "./_internal/monitor"
 
-const isSignal = createIsSignal((input) => input instanceof BaseSignal) as {
-  /**
-   * A function to check whether or not the input is a {@link Signal}.
-   *
-   * @version 1.0.0
-   */
-  <T, Unknown = unknown>(input: Unknown | Signal<T>): input is Signal<T>
+const isSignalImpl = createIsSignal((input) => input instanceof BaseSignal)
 
-  /**
-   * A function to check whether or not the input is a {@link Signal}.
-   *
-   * @version 1.0.0
-   */
-  <T, Unknown = unknown>(input: Unknown | ReadonlySignal<T>): input is ReadonlySignal<T>
+/**
+ * A function to check whether or not the input is a {@link Signal}.
+ *
+ * @version 1.0.0
+ */
+function isSignal<T, Unknown = unknown>(input: Unknown | Signal<T>): input is Signal<T>
 
-  /**
-   * A function to check whether or not a {@link Signal} value passes the {@link check}.
-   *
-   * @version 1.0.0
-   */
-  <T, Unknown = unknown>(
-    monitor: Monitor,
-    check: (value: unknown) => value is T,
-    input: Unknown | Signal<T>,
-  ): input is Signal<T>
+/**
+ * A function to check whether or not the input is a {@link Signal}.
+ *
+ * @version 1.0.0
+ */
+function isSignal<T, Unknown = unknown>(
+  input: Unknown | ReadonlySignal<T>,
+): input is ReadonlySignal<T>
 
-  /**
-   * A function to check whether or not a {@link Signal} value passes the {@link check}.
-   *
-   * @version 1.0.0
-   */
-  <T, Unknown = unknown>(
-    monitor: Monitor,
-    check: (value: unknown) => value is T,
-    input: Unknown | ReadonlySignal<T>,
-  ): input is ReadonlySignal<T>
+/**
+ * A function to check whether or not a {@link Signal} value passes the {@link check}.
+ *
+ * @version 1.0.0
+ */
+function isSignal<T, Unknown = unknown>(
+  monitor: Monitor,
+  check: (value: unknown) => value is T,
+  input: Unknown | Signal<T>,
+): input is Signal<T>
+
+/**
+ * A function to check whether or not a {@link Signal} value passes the {@link check}.
+ *
+ * @version 1.0.0
+ */
+function isSignal<T, Unknown = unknown>(
+  monitor: Monitor,
+  check: (value: unknown) => value is T,
+  input: Unknown | ReadonlySignal<T>,
+): input is ReadonlySignal<T>
+
+function isSignal(...args: Parameters<typeof isSignalImpl>): boolean {
+  return isSignalImpl(...args)
 }
 
 export { isSignal }

@@ -2,8 +2,8 @@ import { batch } from "@owanturist/signal"
 
 import type { IsEqualType } from "~/tools/is-type-equal"
 import { isUndefined } from "~/tools/is-undefined"
-import { mapValues } from "~/tools/map-values"
 
+import { mapForms } from "../signal-form/_internal/map-form-states"
 import type { GetFormParam } from "../signal-form/get-form-param"
 import type { SignalForm } from "../signal-form/signal-form"
 
@@ -38,7 +38,7 @@ function FormSwitch<TKind extends SignalForm, TBranches extends FormSwitchBranch
   const switcher = new FormSwitchState<TKind, TBranches>(
     null,
     FormSwitchImpl._getState(active),
-    mapValues(branches, (branch) => FormSwitchImpl._getState(branch)),
+    mapForms(branches, FormSwitchImpl._getState),
   )
 
   batch((monitor) => {

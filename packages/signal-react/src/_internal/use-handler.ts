@@ -25,8 +25,10 @@ function useHandler<TArgs extends ReadonlyArray<unknown>, TResult>(
     _getter: (...args: TArgs) => ref.current._value(...args),
   })
 
+  // biome-ignore lint/nursery/useReactCompiler: latest-ref pattern, see the comment above (useEffectEvent requires React 19.2+)
   ref.current._value = handler
 
+  // biome-ignore lint/nursery/useReactCompiler: latest-ref pattern, see the comment above (useEffectEvent requires React 19.2+)
   return ref.current._getter
 }
 

@@ -7,6 +7,7 @@ import { isTruthy } from "~/tools/is-truthy"
 
 import type { SignalFormParams } from "../signal-form-params"
 
+import type { GetFormState } from "./get-form-state"
 import type { SignalFormState } from "./signal-form-state"
 
 function resolveGetter<TValue, TVerbose, TSelected>(
@@ -48,10 +49,9 @@ abstract class SignalForm<
   // biome-ignore lint/suspicious/noExplicitAny: any is the only reasonable default
   TParams extends SignalFormParams = any,
 > {
-  protected static _getState<TFormParams extends SignalFormParams>({
-    _state,
-  }: SignalForm<TFormParams>): SignalFormState<TFormParams> {
-    return _state
+  protected static _getState<TForm extends SignalForm>(form: TForm): GetFormState<TForm> {
+    // biome-ignore lint/nursery/noUnsafeTypeAssertion: every SignalForm subclass is created by its own state's `_host`, so the state's host is always TForm
+    return form._state as GetFormState<TForm>
   }
 
   protected abstract readonly _state: SignalFormState<TParams>

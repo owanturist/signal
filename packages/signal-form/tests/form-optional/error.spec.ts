@@ -191,105 +191,102 @@ describe("types", () => {
   })
 })
 
-describe.each([
-  "onTouch" as const,
-  "onChange" as const,
-  "onSubmit" as const,
-  "onInit" as const,
-])("when any validateOn (%s)", (validateOn) => {
-  it("selects only the enables's error when it has an error", ({ monitor }) => {
-    const form = FormOptional(
-      FormUnit(true, {
-        schema: z.boolean(),
-        error: ["custom"],
-      }),
-      FormUnit(0, {
-        error: 123,
-      }),
-      {
-        validateOn,
-      },
-    )
-
-    const concise = {
-      enabled: ["custom"],
-      element: null,
-    }
-
-    expect(form.getError(monitor)).toStrictEqual(concise)
-    expect(form.getError(monitor, params._first)).toStrictEqual(concise)
-    expect(form.getError(monitor, params._second)).toStrictEqual({
-      enabled: ["custom"],
-      element: 123,
-    })
-  })
-
-  it("selects the custom error regardless of the validate strategy", ({ monitor }) => {
-    const form = FormOptional(
-      FormUnit(true, {
-        schema: z.boolean(),
-      }),
-      FormOptional(
+describe.each(["onTouch" as const, "onChange" as const, "onSubmit" as const, "onInit" as const])(
+  "when any validateOn (%s)",
+  (validateOn) => {
+    it("selects only the enables's error when it has an error", ({ monitor }) => {
+      const form = FormOptional(
         FormUnit(true, {
           schema: z.boolean(),
+          error: ["custom"],
         }),
-        FormUnit("0", {
-          error: true,
+        FormUnit(0, {
+          error: 123,
         }),
-      ),
-      {
-        validateOn,
-      },
-    )
-
-    const error = {
-      enabled: null,
-      element: {
-        enabled: null,
-        element: true,
-      },
-    }
-
-    expect(form.getError(monitor)).toStrictEqual(error)
-    expect(form.getError(monitor, params._first)).toStrictEqual(error)
-    expect(form.getError(monitor, params._second)).toStrictEqual(error)
-  })
-})
-
-describe.each([
-  "onTouch" as const,
-  "onChange" as const,
-  "onSubmit" as const,
-])("when runtime validateOn (%s)", (validateOn) => {
-  it("selects null for validating error", ({ monitor }) => {
-    const form = FormOptional(
-      FormUnit(true, {
-        validateOn,
-        schema: z.boolean(),
-      }),
-      FormOptional(
-        FormUnit(true, {
+        {
           validateOn,
-          schema: z.boolean(),
-        }),
-        FormUnit("0", {
-          validateOn,
-          schema: z.string(),
-        }),
-      ),
-    )
+        },
+      )
 
-    expect(form.getError(monitor)).toBeNull()
-    expect(form.getError(monitor, params._first)).toBeNull()
-    expect(form.getError(monitor, params._second)).toStrictEqual({
-      enabled: null,
-      element: {
-        enabled: null,
+      const concise = {
+        enabled: ["custom"],
         element: null,
-      },
+      }
+
+      expect(form.getError(monitor)).toStrictEqual(concise)
+      expect(form.getError(monitor, params._first)).toStrictEqual(concise)
+      expect(form.getError(monitor, params._second)).toStrictEqual({
+        enabled: ["custom"],
+        element: 123,
+      })
     })
-  })
-})
+
+    it("selects the custom error regardless of the validate strategy", ({ monitor }) => {
+      const form = FormOptional(
+        FormUnit(true, {
+          schema: z.boolean(),
+        }),
+        FormOptional(
+          FormUnit(true, {
+            schema: z.boolean(),
+          }),
+          FormUnit("0", {
+            error: true,
+          }),
+        ),
+        {
+          validateOn,
+        },
+      )
+
+      const error = {
+        enabled: null,
+        element: {
+          enabled: null,
+          element: true,
+        },
+      }
+
+      expect(form.getError(monitor)).toStrictEqual(error)
+      expect(form.getError(monitor, params._first)).toStrictEqual(error)
+      expect(form.getError(monitor, params._second)).toStrictEqual(error)
+    })
+  },
+)
+
+describe.each(["onTouch" as const, "onChange" as const, "onSubmit" as const])(
+  "when runtime validateOn (%s)",
+  (validateOn) => {
+    it("selects null for validating error", ({ monitor }) => {
+      const form = FormOptional(
+        FormUnit(true, {
+          validateOn,
+          schema: z.boolean(),
+        }),
+        FormOptional(
+          FormUnit(true, {
+            validateOn,
+            schema: z.boolean(),
+          }),
+          FormUnit("0", {
+            validateOn,
+            schema: z.string(),
+          }),
+        ),
+      )
+
+      expect(form.getError(monitor)).toBeNull()
+      expect(form.getError(monitor, params._first)).toBeNull()
+      expect(form.getError(monitor, params._second)).toStrictEqual({
+        enabled: null,
+        element: {
+          enabled: null,
+          element: null,
+        },
+      })
+    })
+  },
+)
 
 describe("when after trigger", () => {
   function setup(validateOn: ValidateStrategy) {

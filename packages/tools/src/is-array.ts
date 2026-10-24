@@ -1,5 +1,3 @@
-const { isArray } = Array as {
-  isArray: <T>(data: ArrayLike<unknown> | T) => data is ReadonlyArray<unknown>
-}
+const isArray: <T>(data: ArrayLike<unknown> | T) => data is ReadonlyArray<unknown> = Array.isArray
 
 export { isArray }

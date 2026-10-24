@@ -232,226 +232,224 @@ describe.each([
     useCount: (factory: (monitor: Monitor) => number) =>
       useComputed(useCallback((monitor: Monitor) => factory(monitor), [factory])),
   },
-])("when $name", ({
-  expectedFactoryCallsForMultiple,
-  expectedFactoryCallsForNested,
-  execute,
-  useCount,
-}) => {
-  describe("for multiple signals", () => {
-    const setup = () => {
-      const spy = vi.fn()
-      const onRender = vi.fn()
-      const first = Signal({ count: 1 })
-      const second = Signal({ count: 2 })
-      const factory = (monitor: Monitor) => {
-        spy()
+])(
+  "when $name",
+  ({ expectedFactoryCallsForMultiple, expectedFactoryCallsForNested, execute, useCount }) => {
+    describe("for multiple signals", () => {
+      const setup = () => {
+        const spy = vi.fn()
+        const onRender = vi.fn()
+        const first = Signal({ count: 1 })
+        const second = Signal({ count: 2 })
+        const factory = (monitor: Monitor) => {
+          spy()
 
-        return Counter.getCount(first.read(monitor)) + Counter.getCount(second.read(monitor))
+          return Counter.getCount(first.read(monitor)) + Counter.getCount(second.read(monitor))
+        }
+
+        return { spy, onRender, first, second, factory }
       }
 
-      return { spy, onRender, first, second, factory }
-    }
+      it(`calls the factory ${expectedFactoryCallsForMultiple} times by Signal#write calls`, () => {
+        const { spy, onRender, first, second, factory } = setup()
 
-    it(`calls the factory ${expectedFactoryCallsForMultiple} times by Signal#write calls`, () => {
-      const { spy, onRender, first, second, factory } = setup()
+        const Component: FC = () => {
+          const count = useCount(factory)
 
-      const Component: FC = () => {
-        const count = useCount(factory)
+          return (
+            <Profiler id="test" onRender={onRender}>
+              <span data-testid="count">{count}</span>
+            </Profiler>
+          )
+        }
 
-        return (
-          <Profiler id="test" onRender={onRender}>
-            <span data-testid="count">{count}</span>
-          </Profiler>
-        )
-      }
+        render(<Component />)
 
-      render(<Component />)
+        expect(screen.getByTestId("count")).toHaveTextContent("3")
+        expect(onRender).toHaveBeenCalledOnce()
+        expect(spy).toHaveBeenCalledOnce()
 
-      expect(screen.getByTestId("count")).toHaveTextContent("3")
-      expect(onRender).toHaveBeenCalledOnce()
-      expect(spy).toHaveBeenCalledOnce()
+        vi.clearAllMocks()
 
-      vi.clearAllMocks()
-
-      act(() => {
-        execute(() => {
-          first.write(Counter.inc)
-          second.write(Counter.inc)
+        act(() => {
+          execute(() => {
+            first.write(Counter.inc)
+            second.write(Counter.inc)
+          })
         })
+        expect(screen.getByTestId("count")).toHaveTextContent("5")
+        expect(onRender).toHaveBeenCalledOnce()
+        expect(spy).toHaveBeenCalledTimes(expectedFactoryCallsForMultiple)
       })
-      expect(screen.getByTestId("count")).toHaveTextContent("5")
-      expect(onRender).toHaveBeenCalledOnce()
-      expect(spy).toHaveBeenCalledTimes(expectedFactoryCallsForMultiple)
+
+      it(`calls the factory ${expectedFactoryCallsForMultiple} times by Signal#write calls`, () => {
+        const { spy, onRender, first, second, factory } = setup()
+
+        const Component: FC = () => {
+          const count = useCount(factory)
+
+          return (
+            <Profiler id="test" onRender={onRender}>
+              <button
+                type="button"
+                data-testid="inc"
+                onClick={() => {
+                  execute(() => {
+                    first.write(Counter.inc)
+                    second.write(Counter.inc)
+                  })
+                }}
+              />
+              <span data-testid="count">{count}</span>
+            </Profiler>
+          )
+        }
+
+        render(<Component />)
+
+        expect(screen.getByTestId("count")).toHaveTextContent("3")
+        expect(onRender).toHaveBeenCalledOnce()
+        expect(spy).toHaveBeenCalledOnce()
+        vi.clearAllMocks()
+
+        fireEvent.click(screen.getByTestId("inc"))
+        expect(screen.getByTestId("count")).toHaveTextContent("5")
+        expect(onRender).toHaveBeenCalledOnce()
+        expect(spy).toHaveBeenCalledTimes(expectedFactoryCallsForMultiple)
+      })
     })
 
-    it(`calls the factory ${expectedFactoryCallsForMultiple} times by Signal#write calls`, () => {
-      const { spy, onRender, first, second, factory } = setup()
+    describe("for nested signals", () => {
+      const setup = () => {
+        const spy = vi.fn()
+        const onRender = vi.fn()
+        const signal = Signal({
+          first: Signal({ count: 1 }),
+          second: Signal({ count: 2 }),
+        })
+        const factory = (monitor: Monitor) => {
+          spy()
 
-      const Component: FC = () => {
-        const count = useCount(factory)
+          const { first, second } = signal.read(monitor)
 
-        return (
-          <Profiler id="test" onRender={onRender}>
-            <button
-              type="button"
-              data-testid="inc"
-              onClick={() => {
-                execute(() => {
-                  first.write(Counter.inc)
-                  second.write(Counter.inc)
-                })
-              }}
-            />
-            <span data-testid="count">{count}</span>
-          </Profiler>
-        )
+          return Counter.getCount(first.read(monitor)) + Counter.getCount(second.read(monitor))
+        }
+
+        return { spy, onRender, signal, factory }
       }
 
-      render(<Component />)
+      it(`calls the factory ${expectedFactoryCallsForNested} times by Signal#write calls`, () => {
+        const { spy, onRender, signal, factory } = setup()
 
-      expect(screen.getByTestId("count")).toHaveTextContent("3")
-      expect(onRender).toHaveBeenCalledOnce()
-      expect(spy).toHaveBeenCalledOnce()
-      vi.clearAllMocks()
+        const Component: FC = () => {
+          const count = useCount(factory)
 
-      fireEvent.click(screen.getByTestId("inc"))
-      expect(screen.getByTestId("count")).toHaveTextContent("5")
-      expect(onRender).toHaveBeenCalledOnce()
-      expect(spy).toHaveBeenCalledTimes(expectedFactoryCallsForMultiple)
-    })
-  })
+          return (
+            <Profiler id="test" onRender={onRender}>
+              <span data-testid="count">{count}</span>
+            </Profiler>
+          )
+        }
 
-  describe("for nested signals", () => {
-    const setup = () => {
-      const spy = vi.fn()
-      const onRender = vi.fn()
-      const signal = Signal({
-        first: Signal({ count: 1 }),
-        second: Signal({ count: 2 }),
-      })
-      const factory = (monitor: Monitor) => {
-        spy()
+        render(<Component />)
 
-        const { first, second } = signal.read(monitor)
+        expect(screen.getByTestId("count")).toHaveTextContent("3")
+        expect(onRender).toHaveBeenCalledOnce()
+        expect(spy).toHaveBeenCalledOnce()
+        vi.clearAllMocks()
 
-        return Counter.getCount(first.read(monitor)) + Counter.getCount(second.read(monitor))
-      }
+        act(() => {
+          execute(() => {
+            signal.write((value) => {
+              value.first.write(Counter.inc)
+              value.second.write(Counter.inc)
 
-      return { spy, onRender, signal, factory }
-    }
+              return value
+            })
+          })
+        })
+        expect(screen.getByTestId("count")).toHaveTextContent("5")
+        expect(onRender).toHaveBeenCalledOnce()
+        expect(spy).toHaveBeenCalledTimes(expectedFactoryCallsForNested)
+        vi.clearAllMocks()
 
-    it(`calls the factory ${expectedFactoryCallsForNested} times by Signal#write calls`, () => {
-      const { spy, onRender, signal, factory } = setup()
-
-      const Component: FC = () => {
-        const count = useCount(factory)
-
-        return (
-          <Profiler id="test" onRender={onRender}>
-            <span data-testid="count">{count}</span>
-          </Profiler>
-        )
-      }
-
-      render(<Component />)
-
-      expect(screen.getByTestId("count")).toHaveTextContent("3")
-      expect(onRender).toHaveBeenCalledOnce()
-      expect(spy).toHaveBeenCalledOnce()
-      vi.clearAllMocks()
-
-      act(() => {
-        execute(() => {
+        act(() => {
           signal.write((value) => {
-            value.first.write(Counter.inc)
-            value.second.write(Counter.inc)
+            execute(() => {
+              value.first.write(Counter.inc)
+              value.second.write(Counter.inc)
+            })
 
             return value
           })
         })
+        expect(screen.getByTestId("count")).toHaveTextContent("7")
+        expect(onRender).toHaveBeenCalledOnce()
+        expect(spy).toHaveBeenCalledTimes(expectedFactoryCallsForNested)
       })
-      expect(screen.getByTestId("count")).toHaveTextContent("5")
-      expect(onRender).toHaveBeenCalledOnce()
-      expect(spy).toHaveBeenCalledTimes(expectedFactoryCallsForNested)
-      vi.clearAllMocks()
 
-      act(() => {
-        signal.write((value) => {
-          execute(() => {
-            value.first.write(Counter.inc)
-            value.second.write(Counter.inc)
-          })
+      it(`calls the factory ${expectedFactoryCallsForNested} times by Signal#write calls`, () => {
+        const { spy, onRender, signal, factory } = setup()
 
-          return value
-        })
-      })
-      expect(screen.getByTestId("count")).toHaveTextContent("7")
-      expect(onRender).toHaveBeenCalledOnce()
-      expect(spy).toHaveBeenCalledTimes(expectedFactoryCallsForNested)
-    })
+        const Component: FC = () => {
+          const count = useCount(factory)
 
-    it(`calls the factory ${expectedFactoryCallsForNested} times by Signal#write calls`, () => {
-      const { spy, onRender, signal, factory } = setup()
+          return (
+            <Profiler id="test" onRender={onRender}>
+              <button
+                type="button"
+                data-testid="inc-1"
+                onClick={() => {
+                  execute(() => {
+                    signal.write((value) => {
+                      value.first.write(Counter.inc)
+                      value.second.write(Counter.inc)
 
-      const Component: FC = () => {
-        const count = useCount(factory)
-
-        return (
-          <Profiler id="test" onRender={onRender}>
-            <button
-              type="button"
-              data-testid="inc-1"
-              onClick={() => {
-                execute(() => {
+                      return value
+                    })
+                  })
+                }}
+              />
+              <button
+                type="button"
+                data-testid="inc-2"
+                onClick={() => {
                   signal.write((value) => {
-                    value.first.write(Counter.inc)
-                    value.second.write(Counter.inc)
+                    execute(() => {
+                      value.first.write(Counter.inc)
+                      value.second.write(Counter.inc)
+                    })
 
                     return value
                   })
-                })
-              }}
-            />
-            <button
-              type="button"
-              data-testid="inc-2"
-              onClick={() => {
-                signal.write((value) => {
-                  execute(() => {
-                    value.first.write(Counter.inc)
-                    value.second.write(Counter.inc)
-                  })
+                }}
+              />
+              <span data-testid="count">{count}</span>
+            </Profiler>
+          )
+        }
 
-                  return value
-                })
-              }}
-            />
-            <span data-testid="count">{count}</span>
-          </Profiler>
-        )
-      }
+        render(<Component />)
 
-      render(<Component />)
+        expect(screen.getByTestId("count")).toHaveTextContent("3")
+        expect(onRender).toHaveBeenCalledOnce()
+        expect(spy).toHaveBeenCalledOnce()
+        vi.clearAllMocks()
 
-      expect(screen.getByTestId("count")).toHaveTextContent("3")
-      expect(onRender).toHaveBeenCalledOnce()
-      expect(spy).toHaveBeenCalledOnce()
-      vi.clearAllMocks()
+        fireEvent.click(screen.getByTestId("inc-1"))
+        expect(screen.getByTestId("count")).toHaveTextContent("5")
+        expect(onRender).toHaveBeenCalledOnce()
+        expect(spy).toHaveBeenCalledTimes(expectedFactoryCallsForNested)
+        vi.clearAllMocks()
 
-      fireEvent.click(screen.getByTestId("inc-1"))
-      expect(screen.getByTestId("count")).toHaveTextContent("5")
-      expect(onRender).toHaveBeenCalledOnce()
-      expect(spy).toHaveBeenCalledTimes(expectedFactoryCallsForNested)
-      vi.clearAllMocks()
-
-      fireEvent.click(screen.getByTestId("inc-2"))
-      expect(screen.getByTestId("count")).toHaveTextContent("7")
-      expect(onRender).toHaveBeenCalledOnce()
-      expect(spy).toHaveBeenCalledTimes(expectedFactoryCallsForNested)
+        fireEvent.click(screen.getByTestId("inc-2"))
+        expect(screen.getByTestId("count")).toHaveTextContent("7")
+        expect(onRender).toHaveBeenCalledOnce()
+        expect(spy).toHaveBeenCalledTimes(expectedFactoryCallsForNested)
+      })
     })
-  })
-})
+  },
+)
 
 describe("when reading value during batching", () => {
   it("returns new value right after write", ({ monitor }) => {

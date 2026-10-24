@@ -8,19 +8,18 @@ import { isFunction } from "~/tools/is-function"
 import { isNull } from "~/tools/is-null"
 import { isString } from "~/tools/is-string"
 import { isUndefined } from "~/tools/is-undefined"
-import { Lazy } from "~/tools/lazy"
+import { lazy } from "~/tools/lazy"
 import { map } from "~/tools/map"
 import { take } from "~/tools/take"
 
 import { toConcise } from "../../_internal/to-concise"
-import type { GetFormParams } from "../../signal-form/_internal/get-form-params"
+import type { GetFormState } from "../../signal-form/_internal/get-form-state"
 import {
   type SignalFormChild,
   SignalFormState,
 } from "../../signal-form/_internal/signal-form-state"
 import type { GetFormInput } from "../../signal-form/get-form-input"
 import type { SignalForm } from "../../signal-form/signal-form"
-import type { SignalFormParams } from "../../signal-form/signal-form-params"
 import { VALIDATE_ON_TOUCH } from "../../validate-strategy"
 import type { FormListError } from "../form-list-error"
 import type { FormListErrorSetter } from "../form-list-error-setter"
@@ -42,20 +41,21 @@ import { FormList } from "./form-list"
 type FormListElementFactoryInternal<TElement extends SignalForm> = (
   input: GetFormInput<TElement>,
   index: number,
-) => SignalFormState<GetFormParams<TElement>>
+) => GetFormState<TElement>
 
 class FormListState<TElement extends SignalForm = SignalForm> extends SignalFormState<
-  FormListParams<TElement>
+  FormListParams<TElement>,
+  FormList<TElement>
 > {
-  public readonly _host = Lazy(() => new FormList(this))
+  public readonly _host = lazy(() => new FormList(this))
 
-  public readonly _elements: Signal<ReadonlyArray<SignalFormState<GetFormParams<TElement>>>>
+  public readonly _elements: Signal<ReadonlyArray<GetFormState<TElement>>>
 
   public constructor(
     parent: null | SignalFormState,
     private readonly _factory: FormListElementFactoryInternal<TElement>,
     public readonly _initialInputs: Signal<ReadonlyArray<GetFormInput<TElement>>>,
-    elements: ReadonlyArray<SignalFormState<GetFormParams<TElement>>> = [],
+    elements: ReadonlyArray<GetFormState<TElement>> = [],
   ) {
     super(parent)
 
@@ -72,7 +72,7 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
   }
 
   public _getElements(monitor: Monitor): ReadonlyArray<TElement> {
-    return map(this._elements.read(monitor), ({ _host }) => _host() as TElement)
+    return map(this._elements.read(monitor), ({ _host }) => _host())
   }
 
   public readonly _initial = Signal((monitor): FormListInput<TElement> => {
@@ -337,11 +337,9 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     }
   }
 
-  public _getChildren<TChildParams extends SignalFormParams>(
-    monitor: Monitor,
-  ): ReadonlyArray<SignalFormChild<TChildParams, FormListParams<TElement>>> {
+  public _getChildren(monitor: Monitor): ReadonlyArray<SignalFormChild<FormListParams<TElement>>> {
     return map(this._elements.read(monitor), (element, index) => ({
-      _state: element as unknown as SignalFormState<TChildParams>,
+      _state: element,
       _mapToChild: (output) => output.at(index),
     }))
   }

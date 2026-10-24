@@ -233,7 +233,7 @@ describe("stable output value", () => {
   it("subsequently selects equal output", ({ monitor }) => {
     const form = FormOptional(
       FormUnit(true, { schema: z.boolean() }),
-      FormUnit(1 as number, {
+      FormUnit(1, {
         transform: (size) => Array.from({ length: Math.max(1, size) }, (_, index) => index),
       }),
     )

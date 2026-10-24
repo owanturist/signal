@@ -7,19 +7,18 @@ import { isFunction } from "~/tools/is-function"
 import { isNull } from "~/tools/is-null"
 import { isString } from "~/tools/is-string"
 import { isUndefined } from "~/tools/is-undefined"
-import { Lazy } from "~/tools/lazy"
+import { lazy } from "~/tools/lazy"
 import { map } from "~/tools/map"
 import { mapValues } from "~/tools/map-values"
 import { values } from "~/tools/values"
 
 import { toConcise } from "../../_internal/to-concise"
-import type { GetFormParams } from "../../signal-form/_internal/get-form-params"
+import { type GetFormStates, mapFormStates } from "../../signal-form/_internal/map-form-states"
 import {
   type SignalFormChild,
   SignalFormState,
 } from "../../signal-form/_internal/signal-form-state"
 import type { SignalForm } from "../../signal-form/signal-form"
-import type { SignalFormParams } from "../../signal-form/signal-form-params"
 import { VALIDATE_ON_TOUCH } from "../../validate-strategy"
 import type { FormShapeError } from "../form-shape-error"
 import type { FormShapeErrorSetter } from "../form-shape-error-setter"
@@ -39,21 +38,19 @@ import type { FormShapeValidateOnVerbose } from "../form-shape-validate-on-verbo
 
 import { FormShape } from "./form-shape"
 
-type FormShapeStateFields<TFields extends FormShapeFields<TFields>> = {
-  [TField in keyof TFields]: SignalFormState<GetFormParams<TFields[TField]>>
-}
+type FormShapeStateFields<TFields extends FormShapeFields<TFields>> = GetFormStates<TFields>
 
 class FormShapeState<
   TFields extends FormShapeFields<TFields> = Record<string, SignalForm>,
-> extends SignalFormState<FormShapeParams<TFields>> {
-  public readonly _host = Lazy(() => new FormShape(this))
+> extends SignalFormState<FormShapeParams<TFields>, FormShape<TFields>> {
+  public readonly _host = lazy(() => new FormShape(this))
 
   public readonly _fields: FormShapeStateFields<TFields>
 
   public constructor(parent: null | SignalFormState, fields: FormShapeStateFields<TFields>) {
     super(parent)
 
-    this._fields = mapValues(fields, (field) => this._parentOf(field))
+    this._fields = mapFormStates(fields, (field) => this._parentOf(field))
   }
 
   public _childOf(parent: null | SignalFormState): FormShapeState<TFields> {
@@ -277,11 +274,9 @@ class FormShapeState<
 
   // C H I L D R E N
 
-  public _getChildren<TChildParams extends SignalFormParams>(): ReadonlyArray<
-    SignalFormChild<TChildParams, FormShapeParams<TFields>>
-  > {
+  public _getChildren(): ReadonlyArray<SignalFormChild<FormShapeParams<TFields>>> {
     return map(entries(this._fields), ([key, field]) => ({
-      _state: field as unknown as SignalFormState<TChildParams>,
+      _state: field,
       _mapToChild: (output) => output[key],
     }))
   }
