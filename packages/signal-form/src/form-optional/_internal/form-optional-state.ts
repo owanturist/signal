@@ -77,18 +77,13 @@ class FormOptionalState<
   ): FormOptionalParam<TEnabled, TElement, TKey, TConcise> {
     const enabled = extract(this._enabled).read(monitor)
     const enabledElement = this._getEnabledElement(monitor)
-    let concise: unknown
+    const element = enabledElement && extract(enabledElement).read(monitor)
 
-    if (enabledElement) {
-      const element = extract(enabledElement).read(monitor)
-
-      concise = toConcise([enabled, element], isConcise, enabled, { enabled, element })
-    } else {
-      concise =
-        isConcise(enabled) || isUndefined(fallbackDisabled)
-          ? enabled
-          : { enabled, element: fallbackDisabled }
-    }
+    const concise = enabledElement
+      ? toConcise([enabled, element], isConcise, enabled, { enabled, element })
+      : isConcise(enabled) || isUndefined(fallbackDisabled)
+        ? enabled
+        : { enabled, element: fallbackDisabled }
 
     // biome-ignore lint/nursery/noUnsafeTypeAssertion: the facet's value type is chosen by `extract`, which TS cannot relate to TKey (no higher-kinded types)
     return concise as FormOptionalParam<TEnabled, TElement, TKey, TConcise>
