@@ -21,7 +21,12 @@ function flattenExports(
   input: Record<string, string | Record<string, string>>,
 ): Record<string, string> {
   const output: Array<[string, string]> = []
-  for (const [key, value] of Object.entries(input)) {
+  // `exports` can be a bare conditions object (`{ types, import, require }`) shorthand for `{ ".": … }`
+  const subpaths = Object.keys(input).some((key) => key.startsWith("."))
+    ? input
+    : { ".": input as Record<string, string> }
+
+  for (const [key, value] of Object.entries(subpaths)) {
     if (typeof value !== "string") {
       output.push([key, (value as Record<string, string>).import ?? ""])
     } else if (key === "import") {
