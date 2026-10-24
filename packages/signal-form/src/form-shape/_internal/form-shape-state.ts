@@ -19,7 +19,6 @@ import {
   SignalFormState,
 } from "../../signal-form/_internal/signal-form-state"
 import type { SignalForm } from "../../signal-form/signal-form"
-import type { SignalFormParams } from "../../signal-form/signal-form-params"
 import { VALIDATE_ON_TOUCH } from "../../validate-strategy"
 import type { FormShapeError } from "../form-shape-error"
 import type { FormShapeErrorSetter } from "../form-shape-error-setter"
@@ -277,11 +276,9 @@ class FormShapeState<
 
   // C H I L D R E N
 
-  public _getChildren<TChildParams extends SignalFormParams>(): ReadonlyArray<
-    SignalFormChild<TChildParams, FormShapeParams<TFields>>
-  > {
+  public _getChildren(): ReadonlyArray<SignalFormChild<FormShapeParams<TFields>>> {
     return map(entries(this._fields), ([key, field]) => ({
-      _state: field as unknown as SignalFormState<TChildParams>,
+      _state: field,
       _mapToChild: (output) => output[key],
     }))
   }

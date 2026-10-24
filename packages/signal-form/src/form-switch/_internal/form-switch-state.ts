@@ -517,11 +517,11 @@ class FormSwitchState<
 
   // C H I L D R E N
 
-  public _getChildren<TChildParams extends SignalFormParams>(
+  public _getChildren(
     monitor: Monitor,
-  ): ReadonlyArray<SignalFormChild<TChildParams, FormSwitchParams<TKind, TBranches>>> {
-    const activeChild: SignalFormChild<TChildParams, FormSwitchParams<TKind, TBranches>> = {
-      _state: this._active as unknown as SignalFormState<TChildParams>,
+  ): ReadonlyArray<SignalFormChild<FormSwitchParams<TKind, TBranches>>> {
+    const activeChild: SignalFormChild<FormSwitchParams<TKind, TBranches>> = {
+      _state: this._active,
       _mapToChild: (output) => output.kind,
     }
 
@@ -534,7 +534,7 @@ class FormSwitchState<
     return [
       activeChild,
       {
-        _state: activeBranch.value as unknown as SignalFormState<TChildParams>,
+        _state: activeBranch.value,
         _mapToChild: (output) => output.value,
       },
     ]

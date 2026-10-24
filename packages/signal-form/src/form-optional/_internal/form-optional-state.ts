@@ -15,7 +15,6 @@ import {
   SignalFormState,
 } from "../../signal-form/_internal/signal-form-state"
 import type { SignalForm } from "../../signal-form/signal-form"
-import type { SignalFormParams } from "../../signal-form/signal-form-params"
 import type { ValidateStrategy } from "../../validate-strategy"
 import type { FormOptionalError } from "../form-optional-error"
 import type { FormOptionalErrorSetter } from "../form-optional-error-setter"
@@ -387,14 +386,14 @@ class FormOptionalState<
 
   // C H I L D R E N
 
-  public _getChildren<TChildParams extends SignalFormParams>(
+  public _getChildren(
     monitor: Monitor,
-  ): ReadonlyArray<SignalFormChild<TChildParams, FormOptionalParams<TEnabled, TElement>>> {
+  ): ReadonlyArray<SignalFormChild<FormOptionalParams<TEnabled, TElement>>> {
     const enabledValue = this._enabled._output.read(monitor)
 
-    const enabledChild: SignalFormChild<TChildParams, FormOptionalParams<TEnabled, TElement>> = {
-      _state: this._enabled as unknown as SignalFormState<TChildParams>,
-      _mapToChild: () => enabledValue as unknown as TChildParams["output.schema"],
+    const enabledChild: SignalFormChild<FormOptionalParams<TEnabled, TElement>> = {
+      _state: this._enabled,
+      _mapToChild: () => enabledValue,
     }
 
     if (enabledValue !== true) {
@@ -404,7 +403,7 @@ class FormOptionalState<
     return [
       enabledChild,
       {
-        _state: this._element as unknown as SignalFormState<TChildParams>,
+        _state: this._element,
         _mapToChild: (output) => output,
       },
     ]

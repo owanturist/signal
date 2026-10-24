@@ -20,7 +20,6 @@ import {
 } from "../../signal-form/_internal/signal-form-state"
 import type { GetFormInput } from "../../signal-form/get-form-input"
 import type { SignalForm } from "../../signal-form/signal-form"
-import type { SignalFormParams } from "../../signal-form/signal-form-params"
 import { VALIDATE_ON_TOUCH } from "../../validate-strategy"
 import type { FormListError } from "../form-list-error"
 import type { FormListErrorSetter } from "../form-list-error-setter"
@@ -337,11 +336,9 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
     }
   }
 
-  public _getChildren<TChildParams extends SignalFormParams>(
-    monitor: Monitor,
-  ): ReadonlyArray<SignalFormChild<TChildParams, FormListParams<TElement>>> {
+  public _getChildren(monitor: Monitor): ReadonlyArray<SignalFormChild<FormListParams<TElement>>> {
     return map(this._elements.read(monitor), (element, index) => ({
-      _state: element as unknown as SignalFormState<TChildParams>,
+      _state: element,
       _mapToChild: (output) => output.at(index),
     }))
   }

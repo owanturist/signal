@@ -161,14 +161,12 @@ abstract class SignalFormState<
 
   // C H I L D R E N
 
-  public abstract _getChildren<TChildParams extends SignalFormParams>(
-    monitor: Monitor,
-  ): ReadonlyArray<SignalFormChild<TChildParams, TParams>>
+  public abstract _getChildren(monitor: Monitor): ReadonlyArray<SignalFormChild<TParams>>
 }
 
-interface SignalFormChild<TChildParams extends SignalFormParams, TParams extends SignalFormParams> {
-  _state: SignalFormState<TChildParams>
-  _mapToChild: (this: void, parentValue: TParams["output.schema"]) => TChildParams["output.schema"]
+interface SignalFormChild<TParams extends SignalFormParams> {
+  _state: SignalFormState
+  _mapToChild: (this: void, parentValue: TParams["output.schema"]) => unknown
 }
 
 export type { SignalFormChild }
