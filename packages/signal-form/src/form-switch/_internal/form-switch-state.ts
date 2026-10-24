@@ -79,7 +79,7 @@ class FormSwitchState<
   private _toConcise<TKey extends keyof SignalFormParams, TConcise>(
     monitor: Monitor,
     extract: (form: SignalFormState) => ReadableSignal<TConcise>,
-    isConcise: (value: unknown) => value is TConcise,
+    isConcise: (value: unknown) => boolean,
     fallbackInvalid?: TConcise,
   ): FormSwitchConciseParam<TKind, TBranches, TKey, TConcise> {
     const activeBranch = this._getActiveBranch(monitor)
@@ -211,7 +211,7 @@ class FormSwitchState<
       : [
           resolved.active,
 
-          hasProperty(resolved, "branch") ? resolved.branch : undefined,
+          typeof resolved === "object" && "branch" in resolved ? resolved.branch : undefined,
 
           hasProperty(resolved, "branches")
             ? isFunction(resolved.branches)
@@ -251,7 +251,7 @@ class FormSwitchState<
       if (isNull(activeBranchSetter)) {
         activeBranch?.value._setError(monitor, activeBranchSetter)
       } else if (!isUndefined(activeBranchSetter)) {
-        const { kind, value } = activeBranchSetter as FormSwitchBranch<keyof TBranches, unknown>
+        const { kind, value } = activeBranchSetter
 
         const targetBranch = hasProperty(this._branches, kind) ? this._branches[kind] : undefined
 
@@ -269,7 +269,7 @@ class FormSwitchState<
       this._toConcise<"validateOn.schema", ValidateStrategy>(
         monitor,
         ({ _validateOn }) => _validateOn,
-        isString as (value: unknown) => value is ValidateStrategy,
+        isString,
       ),
   )
 
@@ -293,7 +293,7 @@ class FormSwitchState<
       : [
           resolved.active,
 
-          hasProperty(resolved, "branch") ? resolved.branch : undefined,
+          typeof resolved === "object" && "branch" in resolved ? resolved.branch : undefined,
 
           hasProperty(resolved, "branches")
             ? isFunction(resolved.branches)
@@ -333,7 +333,7 @@ class FormSwitchState<
       if (isString(activeBranchSetter)) {
         activeBranch?.value._setValidateOn(monitor, activeBranchSetter)
       } else if (!isUndefined(activeBranchSetter)) {
-        const { kind, value } = activeBranchSetter as FormSwitchBranch<keyof TBranches, unknown>
+        const { kind, value } = activeBranchSetter
         const targetBranch = hasProperty(this._branches, kind) ? this._branches[kind] : undefined
 
         if (targetBranch) {
@@ -364,7 +364,7 @@ class FormSwitchState<
       : [
           resolved.active,
 
-          hasProperty(resolved, "branch") ? resolved.branch : undefined,
+          typeof resolved === "object" && "branch" in resolved ? resolved.branch : undefined,
 
           hasProperty(resolved, "branches")
             ? isFunction(resolved.branches)
@@ -404,7 +404,7 @@ class FormSwitchState<
       if (isBoolean(activeBranchSetter)) {
         activeBranch?.value._setTouched(monitor, activeBranchSetter)
       } else if (!isUndefined(activeBranchSetter)) {
-        const { kind, value } = activeBranchSetter as FormSwitchBranch<keyof TBranches, unknown>
+        const { kind, value } = activeBranchSetter
         const targetBranch = hasProperty(this._branches, kind) ? this._branches[kind] : undefined
 
         if (targetBranch) {
