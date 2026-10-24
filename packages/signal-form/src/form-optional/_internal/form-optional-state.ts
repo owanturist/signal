@@ -15,7 +15,7 @@ import {
   SignalFormState,
 } from "../../signal-form/_internal/signal-form-state"
 import type { SignalForm } from "../../signal-form/signal-form"
-import type { ValidateStrategy } from "../../validate-strategy"
+import type { SignalFormParams } from "../../signal-form/signal-form-params"
 import type { FormOptionalError } from "../form-optional-error"
 import type { FormOptionalErrorSetter } from "../form-optional-error-setter"
 import type { FormOptionalErrorVerbose } from "../form-optional-error-verbose"
@@ -32,6 +32,7 @@ import type { FormOptionalValidateOnSetter } from "../form-optional-validate-on-
 import type { FormOptionalValidateOnVerbose } from "../form-optional-validate-on-verbose"
 
 import { FormOptional } from "./form-optional"
+import type { FormOptionalParam } from "./form-optional-param"
 
 class FormOptionalState<
   TEnabled extends SignalForm,
@@ -67,44 +68,38 @@ class FormOptionalState<
     return new FormOptionalState(parent, this._enabled, this._element)
   }
 
-  private _toConcise<TConcise>(
-    monitor: Monitor,
-    extract: (form: SignalFormState) => ReadableSignal<TConcise>,
-    isConcise: (value: unknown) => value is TConcise,
-    fallbackDisabled?: TConcise,
-  ): TConcise | { enabled: TConcise; element: TConcise } {
-    const enabled = extract(this._enabled).read(monitor)
-    const enabledElement = this._getEnabledElement(monitor)
-
-    if (!enabledElement) {
-      return isConcise(enabled) || isUndefined(fallbackDisabled)
-        ? enabled
-        : { enabled, element: fallbackDisabled }
-    }
-
-    const element = extract(enabledElement).read(monitor)
-
-    return toConcise([enabled, element], isConcise, enabled, {
-      enabled,
-      element,
-    }) as TConcise | { enabled: TConcise; element: TConcise }
-  }
-
-  private _toVerbose(
+  private _toConcise<TKey extends keyof SignalFormParams, TConcise>(
     monitor: Monitor,
     extract: (form: SignalFormState) => ReadableSignal<unknown>,
-  ): FormOptionalInput<TEnabled, TElement> {
+    isConcise: (value: unknown) => value is unknown,
+    fallbackDisabled?: TConcise,
+  ): FormOptionalParam<TEnabled, TElement, TKey, TConcise> {
     const enabled = extract(this._enabled).read(monitor)
-    const element = extract(this._element).read(monitor)
+    const enabledElement = this._getEnabledElement(monitor)
+    let concise: unknown
 
-    return { enabled, element } as FormOptionalInput<TEnabled, TElement>
+    if (enabledElement) {
+      const element = extract(enabledElement).read(monitor)
+
+      concise = toConcise([enabled, element], isConcise, enabled, { enabled, element })
+    } else {
+      concise =
+        isConcise(enabled) || isUndefined(fallbackDisabled)
+          ? enabled
+          : { enabled, element: fallbackDisabled }
+    }
+
+    // biome-ignore lint/nursery/noUnsafeTypeAssertion: the facet's value type is chosen by `extract`, which TS cannot relate to TKey (no higher-kinded types)
+    return concise as FormOptionalParam<TEnabled, TElement, TKey, TConcise>
   }
 
   // I N I T I A L
 
   public readonly _initial = Signal(
-    (monitor): FormOptionalInput<TEnabled, TElement> =>
-      this._toVerbose(monitor, ({ _initial }) => _initial),
+    (monitor): FormOptionalInput<TEnabled, TElement> => ({
+      enabled: this._enabled._initial.read(monitor),
+      element: this._element._initial.read(monitor),
+    }),
   )
 
   public _setInitial(monitor: Monitor, setter: FormOptionalInputSetter<TEnabled, TElement>): void {
@@ -129,8 +124,10 @@ class FormOptionalState<
   // I N P U T
 
   public readonly _input = Signal(
-    (monitor): FormOptionalInput<TEnabled, TElement> =>
-      this._toVerbose(monitor, ({ _input }) => _input),
+    (monitor): FormOptionalInput<TEnabled, TElement> => ({
+      enabled: this._enabled._input.read(monitor),
+      element: this._element._input.read(monitor),
+    }),
   )
 
   public _setInput(monitor: Monitor, setter: FormOptionalInputSetter<TEnabled, TElement>): void {
@@ -151,18 +148,14 @@ class FormOptionalState<
 
   public readonly _error = Signal(
     (monitor): FormOptionalError<TEnabled, TElement> =>
-      this._toConcise<null>(monitor, ({ _error }) => _error, isNull, null) as FormOptionalError<
-        TEnabled,
-        TElement
-      >,
+      this._toConcise(monitor, ({ _error }) => _error, isNull, null),
   )
 
   public readonly _errorVerbose = Signal(
-    (monitor): FormOptionalErrorVerbose<TEnabled, TElement> =>
-      this._toVerbose(monitor, ({ _errorVerbose }) => _errorVerbose) as FormOptionalErrorVerbose<
-        TEnabled,
-        TElement
-      >,
+    (monitor): FormOptionalErrorVerbose<TEnabled, TElement> => ({
+      enabled: this._enabled._errorVerbose.read(monitor),
+      element: this._element._errorVerbose.read(monitor),
+    }),
   )
 
   public _setError(monitor: Monitor, setter: FormOptionalErrorSetter<TEnabled, TElement>): void {
@@ -189,19 +182,14 @@ class FormOptionalState<
 
   public readonly _validateOn = Signal(
     (monitor): FormOptionalValidateOn<TEnabled, TElement> =>
-      this._toConcise<ValidateStrategy>(
-        monitor,
-        ({ _validateOn }) => _validateOn,
-        isString as (value: unknown) => value is ValidateStrategy,
-      ) as FormOptionalValidateOn<TEnabled, TElement>,
+      this._toConcise(monitor, ({ _validateOn }) => _validateOn, isString),
   )
 
   public readonly _validateOnVerbose = Signal(
-    (monitor): FormOptionalValidateOnVerbose<TEnabled, TElement> =>
-      this._toVerbose(
-        monitor,
-        ({ _validateOnVerbose }) => _validateOnVerbose,
-      ) as FormOptionalValidateOnVerbose<TEnabled, TElement>,
+    (monitor): FormOptionalValidateOnVerbose<TEnabled, TElement> => ({
+      enabled: this._enabled._validateOnVerbose.read(monitor),
+      element: this._element._validateOnVerbose.read(monitor),
+    }),
   )
 
   public _setValidateOn(
@@ -227,18 +215,14 @@ class FormOptionalState<
 
   public readonly _touched = Signal(
     (monitor): FormOptionalFlag<TEnabled, TElement> =>
-      this._toConcise<boolean>(monitor, ({ _touched }) => _touched, isBoolean) as FormOptionalFlag<
-        TEnabled,
-        TElement
-      >,
+      this._toConcise(monitor, ({ _touched }) => _touched, isBoolean),
   )
 
   public readonly _touchedVerbose = Signal(
-    (monitor): FormOptionalFlagVerbose<TEnabled, TElement> =>
-      this._toVerbose(monitor, ({ _touchedVerbose }) => _touchedVerbose) as FormOptionalFlagVerbose<
-        TEnabled,
-        TElement
-      >,
+    (monitor): FormOptionalFlagVerbose<TEnabled, TElement> => ({
+      enabled: this._enabled._touchedVerbose.read(monitor),
+      element: this._element._touchedVerbose.read(monitor),
+    }),
   )
 
   public _setTouched(monitor: Monitor, setter: FormOptionalFlagSetter<TEnabled, TElement>): void {
@@ -280,63 +264,52 @@ class FormOptionalState<
   })
 
   public readonly _outputVerbose = Signal(
-    (monitor): FormOptionalOutputVerbose<TEnabled, TElement> =>
-      this._toVerbose(monitor, ({ _outputVerbose }) => _outputVerbose),
+    (monitor): FormOptionalOutputVerbose<TEnabled, TElement> => ({
+      enabled: this._enabled._outputVerbose.read(monitor),
+      element: this._element._outputVerbose.read(monitor),
+    }),
   )
 
   // V A L I D
 
   public readonly _valid = Signal(
     (monitor): FormOptionalFlag<TEnabled, TElement> =>
-      this._toConcise<boolean>(monitor, ({ _valid }) => _valid, isBoolean) as FormOptionalFlag<
-        TEnabled,
-        TElement
-      >,
+      this._toConcise(monitor, ({ _valid }) => _valid, isBoolean),
   )
 
   public readonly _validVerbose = Signal(
-    (monitor): FormOptionalFlagVerbose<TEnabled, TElement> =>
-      this._toVerbose(monitor, ({ _validVerbose }) => _validVerbose) as FormOptionalFlagVerbose<
-        TEnabled,
-        TElement
-      >,
+    (monitor): FormOptionalFlagVerbose<TEnabled, TElement> => ({
+      enabled: this._enabled._validVerbose.read(monitor),
+      element: this._element._validVerbose.read(monitor),
+    }),
   )
 
   // I N V A L I D
 
   public readonly _invalid = Signal(
     (monitor): FormOptionalFlag<TEnabled, TElement> =>
-      this._toConcise<boolean>(monitor, ({ _invalid }) => _invalid, isBoolean) as FormOptionalFlag<
-        TEnabled,
-        TElement
-      >,
+      this._toConcise(monitor, ({ _invalid }) => _invalid, isBoolean),
   )
 
   public readonly _invalidVerbose = Signal(
-    (monitor): FormOptionalFlagVerbose<TEnabled, TElement> =>
-      this._toVerbose(monitor, ({ _invalidVerbose }) => _invalidVerbose) as FormOptionalFlagVerbose<
-        TEnabled,
-        TElement
-      >,
+    (monitor): FormOptionalFlagVerbose<TEnabled, TElement> => ({
+      enabled: this._enabled._invalidVerbose.read(monitor),
+      element: this._element._invalidVerbose.read(monitor),
+    }),
   )
 
   // V A L I D A T E D
 
   public readonly _validated = Signal(
     (monitor): FormOptionalFlag<TEnabled, TElement> =>
-      this._toConcise<boolean>(
-        monitor,
-        ({ _validated }) => _validated,
-        isBoolean,
-      ) as FormOptionalFlag<TEnabled, TElement>,
+      this._toConcise(monitor, ({ _validated }) => _validated, isBoolean),
   )
 
   public readonly _validatedVerbose = Signal(
-    (monitor): FormOptionalFlagVerbose<TEnabled, TElement> =>
-      this._toVerbose(
-        monitor,
-        ({ _validatedVerbose }) => _validatedVerbose,
-      ) as FormOptionalFlagVerbose<TEnabled, TElement>,
+    (monitor): FormOptionalFlagVerbose<TEnabled, TElement> => ({
+      enabled: this._enabled._validatedVerbose.read(monitor),
+      element: this._element._validatedVerbose.read(monitor),
+    }),
   )
 
   public _forceValidated(monitor: Monitor): void {
@@ -348,26 +321,21 @@ class FormOptionalState<
 
   public readonly _dirty = Signal(
     (monitor): FormOptionalFlag<TEnabled, TElement> =>
-      this._toConcise<boolean>(monitor, ({ _dirty }) => _dirty, isBoolean) as FormOptionalFlag<
-        TEnabled,
-        TElement
-      >,
+      this._toConcise(monitor, ({ _dirty }) => _dirty, isBoolean),
   )
 
   public readonly _dirtyVerbose = Signal(
-    (monitor): FormOptionalFlagVerbose<TEnabled, TElement> =>
-      this._toVerbose(monitor, ({ _dirtyVerbose }) => _dirtyVerbose) as FormOptionalFlagVerbose<
-        TEnabled,
-        TElement
-      >,
+    (monitor): FormOptionalFlagVerbose<TEnabled, TElement> => ({
+      enabled: this._enabled._dirtyVerbose.read(monitor),
+      element: this._element._dirtyVerbose.read(monitor),
+    }),
   )
 
   public readonly _dirtyOnVerbose = Signal(
-    (monitor): FormOptionalFlagVerbose<TEnabled, TElement> =>
-      this._toVerbose(monitor, ({ _dirtyOnVerbose }) => _dirtyOnVerbose) as FormOptionalFlagVerbose<
-        TEnabled,
-        TElement
-      >,
+    (monitor): FormOptionalFlagVerbose<TEnabled, TElement> => ({
+      enabled: this._enabled._dirtyOnVerbose.read(monitor),
+      element: this._element._dirtyOnVerbose.read(monitor),
+    }),
   )
 
   // R E S E T
