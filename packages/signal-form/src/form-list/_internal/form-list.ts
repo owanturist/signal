@@ -4,7 +4,6 @@ import { entries } from "~/tools/entries"
 import { isFunction } from "~/tools/is-function"
 import { isShallowArrayEqual } from "~/tools/is-shallow-array-equal"
 import { map } from "~/tools/map"
-import { params } from "~/tools/params"
 import type { Setter } from "~/tools/setter"
 
 import { SignalForm } from "../../signal-form/_internal/signal-form"
@@ -30,9 +29,11 @@ class FormList<TElement extends SignalForm> extends SignalForm<FormListParams<TE
   ): TResult
   public getElements<TResult>(
     monitor: Monitor,
-    select: (elements: ReadonlyArray<TElement>) => TResult = params._first as typeof select,
-  ): TResult {
-    return select(this._elements.read(monitor))
+    select?: (elements: ReadonlyArray<TElement>) => TResult,
+  ): TResult | ReadonlyArray<TElement> {
+    const elements = this._elements.read(monitor)
+
+    return select ? select(elements) : elements
   }
 
   public setElements(

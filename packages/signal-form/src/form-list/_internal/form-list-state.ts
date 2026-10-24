@@ -13,7 +13,7 @@ import { map } from "~/tools/map"
 import { take } from "~/tools/take"
 
 import { toConcise } from "../../_internal/to-concise"
-import type { GetFormParams } from "../../signal-form/_internal/get-form-params"
+import type { GetFormState } from "../../signal-form/_internal/get-form-state"
 import {
   type SignalFormChild,
   SignalFormState,
@@ -41,20 +41,21 @@ import { FormList } from "./form-list"
 type FormListElementFactoryInternal<TElement extends SignalForm> = (
   input: GetFormInput<TElement>,
   index: number,
-) => SignalFormState<GetFormParams<TElement>>
+) => GetFormState<TElement>
 
 class FormListState<TElement extends SignalForm = SignalForm> extends SignalFormState<
-  FormListParams<TElement>
+  FormListParams<TElement>,
+  FormList<TElement>
 > {
   public readonly _host = Lazy(() => new FormList(this))
 
-  public readonly _elements: Signal<ReadonlyArray<SignalFormState<GetFormParams<TElement>>>>
+  public readonly _elements: Signal<ReadonlyArray<GetFormState<TElement>>>
 
   public constructor(
     parent: null | SignalFormState,
     private readonly _factory: FormListElementFactoryInternal<TElement>,
     public readonly _initialInputs: Signal<ReadonlyArray<GetFormInput<TElement>>>,
-    elements: ReadonlyArray<SignalFormState<GetFormParams<TElement>>> = [],
+    elements: ReadonlyArray<GetFormState<TElement>> = [],
   ) {
     super(parent)
 
@@ -71,7 +72,7 @@ class FormListState<TElement extends SignalForm = SignalForm> extends SignalForm
   }
 
   public _getElements(monitor: Monitor): ReadonlyArray<TElement> {
-    return map(this._elements.read(monitor), ({ _host }) => _host() as TElement)
+    return map(this._elements.read(monitor), ({ _host }) => _host())
   }
 
   public readonly _initial = Signal((monitor): FormListInput<TElement> => {

@@ -11,8 +11,9 @@ import type { SignalForm } from "./signal-form"
 abstract class SignalFormState<
   // biome-ignore lint/suspicious/noExplicitAny: any is the only reasonable default
   TParams extends SignalFormParams = any,
+  THost extends SignalForm<TParams> = SignalForm<TParams>,
 > {
-  public abstract readonly _host: Lazy<SignalForm<TParams>>
+  public abstract readonly _host: Lazy<THost>
 
   public readonly _root: SignalFormState
 
@@ -20,18 +21,21 @@ abstract class SignalFormState<
     this._root = parent?._root ?? this
   }
 
-  protected abstract _childOf(parent: null | SignalFormState): SignalFormState<TParams>
+  protected abstract _childOf(parent: null | SignalFormState): SignalFormState<TParams, THost>
 
-  public _clone(): SignalFormState<TParams> {
+  public _clone(): SignalFormState<TParams, THost> {
     return this._childOf(null)
   }
 
-  public _parentOf<TChild extends SignalFormState>(child: TChild): TChild {
+  public _parentOf<
+    TChildParams extends SignalFormParams,
+    TChildHost extends SignalForm<TChildParams>,
+  >(child: SignalFormState<TChildParams, TChildHost>): SignalFormState<TChildParams, TChildHost> {
     if (this._root === child._root) {
       return child
     }
 
-    return child._childOf(this) as TChild
+    return child._childOf(this)
   }
 
   public _hasSameRootWith(another: SignalFormState): boolean {

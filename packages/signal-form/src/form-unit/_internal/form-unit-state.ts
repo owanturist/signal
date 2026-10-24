@@ -26,7 +26,8 @@ import { FormUnit } from "./form-unit"
 import { type FormUnitTransform, transformFromTransformer } from "./form-unit-transform"
 
 class FormUnitState<TInput, TError, TOutput> extends SignalFormState<
-  FormUnitParams<TInput, TError, TOutput>
+  FormUnitParams<TInput, TError, TOutput>,
+  FormUnit<TInput, TError, TOutput>
 > {
   public readonly _host = Lazy(() => new FormUnit(this))
 

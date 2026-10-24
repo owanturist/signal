@@ -11,7 +11,12 @@ import { Lazy } from "~/tools/lazy"
 import { mapValues } from "~/tools/map-values"
 import { values } from "~/tools/values"
 
-import type { GetFormParams } from "../../signal-form/_internal/get-form-params"
+import type { GetFormState } from "../../signal-form/_internal/get-form-state"
+import {
+  type GetFormStates,
+  type SignalFormRecord,
+  mapFormStates,
+} from "../../signal-form/_internal/map-form-states"
 import {
   type SignalFormChild,
   SignalFormState,
@@ -40,11 +45,10 @@ import { FormSwitch } from "./form-switch"
 import type { FormSwitchConciseParam } from "./form-switch-concise-param"
 import type { FormSwitchVerboseParam } from "./form-switch-verbose-param"
 
-type FormSwitchStateBranches<TBranches> = {
-  [TBranch in keyof TBranches]: SignalFormState<GetFormParams<TBranches[TBranch]>>
-}
+type FormSwitchStateBranches<TBranches extends SignalFormRecord<TBranches>> =
+  GetFormStates<TBranches>
 
-type ActiveSwitchStateBranch<TBranches> = FormSwitchBranch<
+type ActiveSwitchStateBranch<TBranches extends SignalFormRecord<TBranches>> = FormSwitchBranch<
   keyof TBranches,
   FormSwitchStateBranches<TBranches>[keyof TBranches]
 >
@@ -52,21 +56,21 @@ type ActiveSwitchStateBranch<TBranches> = FormSwitchBranch<
 class FormSwitchState<
   TKind extends SignalForm,
   TBranches extends FormSwitchBranches<TKind>,
-> extends SignalFormState<FormSwitchParams<TKind, TBranches>> {
+> extends SignalFormState<FormSwitchParams<TKind, TBranches>, FormSwitch<TKind, TBranches>> {
   public readonly _host = Lazy(() => new FormSwitch(this))
 
-  public readonly _active: SignalFormState<GetFormParams<TKind>>
+  public readonly _active: GetFormState<TKind>
   public readonly _branches: FormSwitchStateBranches<TBranches>
 
   public constructor(
     parent: null | SignalFormState,
-    active: SignalFormState<GetFormParams<TKind>>,
+    active: GetFormState<TKind>,
     branches: FormSwitchStateBranches<TBranches>,
   ) {
     super(parent)
 
     this._active = this._parentOf(active)
-    this._branches = mapValues(branches, (branch) => this._parentOf(branch))
+    this._branches = mapFormStates(branches, (branch) => this._parentOf(branch))
   }
 
   public _getActiveBranch(monitor: Monitor): undefined | ActiveSwitchStateBranch<TBranches> {

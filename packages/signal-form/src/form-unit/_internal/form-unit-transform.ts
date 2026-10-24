@@ -8,10 +8,12 @@ interface FormUnitTransform<TInput, TError, TOutput> {
   readonly _validator: FormUnitValidator<TInput, TError, TOutput>
 }
 
-const transformFromInput = {
-  _transformer: true,
-  _validator: (input) => [null, input],
-} satisfies FormUnitTransform<unknown, never, unknown>
+function transformFromInput<TInput>() {
+  return {
+    _transformer: true,
+    _validator: (input) => [null, input],
+  } satisfies FormUnitTransform<TInput, never, TInput>
+}
 
 function transformFromTransformer<TInput, TOutput>(
   transformer: FormUnitTransformer<TInput, TOutput>,

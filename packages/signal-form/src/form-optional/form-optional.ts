@@ -61,7 +61,7 @@ function FormOptional<TEnabled extends SignalForm, TElement extends SignalForm>(
     }
   })
 
-  return optional._host() as FormOptional<TEnabled, TElement>
+  return optional._host()
 }
 
 export type { FormOptionalOptions }

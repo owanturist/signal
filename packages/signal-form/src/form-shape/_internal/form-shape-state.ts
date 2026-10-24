@@ -13,7 +13,7 @@ import { mapValues } from "~/tools/map-values"
 import { values } from "~/tools/values"
 
 import { toConcise } from "../../_internal/to-concise"
-import type { GetFormParams } from "../../signal-form/_internal/get-form-params"
+import { type GetFormStates, mapFormStates } from "../../signal-form/_internal/map-form-states"
 import {
   type SignalFormChild,
   SignalFormState,
@@ -38,13 +38,11 @@ import type { FormShapeValidateOnVerbose } from "../form-shape-validate-on-verbo
 
 import { FormShape } from "./form-shape"
 
-type FormShapeStateFields<TFields extends FormShapeFields<TFields>> = {
-  [TField in keyof TFields]: SignalFormState<GetFormParams<TFields[TField]>>
-}
+type FormShapeStateFields<TFields extends FormShapeFields<TFields>> = GetFormStates<TFields>
 
 class FormShapeState<
   TFields extends FormShapeFields<TFields> = Record<string, SignalForm>,
-> extends SignalFormState<FormShapeParams<TFields>> {
+> extends SignalFormState<FormShapeParams<TFields>, FormShape<TFields>> {
   public readonly _host = Lazy(() => new FormShape(this))
 
   public readonly _fields: FormShapeStateFields<TFields>
@@ -52,7 +50,7 @@ class FormShapeState<
   public constructor(parent: null | SignalFormState, fields: FormShapeStateFields<TFields>) {
     super(parent)
 
-    this._fields = mapValues(fields, (field) => this._parentOf(field))
+    this._fields = mapFormStates(fields, (field) => this._parentOf(field))
   }
 
   public _childOf(parent: null | SignalFormState): FormShapeState<TFields> {

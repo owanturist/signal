@@ -1,7 +1,8 @@
 import { batch } from "@owanturist/signal"
 
 import { isUndefined } from "~/tools/is-undefined"
-import { mapValues } from "~/tools/map-values"
+
+import { mapForms } from "../signal-form/_internal/map-form-states"
 
 import type { FormShapeErrorSetter } from "./form-shape-error-setter"
 import type { FormShapeFields } from "./form-shape-fields"
@@ -9,7 +10,7 @@ import type { FormShapeFlagSetter } from "./form-shape-flag-setter"
 import type { FormShapeInputSetter } from "./form-shape-input-setter"
 import type { FormShapeValidateOnSetter } from "./form-shape-validate-on-setter"
 import { FormShape as FormShapeImpl } from "./_internal/form-shape"
-import { FormShapeState, type FormShapeStateFields } from "./_internal/form-shape-state"
+import { FormShapeState } from "./_internal/form-shape-state"
 
 type FormShape<TFields extends FormShapeFields<TFields>> = FormShapeImpl<TFields>
 
@@ -25,10 +26,7 @@ function FormShape<TFields extends FormShapeFields<TFields>>(
   fields: TFields,
   { input, initial, touched, validateOn, error }: FormShapeOptions<NoInfer<TFields>> = {},
 ): FormShape<TFields> {
-  const state = new FormShapeState(
-    null,
-    mapValues(fields, FormShapeImpl._getState) as FormShapeStateFields<TFields>,
-  )
+  const state = new FormShapeState(null, mapForms(fields, FormShapeImpl._getState))
 
   batch((monitor) => {
     if (!isUndefined(input)) {
