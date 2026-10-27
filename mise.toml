@@ -1,11 +1,6 @@
 [settings]
-# read pnpm version from package.json#devEngines.packageManager
+# read pnpm version from package.json#devEngines.packageManager (always installed from the npm registry)
 idiomatic_version_file_enable_tools = ["pnpm"]
-
-[tool_alias]
-# fetch pnpm from npm registry, not the default aqua backend
-# (aqua looks up release metadata via the GitHub API, which is rate-limited)
-pnpm = "npm:pnpm"
 
 [tools]
 node = "26.12"
