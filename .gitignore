@@ -19,6 +19,10 @@ changeset-status.json
 .cache
 .parcel-cache
 
+# local Claude Code state
+.claude/settings.local.json
+.claude/worktrees
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
