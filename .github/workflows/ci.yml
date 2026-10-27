@@ -194,10 +194,9 @@ jobs:
         run: pnpm build:minified
 
       - name: Create Release Pull Request or Publish to npm
-        uses: changesets/action@v1
+        uses: changesets/action@v2
         with:
-          version: pnpm run version
-          publish: pnpm --recursive publish --access=public --publish-branch=${{ github.ref_name }} --tag=${{ github.ref_name == 'master' && 'latest' || github.ref_name == 'next' && 'next' || github.ref_name == 'alpha' && 'alpha' || github.ref_name == 'beta' && 'beta' || github.ref_name == 'snapshot' && 'snapshot' || 'latest' }} && pnpm exec changeset tag
+          version-script: pnpm run version
+          publish-script: pnpm --recursive publish --access=public --publish-branch=${{ github.ref_name }} --tag=${{ github.ref_name == 'master' && 'latest' || github.ref_name == 'next' && 'next' || github.ref_name == 'alpha' && 'alpha' || github.ref_name == 'beta' && 'beta' || github.ref_name == 'snapshot' && 'snapshot' || 'latest' }} && pnpm exec changeset git-tag
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
