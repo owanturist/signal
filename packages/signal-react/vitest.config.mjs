@@ -9,6 +9,8 @@ export default defineProject({
   },
 
   test: {
+    // reuses happy-dom per worker; vmThreads rejects --expose-gc in execArgv
+    pool: "vmForks",
     globals: true,
     isolate: true,
     execArgv: ["--expose-gc"],
