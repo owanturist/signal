@@ -79,6 +79,9 @@ jobs:
             done
           done
 
+      - name: Resolve workspace packages to dist files
+        run: sed -i '/"@owanturist\/source"/d' packages/*/package.json
+
       - name: Test
         run: pnpm test:run
 
@@ -95,9 +98,6 @@ jobs:
 
       - name: Setup environment
         uses: ./.github/actions/setup-env
-
-      - name: Build
-        run: pnpm build
 
       - name: Install react@${{ matrix.version }}
         run: pnpm add -D --filter signal-react react@${{ matrix.version }} @types/react@${{ matrix.version }} react-dom@${{ matrix.version }}
@@ -124,9 +124,6 @@ jobs:
 
       - name: Install @owanturist/signal v${{ matrix.version }}
         run: pnpm add -D --filter signal-form --filter signal-react @owanturist/signal@${{ matrix.version }}
-
-      - name: Build
-        run: pnpm build
 
       - name: Test against @owanturist/signal v${{ matrix.version }}
         run: pnpm test:run --project @owanturist/signal-form --project @owanturist/signal-react

@@ -11,11 +11,13 @@
   ],
   "exports": {
     ".": {
+      "@owanturist/source": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
     "./monitor-factory": {
+      "@owanturist/source": "./src/monitor-factory.ts",
       "types": "./dist/monitor-factory.d.ts",
       "import": "./dist/monitor-factory.js",
       "require": "./dist/monitor-factory.cjs"
