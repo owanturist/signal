@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs"
 import path from "node:path"
 import process from "node:process"
 import { minify } from "terser"
@@ -6,6 +7,21 @@ import { defineConfig } from "tsdown"
 const JS_FILE = /\.[cm]?js$/u
 // source-only workspace package, inlined into every bundle
 const INTERNALS = /^@owanturist\/internals\//u
+
+/**
+ * Packages the built output may import: the runtime dependencies of the package being built.
+ * Anything else, such as a devDependency, is a leak that consumers would not have installed.
+ *
+ * @param {string} cwd
+ * @returns {Array<string>}
+ */
+function runtimeDependencies(cwd) {
+  const { dependencies, peerDependencies } = JSON.parse(
+    readFileSync(path.join(cwd, "package.json"), "utf8"),
+  )
+
+  return Object.keys({ ...dependencies, ...peerDependencies })
+}
 
 /** @type {import("terser").MinifyOptions} */
 const terserOptions = {
@@ -68,6 +84,7 @@ export default defineConfig(({ minify: shouldMinify }) => ({
   deps: {
     neverBundle: true,
     alwaysBundle: [INTERNALS],
+    onlyImport: runtimeDependencies(process.cwd()),
   },
   minify: false,
   outputOptions: (options, format) => ({
