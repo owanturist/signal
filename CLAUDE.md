@@ -170,6 +170,9 @@ Do not mix types within a single page. When writing or reviewing documentation, 
 - Effects, derived signals, `useComputed{:ts}`, and `useMonitor{:ts}` are all types of consumers
 - Use **"derived signal"** (not "computed signal" or "read-only signal") when referring to signals created from other signals in prose — "computed" is acceptable only when comparing to other frameworks that use that term
 
+**Immutability in prose:**
+- The preference for `ReadonlyArray`, `ReadableSignal` and other immutable types applies to code only. In descriptions say "a Signal array of items", not "a read-only array" - mention readability or read-only-ness only when it matters to what the page teaches
+
 **Hyphenation:**
 - Always hyphenate: `re-run`, `re-runs`, `re-render`, `re-renders`, `re-compute` — never write `rerun`, `rerender`, `recompute`
 
@@ -253,6 +256,7 @@ When a documentation page includes a `<Sandpack>` interactive editor, **example 
 **File structure:**
 - Place example files next to the MDX page in a subdirectory matching the page slug (e.g. `docs/content/docs/tutorials/composing-signals/align/state.example.ts` for `composing-signals/index.mdx`)
 - Use the `.example.ts(x)` extension to distinguish example files from real source code
+- Don't create a folder for a single file: use `summary.example.tsx`, not `summary/index.example.tsx`. A folder is only for a module with several files (e.g. `counter/state.example.ts` + `counter/index.example.tsx`)
 - Add `// @ts-nocheck` as the first line and wrap the actual code in `//#region code` ... `//#endregion code` markers to suppress VS Code errors while keeping rendered output clean
 
 **Example file template:**
@@ -290,6 +294,7 @@ import { Signal } from "@owanturist/signal"
 - **Biome** for linting and formatting (not ESLint/Prettier)
 - Explicit class member accessibility (public/private/protected)
 - Use `Array<T>` syntax over `T[]`
+- Prefer immutable types: `ReadonlyArray<T>`, `ReadonlySet<T>`, `ReadonlyMap<K, V>` and `readonly` properties, unless the value must be mutated. Let TypeScript infer types where it can, and annotate at boundaries such as props and return types. Arrays inside Signals are typed `ReadonlyArray` - an array doesn't notify anyone when it changes, so it is replaced through `write`, never mutated. Note that `Signal<Array<T>>` is not assignable to `Signal<ReadonlyArray<T>>`, so create the Signal with the `ReadonlyArray` type up front; a component that only reads can accept `ReadableSignal<ReadonlyArray<T>>`
 - Double quotes, 2-space indentation, trailing commas
 - No default switch clauses (enables TypeScript exhaustiveness checks)
 - Strict TypeScript with `noUncheckedIndexedAccess`, `noImplicitReturns`

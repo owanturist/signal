@@ -40,9 +40,11 @@ const localFiles: SandpackFiles = {
     code: stripExampleMeta(indexTemplate),
   },
   "/styles.css": {
+    hidden: true,
     code: sandpackStyles["/src/components/sandpack/styles.example.css"] ?? "",
   },
   "/render-boundary.tsx": {
+    hidden: true,
     code: stripExampleMeta(renderBoundaryTemplate),
   },
   ...(localPackageFiles as SandpackFiles),

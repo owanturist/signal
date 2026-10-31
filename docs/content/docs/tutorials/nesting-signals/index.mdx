@@ -1,0 +1,59 @@
+---
+title: Nesting Signals
+description: Put Signals inside other Signals so a collection can grow and shrink while every item stays independently reactive
+---
+
+In [Composing Signals](/docs/tutorials/composing-signals) the shape of the state was fixed. Real state is often a collection that grows and shrinks. In this tutorial you'll build a packing list: one `Signal{:ts}` holds the list, and every item in it is an object of its own Signals.
+
+**Prerequisites:** Complete [Composing Signals](/docs/tutorials/composing-signals) first.
+
+## What you'll build
+
+<Sandpack entry="/app.tsx" height={700} codeHeight={390} />
+
+<Callout>The live example wraps components in `RenderBoundary{:ts}` only to demonstrate rendering: it flashes pink whenever a component re-renders. It is not part of the library, so the code blocks below show plain elements instead. Nothing here relies on `React.memo{:ts}` either - components re-render only when the Signals they read change.</Callout>
+
+A packing list. Add and remove items, tick them off and rename them. Click around: renaming an item flashes only that item, ticking it flashes the summary too, and adding or removing an item flashes the list.
+
+## The item state
+
+An item is an object of two Signals - its name and whether it's packed. It's the same kind of state module you wrote in the previous tutorial.
+
+<include lang="ts" meta='title="item/state.ts"'>./item/state.example.ts#code</include>
+
+## Wiring React components
+
+`Item{:ts}` receives the state of a single item and reads its Signals through its own monitor from [`useMonitor`](/docs/api/use-monitor), so typing a name or ticking the box re-renders just this item.
+
+<include lang="tsx" meta='title="item/index.tsx"'>./item/index.example.tsx#code</include>
+
+`List{:ts}` takes the list itself - a `Signal{:ts}` array of items - and is the one that changes it: adding and removing items write to the list. It re-renders for exactly those changes.
+
+<include lang="tsx" meta='title="list.tsx"'>./list.example.tsx#code</include>
+
+`Summary{:ts}` takes the same list - a `Signal{:ts}` array of items - and computes its text with [`useComputed`](/docs/api/use-computed) from both levels: the list, and the `packed{:ts}` Signal of every item in it. It re-renders only when that text changes - when an item is added, removed or ticked - and never when one is renamed.
+
+<include lang="tsx" meta='title="summary.tsx"'>./summary.example.tsx#code</include>
+
+`List{:ts}` writes the list and its sibling `Summary{:ts}` reads it, so the list has to live in their common ancestor. `App{:ts}` creates it once and hands it to both. Since it only passes the Signal along and never reads it, `App{:ts}` never re-renders - which is why a Signal fits here better than React state.
+
+<include lang="tsx" meta='title="app.tsx"'>./app.example.tsx#code</include>
+
+Two kinds of change happen at two different levels. The list is a `Signal{:ts}` that holds an array of item states, so a `Signal{:ts}` contains objects that contain Signals. Adding or removing an item writes to the list, and `List{:ts}` re-renders. Ticking or renaming an item writes to that item's own Signal and leaves the list alone, so `List{:ts}` stays put.
+
+<Callout>You could keep plain objects in the list and replace the whole object on every edit. Nesting avoids that: an edit writes to one small Signal, and only what reads that Signal updates.</Callout>
+
+## What you've built
+
+- An item state module and a `Signal{:ts}` list that nests it
+- A `useComputed{:ts}` summary that reads the list and every item in it, including items added later
+- React components that re-render only for the level of change they read
+
+## What's next
+
+<Cards>
+  <Card title="Signals in Data Structures" href="/docs/tutorials/signals-in-data-structures" description="Hide nested Signals inside classes so users just call methods" />
+  <Card title="Reading and Writing Signals" href="/docs/guides/reading-and-writing-signals" description="All the ways to read from and write to a Signal" />
+  <Card title="Using Signals in React" href="/docs/guides/using-signals-in-react" description="Learn how useMonitor and useComputed work under the hood" />
+  <Card title="Composing Signals" href="/docs/tutorials/composing-signals" description="State modules as plain objects of Signals" />
+</Cards>

@@ -3,7 +3,7 @@
 //#region code
 import { useMonitor } from "@owanturist/signal-react"
 
-import type { Booking } from "../booking/state"
+import type { Booking } from "./booking"
 import { RenderBoundary } from "/render-boundary"
 
 interface Props {

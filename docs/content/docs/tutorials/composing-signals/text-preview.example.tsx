@@ -3,7 +3,7 @@
 //#region code
 import { useMonitor } from "@owanturist/signal-react"
 
-import type { State as ToolbarState } from "../toolbar/state"
+import type { State as ToolbarState } from "./toolbar/state"
 
 import { RenderBoundary } from "/render-boundary"
 

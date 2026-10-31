@@ -3,7 +3,7 @@
 //#region code
 import { type Monitor, Signal } from "@owanturist/signal"
 
-import { Stay, type StayParent } from "../stay/state"
+import { Stay, type StayParent } from "./stay/state"
 
 export class Booking implements StayParent {
   private readonly stays = Signal<ReadonlyArray<Stay>>([new Stay(this)])
