@@ -1,6 +1,13 @@
 packages:
   - "packages/*"
 
+# shared versions for dev dependencies declared in several packages,
+# referenced as "catalog:" in package.json
+catalog:
+  "@vitest/coverage-v8": ^5.0.5
+  vite: ^8.3.4
+  vitest: ^5.0.5
+
 # do not require -w flag when installing to the root
 ignoreWorkspaceRootCheck: true
 # avoid linking */node_modules/{package_name} to packages/{package_name}

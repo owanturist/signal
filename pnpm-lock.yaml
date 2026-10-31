@@ -162,6 +162,18 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@vitest/coverage-v8':
+      specifier: ^5.0.5
+      version: 5.0.5
+    vite:
+      specifier: ^8.3.4
+      version: 8.3.4
+    vitest:
+      specifier: ^5.0.5
+      version: 5.0.5
+
 importers:
 
   .:
@@ -182,7 +194,7 @@ importers:
         specifier: ^26.6.5
         version: 26.6.5
       '@vitest/coverage-v8':
-        specifier: ^5.0.5
+        specifier: 'catalog:'
         version: 5.0.5(vitest@5.0.5)
       size-limit:
         specifier: ^14.2.0
@@ -197,19 +209,19 @@ importers:
         specifier: ^7.0.2
         version: 7.0.2
       vite:
-        specifier: ^8.3.4
+        specifier: 'catalog:'
         version: 8.3.4(@types/node@26.6.5)(jiti@2.6.1)(terser@5.51.2)(yaml@2.9.1)
       vitest:
-        specifier: ^5.0.5
+        specifier: 'catalog:'
         version: 5.0.5(@types/node@26.6.5)(@vitest/coverage-v8@5.0.5)(happy-dom@21.0.3)(vite@8.3.4(@types/node@26.6.5)(jiti@2.6.1)(terser@5.51.2)(yaml@2.9.1))
 
   packages/signal:
     devDependencies:
       vite:
-        specifier: ^8.3.4
+        specifier: 'catalog:'
         version: 8.3.4(@types/node@26.6.5)(jiti@2.6.1)(terser@5.51.2)(yaml@2.9.1)
       vitest:
-        specifier: ^5.0.5
+        specifier: 'catalog:'
         version: 5.0.5(@types/node@26.6.5)(@vitest/coverage-v8@5.0.5)(happy-dom@21.0.3)(vite@8.3.4(@types/node@26.6.5)(jiti@2.6.1)(terser@5.51.2)(yaml@2.9.1))
 
   packages/signal-form:
@@ -218,10 +230,10 @@ importers:
         specifier: workspace:*
         version: link:../signal
       vite:
-        specifier: ^8.3.4
+        specifier: 'catalog:'
         version: 8.3.4(@types/node@26.6.5)(jiti@2.6.1)(terser@5.51.2)(yaml@2.9.1)
       vitest:
-        specifier: ^5.0.5
+        specifier: 'catalog:'
         version: 5.0.5(@types/node@26.6.5)(@vitest/coverage-v8@5.0.5)(happy-dom@21.0.3)(vite@8.3.4(@types/node@26.6.5)(jiti@2.6.1)(terser@5.51.2)(yaml@2.9.1))
       zod:
         specifier: ^4.6.7
@@ -258,19 +270,19 @@ importers:
         specifier: ^19.3.1
         version: 19.3.1(react@19.3.1)
       vite:
-        specifier: ^8.3.4
+        specifier: 'catalog:'
         version: 8.3.4(@types/node@26.6.5)(jiti@2.6.1)(terser@5.51.2)(yaml@2.9.1)
       vitest:
-        specifier: ^5.0.5
+        specifier: 'catalog:'
         version: 5.0.5(@types/node@26.6.5)(@vitest/coverage-v8@5.0.5)(happy-dom@21.0.3)(vite@8.3.4(@types/node@26.6.5)(jiti@2.6.1)(terser@5.51.2)(yaml@2.9.1))
 
   packages/tools:
     devDependencies:
       vite:
-        specifier: ^8.3.4
+        specifier: 'catalog:'
         version: 8.3.4(@types/node@26.6.5)(jiti@2.6.1)(terser@5.51.2)(yaml@2.9.1)
       vitest:
-        specifier: ^5.0.5
+        specifier: 'catalog:'
         version: 5.0.5(@types/node@26.6.5)(@vitest/coverage-v8@5.0.5)(happy-dom@21.0.3)(vite@8.3.4(@types/node@26.6.5)(jiti@2.6.1)(terser@5.51.2)(yaml@2.9.1))
 
 packages:
