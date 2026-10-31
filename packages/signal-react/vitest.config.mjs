@@ -1,11 +1,12 @@
 import { version } from "react"
-import tsconfigPaths from "vite-tsconfig-paths"
 import { defineProject } from "vitest/config"
 
 console.log(`Running @owanturist/signal-signal tests against react@${version}`)
 
 export default defineProject({
-  plugins: [tsconfigPaths()],
+  resolve: {
+    tsconfigPaths: true,
+  },
 
   test: {
     globals: true,
