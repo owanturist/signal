@@ -28,5 +28,6 @@
       "cache": true,
       "inputs": ["default", "^production", "{workspaceRoot}/tsconfig.json"]
     }
-  }
+  },
+  "analytics": false
 }
