@@ -40,5 +40,10 @@
     "vite": "catalog:",
     "vitest": "catalog:",
     "zod": "^4.6.7"
+  },
+  "nx": {
+    "implicitDependencies": [
+      "tools"
+    ]
   }
 }

@@ -29,3 +29,7 @@ yarn-error.log*
 lerna-debug.log*
 
 cypress/videos
+
+# nx
+.nx/cache
+.nx/workspace-data

@@ -7,6 +7,9 @@
     "module": "ES2022",
     "moduleResolution": "bundler",
     "customConditions": ["@owanturist/source"],
+    "paths": {
+      "~/tools/*": ["./packages/tools/src/*"]
+    },
     "esModuleInterop": true,
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "skipLibCheck": true,
