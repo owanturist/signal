@@ -44,10 +44,5 @@
   "devDependencies": {
     "vite": "catalog:",
     "vitest": "catalog:"
-  },
-  "nx": {
-    "implicitDependencies": [
-      "tools"
-    ]
   }
 }

@@ -51,10 +51,5 @@
     "react-dom": "^19.3.1",
     "vite": "catalog:",
     "vitest": "catalog:"
-  },
-  "nx": {
-    "implicitDependencies": [
-      "tools"
-    ]
   }
 }
