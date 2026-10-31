@@ -36,8 +36,8 @@
   },
   "devDependencies": {
     "@owanturist/signal": "workspace:*",
-    "vite": "^8.3.4",
-    "vitest": "^5.0.5",
+    "vite": "catalog:",
+    "vitest": "catalog:",
     "zod": "^4.6.7"
   }
 }
