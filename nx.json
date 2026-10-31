@@ -14,7 +14,8 @@
   },
   "targetDefaults": {
     "build": {
-      "dependsOn": ["^build"],
+      // build dependencies first, with the same flags (e.g. --minify)
+      "dependsOn": [{ "target": "build", "dependencies": true, "params": "forward" }],
       "cache": true,
       "inputs": [
         "production",
