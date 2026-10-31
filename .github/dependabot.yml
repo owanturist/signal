@@ -15,3 +15,18 @@ updates:
     # security updates bypass this cooldown automatically.
     cooldown:
       default-days: 14
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "saturday"
+      time: "10:00"
+      timezone: "Europe/Amsterdam"
+    pull-request-branch-name:
+      separator: "-"
+    reviewers:
+      - "owanturist"
+    # supply-chain protection: same 2-week cooldown as the pnpm updates above.
+    cooldown:
+      default-days: 14

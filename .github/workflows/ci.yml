@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
 
       - name: Setup environment
         uses: ./.github/actions/setup-env
@@ -51,8 +51,9 @@ jobs:
         run: pnpm test:coverage
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v7.1.1
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
 
   test-dist:
@@ -61,7 +62,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
 
       - name: Setup environment
         uses: ./.github/actions/setup-env
@@ -90,7 +91,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
 
       - name: Setup environment
         uses: ./.github/actions/setup-env
@@ -116,7 +117,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
 
       - name: Setup environment
         uses: ./.github/actions/setup-env
@@ -140,7 +141,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
 
       - name: Setup environment
         uses: ./.github/actions/setup-env
@@ -172,7 +173,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
         with:
           # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
           fetch-depth: 0
@@ -185,7 +186,7 @@ jobs:
           perl -i -pe"s/\"baseBranch\":.*/\"baseBranch\": \"${{ github.ref_name }}\",/g" .changeset/config.json
 
       - name: Commit updated .changeset config
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v7.2.0
         with:
           commit_message: "Change .changeset `baseBranch` to ${{ github.ref_name }}"
           file_pattern: ".changeset/config.json"
@@ -194,7 +195,7 @@ jobs:
         run: pnpm build:minified
 
       - name: Create Release Pull Request or Publish to npm
-        uses: changesets/action@v2
+        uses: changesets/action@v2.1.2
         with:
           version-script: pnpm run version
           publish-script: pnpm --recursive publish --access=public --publish-branch=${{ github.ref_name }} --tag=${{ github.ref_name == 'master' && 'latest' || github.ref_name == 'next' && 'next' || github.ref_name == 'alpha' && 'alpha' || github.ref_name == 'beta' && 'beta' || github.ref_name == 'snapshot' && 'snapshot' || 'latest' }} && pnpm exec changeset git-tag

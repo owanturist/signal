@@ -5,7 +5,7 @@ runs:
   using: composite
   steps:
     - name: Setup mise
-      uses: jdx/mise-action@v2
+      uses: jdx/mise-action@v5.2.0
       with:
         # Pin to local mise version to keep mise.lock stable across environments.
         version: 2026.10.18
@@ -23,7 +23,7 @@ runs:
       run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
 
     - name: Cache pnpm store
-      uses: actions/cache@v4
+      uses: actions/cache@v6.1.0
       with:
         path: ${{ steps.pnpm-store.outputs.path }}
         key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
