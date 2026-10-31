@@ -1,11 +1,11 @@
 ---
-title: Test Signals
+title: Testing Signals
 description: Unit-test signal state modules without mounting React, using the monitor fixture and factory functions
 ---
 
-In this tutorial you'll test signal state the way you wrote it in [Composing State](/docs/tutorials/composing-state) - as plain objects of [Signals](/docs/api/signal), without mounting a single React component. You'll set up a `monitor` fixture once, then use it to test state modules, derived signals, and effects.
+In this tutorial you'll test state made of [Signals](/docs/api/signal) without mounting a single React component. You'll set up a `monitor` fixture once, then use it to test state modules, derived signals, and effects.
 
-**Prerequisites:** Complete [Composing State](/docs/tutorials/composing-state) first. The examples use [Vitest](https://vitest.dev), but nothing here is specific to it.
+The examples use [Vitest](https://vitest.dev), but nothing here is specific to it.
 
 ## Why tests need a monitor
 
@@ -52,11 +52,11 @@ export default defineConfig({
 })
 ```
 
-<Callout>The monitor from `untracked{:ts}` is not tied to any effect or component, so reading with it never creates a dependency. Using one shared fixture means a test can read any signal at any point, in any order.</Callout>
+<Callout>The monitor from `untracked{:ts}` is not tied to any effect or component, so reading with it never creates a dependency.</Callout>
 
 ## Test a state module
 
-Take the font state from the [Composing State](/docs/tutorials/composing-state#the-font-state) tutorial. It is a factory function returning an object of Signals - nothing to mount.
+Take a font state as an example. It is a factory function returning an object of Signals - nothing to mount.
 
 ```ts title="font/state.ts"
 import { Signal } from "@owanturist/signal"
@@ -69,7 +69,7 @@ export function initState() {
 }
 ```
 
-Each test calls `initState{:ts}` to get a fresh instance, so tests can't leak state into each other. Read through the `monitor` fixture, write directly on the Signal.
+Each test gets a fresh instance from `initState{:ts}`, reads through the `monitor` fixture and writes directly on the Signal.
 
 ```ts title="font/state.test.ts"
 import { describe, expect, it } from "vitest"
@@ -103,11 +103,9 @@ describe("font state", () => {
 })
 ```
 
-The same approach works for the toolbar state: `initState{:ts}` composes the align and font state modules, so `toolbar.font.size.write(24){:ts}` is a one-liner and the test never touches the components that render it.
-
 ## Test derived signals
 
-A [derived signal](/docs/api/signal#derived-readonly) recomputes from its sources, so a test only has to write to a source and read the derived value.
+For a [derived signal](/docs/api/signal#derived-readonly), write to a source and read the derived value.
 
 ```ts title="cart/state.ts"
 import { Signal } from "@owanturist/signal"
@@ -139,11 +137,11 @@ it("derives the total from price and quantity", ({ monitor }) => {
 })
 ```
 
-There is nothing to flush or await: a derived signal is always consistent with its sources at the moment you read it.
+There is nothing to flush or await - a derived signal is always up to date when you read it.
 
 ## Test effects
 
-[Effects](/docs/api/effect) are the one place where *when* something runs matters. An effect runs immediately, then again whenever a signal it read changes, and may return a cleanup. A `vi.fn(){:ts}` spy makes all three observable.
+[Effects](/docs/api/effect) are where *when* something runs matters. A `vi.fn(){:ts}` spy makes runs and cleanups observable.
 
 ```ts title="cart/effects.test.ts"
 import { effect } from "@owanturist/signal"
@@ -190,7 +188,7 @@ it("cleans up before re-running and when stopped", () => {
 })
 ```
 
-Every write notifies the effects that depend on the signal, so two writes in a row run the effect twice. Wrap them in [`batch`](/docs/api/batch) and the effect runs once for the whole group instead.
+Two writes in a row run the effect twice. Wrap them in [`batch`](/docs/api/batch) and it runs once for the whole group.
 
 ```ts title="cart/effects.test.ts"
 import { batch, effect } from "@owanturist/signal"
@@ -249,7 +247,7 @@ it("runs the effect once for a batch of writes", () => {
 ## What's next
 
 <Cards>
-  <Card title="Composing State" href="/docs/tutorials/composing-state" description="Build the state modules these tests exercise" />
+  <Card title="Composing Signals" href="/docs/tutorials/composing-signals" description="State modules as plain objects of Signals" />
   <Card title="Reading and Writing Signals" href="/docs/guides/reading-and-writing-signals" description="All the ways to read from and write to a Signal" />
   <Card title="Side Effects" href="/docs/guides/side-effects" description="Effects, cleanups and when they run" />
   <Card title="untracked" href="/docs/api/untracked" description="The function behind the monitor fixture" />

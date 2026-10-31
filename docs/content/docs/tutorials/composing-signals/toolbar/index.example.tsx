@@ -13,7 +13,7 @@ interface Props {
 
 export function Toolbar({ state }: Props) {
   return (
-    <RenderBoundary name="Toolbar" style={{ display: "flex", flexDirection: "row", gap: 8 }}>
+    <RenderBoundary name="Toolbar" className="row">
       <Align state={state.align} />
       <Font state={state.font} />
     </RenderBoundary>

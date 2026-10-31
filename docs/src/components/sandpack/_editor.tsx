@@ -6,6 +6,8 @@ import { useTheme } from "@/components/theme-switcher/use-theme"
 export interface SandpackEditorProps {
   files: SandpackFiles
   entry?: string
+  /** Fixed height of the code editor in px; the preview takes the rest. */
+  codeHeight?: number
   localFiles: SandpackFiles
 }
 
@@ -15,7 +17,7 @@ const LazyEditor = lazy(async () => {
     { Group, Panel, Separator },
   ] = await Promise.all([import("@codesandbox/sandpack-react"), import("react-resizable-panels")])
 
-  function Editor({ files, entry, localFiles }: SandpackEditorProps) {
+  function Editor({ files, entry, codeHeight, localFiles }: SandpackEditorProps) {
     const { resolvedTheme } = useTheme()
 
     return (
@@ -46,11 +48,11 @@ const LazyEditor = lazy(async () => {
             <Separator className="w-0.5 shrink-0 grow-0 basis-px bg-fd-border transition-[background] duration-150 data-[separator=active]:bg-fd-primary data-[separator=hover]:bg-fd-primary" />
             <Panel defaultSize="80%">
               <Group orientation="vertical" style={{ height: "100%" }}>
-                <Panel defaultSize="65%" minSize="25%">
+                <Panel defaultSize={codeHeight ? `${codeHeight}px` : "65%"} minSize="25%">
                   <SandpackCodeEditor showLineNumbers style={{ height: "100%" }} />
                 </Panel>
                 <Separator className="h-0.5 shrink-0 grow-0 basis-px bg-fd-border transition-[background] duration-150 data-[separator=active]:bg-fd-primary data-[separator=hover]:bg-fd-primary" />
-                <Panel defaultSize="35%" minSize="15%">
+                <Panel defaultSize={codeHeight ? undefined : "35%"} minSize="15%">
                   <SandpackPreview style={{ height: "100%" }} />
                 </Panel>
               </Group>

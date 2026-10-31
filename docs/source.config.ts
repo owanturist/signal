@@ -6,6 +6,8 @@ import {
 import { defineConfig, defineDocs } from "fumadocs-mdx/config"
 import lastModified from "fumadocs-mdx/plugins/last-modified"
 
+import { remarkStripRenderBoundary } from "./src/tools/remark-strip-render-boundary"
+
 const LIGHT_THEME = "github-light"
 const DARK_THEME = "github-dark"
 
@@ -30,6 +32,7 @@ export const docs = defineDocs({
 export default defineConfig({
   plugins: [lastModified()],
   mdxOptions: {
+    remarkPlugins: [remarkStripRenderBoundary],
     rehypePlugins: [[rehypeCode, rehypeCodeOptions]],
     rehypeCodeOptions: {
       themes: {

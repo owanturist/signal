@@ -12,7 +12,7 @@ export default function App() {
   const [state] = useState(initState)
 
   return (
-    <RenderBoundary name="App" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <RenderBoundary name="App" className="stack">
       <Toolbar state={state} />
       <TextPreview state={state} />
     </RenderBoundary>

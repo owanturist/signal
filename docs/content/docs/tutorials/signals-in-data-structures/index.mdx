@@ -1,0 +1,128 @@
+---
+title: Signals in Data Structures
+description: Encapsulate signals inside classes or closures — they power reactive capabilities while remaining hidden from the public surface
+---
+
+In [Composing Signals](/docs/tutorials/composing-signals) the state was a plain object of [Signals](/docs/api/signal). That works well, but sometimes a class or another data structure is the more natural way to model your domain - a counter, a booking, a list of stays - and you still want it to be reactive. Turning every field into a public `Signal{:ts}` is inconvenient there. In this tutorial you'll put the Signals inside such data structures, so they stay reactive while their users just call methods, and they still plug into React and into other signals.
+
+**Prerequisites:** Complete [Composing Signals](/docs/tutorials/composing-signals) and [Nesting Signals](/docs/tutorials/nesting-signals) first.
+
+## What you'll build
+
+<Sandpack entry="/app.tsx" height={700} codeHeight={390} />
+
+<Callout>The live example wraps components in `RenderBoundary{:ts}` only to demonstrate rendering: it flashes pink whenever a component re-renders. It is not part of the library, so the code blocks below show plain elements instead. Nothing here relies on `React.memo{:ts}` either - components re-render only when the Signals they read change.</Callout>
+
+A hotel booking form. A booking starts with one stay, and you can add more or remove them - except the last one. Each stay has a number of rooms and a number of nights, every counter stays within its own limits, and the buttons disable themselves at the edges. A summary shows the totals. Click around: only the counter you press flashes, and a stay flashes only when it is added or removed.
+
+## The Counter class
+
+The `Counter{:ts}` keeps its value in a private `Signal{:ts}` and takes care of its limits - nothing outside the class can push it past `min{:ts}` or `max{:ts}`.
+
+<include lang="ts" meta='title="counter/state.ts"'>./counter/state.example.ts#code</include>
+
+Every method that reads the `Signal{:ts}` - `value{:ts}`, `canDecrement{:ts}`, `canIncrement{:ts}` - accepts a [`Monitor`](/docs/concepts/fundamentals#why-monitors-exist) and passes it along. That's what keeps the class reactive while the `Signal{:ts}` stays hidden: the caller decides who is listening. Methods that only write don't need one.
+
+## Composing data structures
+
+A `Stay{:ts}` groups a rooms `Counter{:ts}` and a nights `Counter{:ts}`, so everything about one `Stay{:ts}` lives in one object. It also receives a `StayParent{:ts}` - just the part of the `Booking{:ts}` it needs to remove itself - so it can answer `canRemove{:ts}` and `remove{:ts}` without anyone passing the `Booking{:ts}` around.
+
+<include lang="ts" meta='title="stay/state.ts"'>./stay/state.example.ts#code</include>
+
+<Callout>`StayParent{:ts}` is a showcase of how far plain JavaScript can take you, because Signals keep working inside any object graph you build. It isn't a pattern your application has to follow. Passing a `canRemove{:ts}` boolean and an `onRemove{:ts}` callback down as props is just as valid, and often the simpler choice.</Callout>
+
+A `Booking{:ts}` owns the list of `Stay{:ts}` objects and implements `StayParent{:ts}`. It takes care of adding and removing them - it never lets the last one go. The totals are reactive for free: whatever they read through the monitor is what they depend on, including stays added later.
+
+<include lang="ts" meta='title="booking/state.ts"'>./booking/state.example.ts#code</include>
+
+You may not even have noticed that a `Booking{:ts}` is a nested `Signal{:ts}`: it holds a `Signal{:ts}` of `Stay{:ts}` objects, and every `Stay{:ts}` encapsulates Signals inside its `Counter{:ts}` objects. That's the point - you define data structures the way you want, without thinking about reactivity, and the Signals API shows up only where a value is read, where the types enforce passing the monitor around.
+
+## Wiring React components
+
+In this tutorial the components never touch a `Signal{:ts}` - that is a choice, not a rule. They call methods, and every read needs a monitor, so TypeScript won't let you bypass reactivity by accident.
+
+The `Counter{:ts}` component receives a `CounterState{:ts}` - an instance of the class above - and reads it through its methods with a monitor from [`useMonitor`](/docs/api/use-monitor).
+
+<include lang="tsx" meta='title="counter/index.tsx"'>./counter/index.example.tsx#code</include>
+
+The `Stay{:ts}` component receives a `StayState{:ts}` and takes both `Counter{:ts}` objects straight from its fields, so there is nothing to wire up by hand - and removing is up to the `Stay{:ts}` itself.
+
+<include lang="tsx" meta='title="stay/index.tsx"'>./stay/index.example.tsx#code</include>
+
+The `Summary{:ts}` component receives the `Booking{:ts}` and reads both totals through one monitor, so it stays in sync with every `Counter{:ts}` in every `Stay{:ts}` without knowing any of them.
+
+<include lang="tsx" meta='title="summary/index.tsx"'>./summary/index.example.tsx#code</include>
+
+The `App{:ts}` component creates the `Booking{:ts}` once and reads only the list of `Stay{:ts}` objects, so it re-renders when one is added or removed - not when a `Counter{:ts}` changes.
+
+<include lang="tsx" meta='title="app.tsx"'>./app.example.tsx#code</include>
+
+## Closures work too
+
+A class is one way to hide Signals; a function closure is another. The convention is the same - reading methods take a monitor:
+
+```ts title="counter/create-counter.ts"
+import { type Monitor, Signal } from "@owanturist/signal"
+
+export function createCounter(min: number, max: number) {
+  const count = Signal(min)
+
+  return {
+    value: (monitor: Monitor) => count.read(monitor),
+    increment: () => {
+      count.write((current) => Math.min(current + 1, max))
+    },
+    decrement: () => {
+      count.write((current) => Math.max(current - 1, min))
+    },
+  }
+}
+```
+
+The Signal lives in the closure and can't be reached from outside. Pick whichever style fits your codebase.
+
+## Going further [#going-further]
+
+<Callout type="idea">
+**Advanced:** instead of naming the reading method yourself, a class can implement [`ReadableSignal`](/docs/api/signal#readable-signal-type) - an interface with a single `read(monitor){:ts}` method - or [`WritableSignal`](/docs/api/signal#writable-signal-type) when it also has `write{:ts}`. Anything that accepts a readable or writable signal then accepts your class out of the box: [`useComputed`](/docs/api/use-computed), [`untracked`](/docs/api/untracked), the getter of a [derived signal](/docs/api/signal#derived-readonly), and so on. This tutorial uses plain methods to keep the public surface exactly what you chose - reach for the interfaces when you want the class to be interchangeable with a Signal.
+</Callout>
+
+## Testing the data structure
+
+Because the rules sit inside the class, you can test them without React. The `monitor` fixture is covered in [Testing Signals](/docs/tutorials/testing-signals).
+
+```ts title="counter/state.test.ts"
+import { expect, it } from "vitest"
+
+import { Counter } from "./state"
+
+it("stays within its bounds", ({ monitor }) => {
+  const counter = new Counter(1, 3)
+
+  counter.decrement()
+  expect(counter.value(monitor)).toBe(1)
+  expect(counter.canDecrement(monitor)).toBe(false)
+
+  counter.increment()
+  counter.increment()
+  counter.increment()
+  expect(counter.value(monitor)).toBe(3)
+  expect(counter.canIncrement(monitor)).toBe(false)
+})
+```
+
+## What you've built
+
+- A `Counter{:ts}` that keeps its `Signal{:ts}` private and takes care of its limits
+- A `Booking{:ts}` of `Stay{:ts}` objects that stay reactive through monitor-taking methods
+- React components that only know about methods
+- The same idea as a closure, for code that prefers functions over classes
+
+## What's next
+
+<Cards>
+  <Card title="Testing Signals" href="/docs/tutorials/testing-signals" description="Set up the monitor fixture and test state modules without React" />
+  <Card title="ReadableSignal" href="/docs/api/signal#readable-signal-type" description="The interface that lets your own classes act as signals" />
+  <Card title="Using Signals in React" href="/docs/guides/using-signals-in-react" description="Learn how useMonitor and useComputed work under the hood" />
+  <Card title="Composing Signals" href="/docs/tutorials/composing-signals" description="State modules as plain objects of Signals" />
+</Cards>

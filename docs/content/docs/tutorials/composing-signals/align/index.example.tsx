@@ -16,21 +16,18 @@ export function Align({ state }: Props) {
   const alignment = useComputed(state.alignment)
 
   return (
-    <RenderBoundary name="Align" style={{ display: "flex", gap: 4 }}>
+    <RenderBoundary name="Align" className="row tight">
       {ALIGNMENTS.map((value) => (
-        <button
-          type="button"
-          key={value}
-          onClick={() => state.alignment.write(value)}
-          style={{
-            fontWeight: alignment === value ? "bold" : "normal",
-            border: "1px solid #ccc",
-            padding: "2px 8px",
-            cursor: "pointer",
-          }}
-        >
+        <label key={value} className="btn">
+          <input
+            type="radio"
+            name="alignment"
+            value={value}
+            checked={alignment === value}
+            onChange={() => state.alignment.write(value)}
+          />
           {value}
-        </button>
+        </label>
       ))}
     </RenderBoundary>
   )
