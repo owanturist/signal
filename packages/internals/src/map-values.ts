@@ -1,4 +1,4 @@
-import { entries } from "~/tools/entries"
+import { entries } from "./entries"
 
 function mapValues<TObject extends Record<string, unknown>, TResult>(
   object: TObject,

@@ -42,6 +42,7 @@
     "build": "tsdown src/index.ts src/monitor-factory.ts --config ../../tsdown.config.mjs"
   },
   "devDependencies": {
+    "@owanturist/internals": "workspace:*",
     "vite": "catalog:",
     "vitest": "catalog:"
   }

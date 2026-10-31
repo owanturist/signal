@@ -1,6 +1,6 @@
 import type { Equal } from "@owanturist/signal"
 
-import { isStrictEqual } from "~/tools/is-strict-equal"
+import { isStrictEqual } from "@owanturist/internals/is-strict-equal"
 
 function createIsUnionEqual<TPrimary, TSecondary>(
   primary: (value: unknown) => value is TPrimary,

@@ -1,10 +1,10 @@
 import { type Equal, Signal } from "@owanturist/signal"
 
-import { hasProperty } from "~/tools/has-property"
-import { isNull } from "~/tools/is-null"
-import { isShallowArrayEqual } from "~/tools/is-shallow-array-equal"
-import { isStrictEqual } from "~/tools/is-strict-equal"
-import { isUndefined } from "~/tools/is-undefined"
+import { hasProperty } from "@owanturist/internals/has-property"
+import { isNull } from "@owanturist/internals/is-null"
+import { isShallowArrayEqual } from "@owanturist/internals/is-shallow-array-equal"
+import { isStrictEqual } from "@owanturist/internals/is-strict-equal"
+import { isUndefined } from "@owanturist/internals/is-undefined"
 
 import type { SignalForm } from "../signal-form/signal-form"
 import { VALIDATE_ON_INIT, VALIDATE_ON_TOUCH, type ValidateStrategy } from "../validate-strategy"

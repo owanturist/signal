@@ -1,4 +1,4 @@
-import type { Compute } from "~/tools/compute"
+import type { Compute } from "@owanturist/internals/compute"
 
 import type { GetFormParam } from "../signal-form/get-form-param"
 import type { SignalForm } from "../signal-form/signal-form"

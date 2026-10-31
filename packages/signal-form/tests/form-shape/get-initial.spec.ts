@@ -1,4 +1,4 @@
-import { isShallowArrayEqual } from "~/tools/is-shallow-array-equal"
+import { isShallowArrayEqual } from "@owanturist/internals/is-shallow-array-equal"
 
 import { FormShape, FormUnit } from "../../src"
 

@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-import { params } from "~/tools/params"
+import { params } from "@owanturist/internals/params"
 
 import { FormShape, FormUnit } from "../../src"
 

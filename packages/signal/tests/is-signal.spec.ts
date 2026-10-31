@@ -1,4 +1,4 @@
-import { isString } from "~/tools/is-string"
+import { isString } from "@owanturist/internals/is-string"
 
 import { type Monitor, type ReadonlySignal, Signal, isSignal } from "../src"
 

@@ -1,6 +1,6 @@
 import { batch } from "@owanturist/signal"
 
-import { isUndefined } from "~/tools/is-undefined"
+import { isUndefined } from "@owanturist/internals/is-undefined"
 
 import { mapForms } from "../signal-form/_internal/map-form-states"
 

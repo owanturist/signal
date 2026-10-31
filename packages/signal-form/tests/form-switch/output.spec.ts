@@ -1,7 +1,7 @@
 import z from "zod"
 
-import { isShallowArrayEqual } from "~/tools/is-shallow-array-equal"
-import { params } from "~/tools/params"
+import { isShallowArrayEqual } from "@owanturist/internals/is-shallow-array-equal"
+import { params } from "@owanturist/internals/params"
 
 import { FormShape, FormSwitch, FormUnit } from "../../src"
 

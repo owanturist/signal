@@ -3,7 +3,6 @@ import { defineProject } from "vitest/config"
 
 export default defineProject({
   resolve: {
-    tsconfigPaths: true,
     // resolve workspace packages to their sources, see package.json#exports
     conditions: ["@owanturist/source", ...defaultClientConditions],
   },

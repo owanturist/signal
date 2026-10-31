@@ -1,7 +1,7 @@
 import { batch } from "@owanturist/signal"
 
-import type { IsEqualType } from "~/tools/is-type-equal"
-import { isUndefined } from "~/tools/is-undefined"
+import type { IsEqualType } from "@owanturist/internals/is-type-equal"
+import { isUndefined } from "@owanturist/internals/is-undefined"
 
 import type { GetFormParam } from "../signal-form/get-form-param"
 import type { SignalForm } from "../signal-form/signal-form"

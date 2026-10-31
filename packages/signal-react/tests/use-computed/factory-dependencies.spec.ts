@@ -1,7 +1,7 @@
 import { type Monitor, Signal } from "@owanturist/signal"
 import { act, renderHook } from "@testing-library/react"
 
-import { Counter } from "~/tools/testing/counter"
+import { Counter } from "@owanturist/internals/testing/counter"
 
 import { useComputed } from "../../src"
 import type { WithSignal, WithSpy } from "../common"

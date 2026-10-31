@@ -1,4 +1,4 @@
-import { mapValues } from "~/tools/map-values"
+import { mapValues } from "@owanturist/internals/map-values"
 
 import type { GetFormState } from "./get-form-state"
 import type { SignalForm } from "./signal-form"

@@ -1,8 +1,8 @@
-import { hasProperty } from "~/tools/has-property"
-import { isArray } from "~/tools/is-array"
-import { isObject } from "~/tools/is-object"
-import { isString } from "~/tools/is-string"
-import { map } from "~/tools/map"
+import { hasProperty } from "@owanturist/internals/has-property"
+import { isArray } from "@owanturist/internals/is-array"
+import { isObject } from "@owanturist/internals/is-object"
+import { isString } from "@owanturist/internals/is-string"
+import { map } from "@owanturist/internals/map"
 
 import type { Result } from "../../result"
 

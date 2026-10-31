@@ -1,6 +1,10 @@
 packages:
   - "packages/*"
 
+# nx postinstall only updates the Nx Cloud client, which is not used
+allowBuilds:
+  nx: false
+
 # shared versions for dev dependencies declared in several packages,
 # referenced as "catalog:" in package.json
 catalog:

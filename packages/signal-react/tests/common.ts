@@ -1,6 +1,6 @@
 import type { Equal, Signal } from "@owanturist/signal"
 
-import type { Counter } from "~/tools/testing/counter"
+import type { Counter } from "@owanturist/internals/testing/counter"
 
 export interface WithSignal<T = Counter> {
   signal: Signal<T>

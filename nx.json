@@ -1,0 +1,33 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "neverConnectToCloud": true,
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*"],
+    "production": [
+      "default",
+      "!{projectRoot}/**/*.md",
+      "!{projectRoot}/tests/**",
+      "!{projectRoot}/vitest.config.mjs",
+      "!{projectRoot}/setup-tests.ts",
+      "!{projectRoot}/globals.d.ts"
+    ]
+  },
+  "targetDefaults": {
+    "build": {
+      "cache": true,
+      "inputs": [
+        "production",
+        "^production",
+        "{workspaceRoot}/tsconfig.json",
+        "{workspaceRoot}/tsconfig.build.json",
+        "{workspaceRoot}/tsdown.config.mjs"
+      ],
+      "outputs": ["{projectRoot}/dist"]
+    },
+    "typecheck": {
+      "cache": true,
+      "inputs": ["default", "^production", "{workspaceRoot}/tsconfig.json"]
+    }
+  },
+  "analytics": false
+}

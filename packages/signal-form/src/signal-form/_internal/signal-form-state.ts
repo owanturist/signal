@@ -1,8 +1,8 @@
 import { type Monitor, type ReadonlySignal, Signal } from "@owanturist/signal"
 
-import { Emitter } from "~/tools/emitter"
-import { isNull } from "~/tools/is-null"
-import type { Lazy } from "~/tools/lazy"
+import { Emitter } from "@owanturist/internals/emitter"
+import { isNull } from "@owanturist/internals/is-null"
+import type { Lazy } from "@owanturist/internals/lazy"
 
 import type { SignalFormParams } from "../signal-form-params"
 

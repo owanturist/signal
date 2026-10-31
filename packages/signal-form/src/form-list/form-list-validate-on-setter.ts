@@ -1,4 +1,4 @@
-import type { Setter } from "~/tools/setter"
+import type { Setter } from "@owanturist/internals/setter"
 
 import type { GetFormValidateOnSetter } from "../signal-form/get-form-validate-on-setter"
 import type { SignalForm } from "../signal-form/signal-form"

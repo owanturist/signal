@@ -1,6 +1,6 @@
-import { hasProperty } from "~/tools/has-property"
-import { isFunction } from "~/tools/is-function"
-import { isStrictEqual } from "~/tools/is-strict-equal"
+import { hasProperty } from "@owanturist/internals/has-property"
+import { isFunction } from "@owanturist/internals/is-function"
+import { isStrictEqual } from "@owanturist/internals/is-strict-equal"
 
 import type { Equal } from "./equal"
 import type { ReadableSignal } from "./readable-signal"

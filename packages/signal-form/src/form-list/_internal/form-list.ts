@@ -1,10 +1,10 @@
 import { type Monitor, Signal, batch } from "@owanturist/signal"
 
-import { entries } from "~/tools/entries"
-import { isFunction } from "~/tools/is-function"
-import { isShallowArrayEqual } from "~/tools/is-shallow-array-equal"
-import { map } from "~/tools/map"
-import type { Setter } from "~/tools/setter"
+import { entries } from "@owanturist/internals/entries"
+import { isFunction } from "@owanturist/internals/is-function"
+import { isShallowArrayEqual } from "@owanturist/internals/is-shallow-array-equal"
+import { map } from "@owanturist/internals/map"
+import type { Setter } from "@owanturist/internals/setter"
 
 import { SignalForm } from "../../signal-form/_internal/signal-form"
 import type { FormListParams } from "../form-list-params"

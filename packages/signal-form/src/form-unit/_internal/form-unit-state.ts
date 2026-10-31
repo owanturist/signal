@@ -1,11 +1,11 @@
 import { type Equal, type Monitor, type ReadonlySignal, Signal, batch } from "@owanturist/signal"
 
-import { identity } from "~/tools/identity"
-import { isFunction } from "~/tools/is-function"
-import { isNull } from "~/tools/is-null"
-import { isUndefined } from "~/tools/is-undefined"
-import { lazy } from "~/tools/lazy"
-import { resolveSetter } from "~/tools/setter"
+import { identity } from "@owanturist/internals/identity"
+import { isFunction } from "@owanturist/internals/is-function"
+import { isNull } from "@owanturist/internals/is-null"
+import { isUndefined } from "@owanturist/internals/is-undefined"
+import { lazy } from "@owanturist/internals/lazy"
+import { resolveSetter } from "@owanturist/internals/setter"
 
 import type { Result } from "../../result"
 import { SignalFormState } from "../../signal-form/_internal/signal-form-state"

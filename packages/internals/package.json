@@ -1,0 +1,17 @@
+{
+  "type": "module",
+  "name": "@owanturist/internals",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Source-only helpers inlined into each published package at build time",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

@@ -16,8 +16,8 @@
     "format:fix": "biome format --write",
     "check": "biome check",
     "check:fix": "biome check --write",
-    "typecheck": "pnpm --recursive typecheck",
-    "build": "pnpm --recursive build",
+    "typecheck": "nx run-many -t typecheck",
+    "build": "nx run-many -t build",
     "build:minified": "pnpm build --minify"
   },
   "engines": {
@@ -41,6 +41,7 @@
     "@size-limit/preset-small-lib": "^14.2.0",
     "@types/node": "^26.6.5",
     "@vitest/coverage-v8": "catalog:",
+    "nx": "^23.3.0",
     "size-limit": "^14.2.0",
     "terser": "^5.51.2",
     "tsdown": "^0.23.1",
