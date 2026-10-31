@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@owanturist/signal": "workspace:*",
-    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "@types/react": "^19.3.0",
     "@types/use-sync-external-store": "^1.7.0",
