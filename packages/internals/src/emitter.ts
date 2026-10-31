@@ -1,4 +1,4 @@
-import { map } from "~/tools/map"
+import { map } from "./map"
 
 class Emitter<TPayload = unknown, TResult = void> {
   private readonly _listeners: Array<(payload: TPayload) => TResult> = []

@@ -1,5 +1,5 @@
-import { params } from "~/tools/params"
-import type { Setter } from "~/tools/setter"
+import { params } from "@owanturist/internals/params"
+import type { Setter } from "@owanturist/internals/setter"
 
 import { FormShape, FormUnit } from "../../src"
 

@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-import type { Setter } from "~/tools/setter"
+import type { Setter } from "@owanturist/internals/setter"
 
 import { FormList, FormUnit } from "../../src"
 import { wait } from "../common"

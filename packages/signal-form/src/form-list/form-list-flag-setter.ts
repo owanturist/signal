@@ -1,4 +1,4 @@
-import type { Setter } from "~/tools/setter"
+import type { Setter } from "@owanturist/internals/setter"
 
 import type { GetFormFlagSetter } from "../signal-form/get-form-flag-setter"
 import type { SignalForm } from "../signal-form/signal-form"

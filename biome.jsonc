@@ -20,9 +20,9 @@
             "identifierOrder": "lexicographic",
             "groups": [
               ":NODE:",
-              ":PACKAGE:",
+              [":PACKAGE:", "!@owanturist/internals/**"],
               ":BLANK_LINE:",
-              ":ALIAS:",
+              "@owanturist/internals/**",
               ":BLANK_LINE:",
               "../**/*",
               ":BLANK_LINE:",
@@ -280,7 +280,7 @@
 
     // source code setup
     {
-      "includes": ["**/src/**/*", "!**/__tests__/**/*", "!**/tools/src/testing/**/*"],
+      "includes": ["**/src/**/*", "!**/__tests__/**/*", "!**/internals/src/testing/**/*"],
       "linter": {
         "rules": {
           "style": {

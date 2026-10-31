@@ -1,5 +1,5 @@
-import { isShallowArrayEqual } from "~/tools/is-shallow-array-equal"
-import type { Setter } from "~/tools/setter"
+import { isShallowArrayEqual } from "@owanturist/internals/is-shallow-array-equal"
+import type { Setter } from "@owanturist/internals/setter"
 
 import { FormUnit } from "../../src"
 

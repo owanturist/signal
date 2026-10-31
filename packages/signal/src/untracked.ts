@@ -1,4 +1,4 @@
-import { isFunction } from "~/tools/is-function"
+import { isFunction } from "@owanturist/internals/is-function"
 
 import type { batch } from "./batch"
 import type { ReadableSignal } from "./readable-signal"

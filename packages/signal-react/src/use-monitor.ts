@@ -1,6 +1,6 @@
 import type { Monitor } from "@owanturist/signal"
 
-import { identity } from "~/tools/identity"
+import { identity } from "@owanturist/internals/identity"
 
 import { useCreateMonitor } from "./_internal/use-create-monitor"
 

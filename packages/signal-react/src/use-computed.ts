@@ -1,8 +1,8 @@
 import type { Equal, Monitor, ReadableSignal, Signal } from "@owanturist/signal"
 import { useCallback, useDebugValue } from "react"
 
-import { isFunction } from "~/tools/is-function"
-import { isStrictEqual } from "~/tools/is-strict-equal"
+import { isFunction } from "@owanturist/internals/is-function"
+import { isStrictEqual } from "@owanturist/internals/is-strict-equal"
 
 import type { DependencyList } from "./dependency-list"
 import { useCreateMonitor } from "./_internal/use-create-monitor"

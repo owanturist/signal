@@ -2,7 +2,7 @@ import { type Monitor, Signal, batch, effect } from "@owanturist/signal"
 import { act, fireEvent, render, screen } from "@testing-library/react"
 import { type FC, Profiler, useCallback } from "react"
 
-import { Counter } from "~/tools/testing/counter"
+import { Counter } from "@owanturist/internals/testing/counter"
 
 import { useComputed } from "../../src"
 

@@ -1,6 +1,6 @@
 {
   // rolldown-plugin-dts runs tsgo with --rootDir set to the tsconfig directory,
-  // so declarations are generated from the root to cover packages/tools sources too
+  // so declarations are generated from the root to cover packages/internals sources too
   "extends": "./tsconfig.json",
   "include": ["packages/*/src"]
 }

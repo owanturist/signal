@@ -1,7 +1,7 @@
 import type { Monitor } from "@owanturist/signal"
 import z from "zod"
 
-import type { Setter } from "~/tools/setter"
+import type { Setter } from "@owanturist/internals/setter"
 
 import {
   FormOptional,

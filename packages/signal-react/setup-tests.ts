@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom/vitest"
 import { untracked } from "@owanturist/signal"
 
-import { toHaveEmittersSize } from "~/tools/testing/to-have-emitters-size"
+import { toHaveEmittersSize } from "@owanturist/internals/testing/to-have-emitters-size"
 
 const spy__Object_is = vi.spyOn(Object, "is")
 

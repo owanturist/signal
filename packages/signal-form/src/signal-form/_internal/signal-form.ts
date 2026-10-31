@@ -1,9 +1,9 @@
 import { type Monitor, type ReadonlySignal, batch, untracked } from "@owanturist/signal"
 
-import { isDefined } from "~/tools/is-defined"
-import { isNull } from "~/tools/is-null"
-import { isTrue } from "~/tools/is-true"
-import { isTruthy } from "~/tools/is-truthy"
+import { isDefined } from "@owanturist/internals/is-defined"
+import { isNull } from "@owanturist/internals/is-null"
+import { isTrue } from "@owanturist/internals/is-true"
+import { isTruthy } from "@owanturist/internals/is-truthy"
 
 import type { SignalFormParams } from "../signal-form-params"
 

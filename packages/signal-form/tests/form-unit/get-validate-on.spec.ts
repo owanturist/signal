@@ -1,7 +1,7 @@
 import type { Monitor } from "@owanturist/signal"
 import { z } from "zod"
 
-import { params } from "~/tools/params"
+import { params } from "@owanturist/internals/params"
 
 import {
   FormUnit,

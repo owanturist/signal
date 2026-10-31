@@ -1,4 +1,4 @@
-import { noop } from "~/tools/noop"
+import { noop } from "@owanturist/internals/noop"
 
 import { enqueue } from "./_internal/enqueue"
 import type { Monitor } from "./_internal/monitor"

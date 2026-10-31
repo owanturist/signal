@@ -1,7 +1,7 @@
 import { Signal, batch } from "@owanturist/signal"
 
-import { isShallowArrayEqual } from "~/tools/is-shallow-array-equal"
-import { isUndefined } from "~/tools/is-undefined"
+import { isShallowArrayEqual } from "@owanturist/internals/is-shallow-array-equal"
+import { isUndefined } from "@owanturist/internals/is-undefined"
 
 import type { GetFormInput } from "../signal-form/get-form-input"
 import type { SignalForm } from "../signal-form/signal-form"

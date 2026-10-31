@@ -1,4 +1,4 @@
-import { params } from "~/tools/params"
+import { params } from "@owanturist/internals/params"
 
 import { FormShape, FormUnit, type SignalForm } from "../../src"
 

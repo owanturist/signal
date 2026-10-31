@@ -4,6 +4,8 @@ import { minify } from "terser"
 import { defineConfig } from "tsdown"
 
 const JS_FILE = /\.[cm]?js$/u
+// source-only workspace package, inlined into every bundle
+const INTERNALS = /^@owanturist\/internals\//u
 
 /** @type {import("terser").MinifyOptions} */
 const terserOptions = {
@@ -63,7 +65,10 @@ export default defineConfig(({ minify: shouldMinify }) => ({
   },
   sourcemap: true,
   // any package is external
-  deps: { neverBundle: true },
+  deps: {
+    neverBundle: true,
+    alwaysBundle: [INTERNALS],
+  },
   minify: false,
   outputOptions: (options, format) => ({
     ...options,

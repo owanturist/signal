@@ -1,6 +1,6 @@
 import type { Monitor } from "@owanturist/signal"
 
-import { params } from "~/tools/params"
+import { params } from "@owanturist/internals/params"
 
 import {
   FormShape,

@@ -1,4 +1,4 @@
-import type { Setter } from "~/tools/setter"
+import type { Setter } from "@owanturist/internals/setter"
 
 import type { FormShapeFields } from "./form-shape-fields"
 import type { FormShapeInput } from "./form-shape-input"

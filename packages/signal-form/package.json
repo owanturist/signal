@@ -36,6 +36,7 @@
     "@owanturist/signal": "^0.0.0"
   },
   "devDependencies": {
+    "@owanturist/internals": "workspace:*",
     "@owanturist/signal": "workspace:*",
     "vite": "catalog:",
     "vitest": "catalog:",

@@ -1,4 +1,4 @@
-import { toHaveEmittersSize } from "~/tools/testing/to-have-emitters-size"
+import { toHaveEmittersSize } from "@owanturist/internals/testing/to-have-emitters-size"
 
 import { untracked } from "./src"
 

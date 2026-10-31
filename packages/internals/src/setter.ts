@@ -1,4 +1,4 @@
-import { isFunction } from "~/tools/is-function"
+import { isFunction } from "./is-function"
 
 type Setter<TValue, TPrevValues extends ReadonlyArray<unknown> = [TValue]> =
   | TValue

@@ -1,4 +1,4 @@
-import { Counter } from "~/tools/testing/counter"
+import { Counter } from "@owanturist/internals/testing/counter"
 
 import {
   type Monitor,
