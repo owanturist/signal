@@ -33,7 +33,7 @@ A `Stay{:ts}` groups a rooms `Counter{:ts}` and a nights `Counter{:ts}`, so ever
 
 A `Booking{:ts}` owns the list of `Stay{:ts}` objects and implements `StayParent{:ts}`. It takes care of adding and removing them - it never lets the last one go. The totals are reactive for free: whatever they read through the monitor is what they depend on, including stays added later.
 
-<include lang="ts" meta='title="booking/state.ts"'>./booking/state.example.ts#code</include>
+<include lang="ts" meta='title="booking.ts"'>./booking.example.ts#code</include>
 
 You may not even have noticed that a `Booking{:ts}` is a nested `Signal{:ts}`: it holds a `Signal{:ts}` of `Stay{:ts}` objects, and every `Stay{:ts}` encapsulates Signals inside its `Counter{:ts}` objects. That's the point - you define data structures the way you want, without thinking about reactivity, and the Signals API shows up only where a value is read, where the types enforce passing the monitor around.
 
@@ -51,7 +51,7 @@ The `Stay{:ts}` component receives a `StayState{:ts}` and takes both `Counter{:t
 
 The `Summary{:ts}` component receives the `Booking{:ts}` and reads both totals through one monitor, so it stays in sync with every `Counter{:ts}` in every `Stay{:ts}` without knowing any of them.
 
-<include lang="tsx" meta='title="summary/index.tsx"'>./summary/index.example.tsx#code</include>
+<include lang="tsx" meta='title="summary.tsx"'>./summary.example.tsx#code</include>
 
 The `App{:ts}` component creates the `Booking{:ts}` once and reads only the list of `Stay{:ts}` objects, so it re-renders when one is added or removed - not when a `Counter{:ts}` changes.
 

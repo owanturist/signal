@@ -4,7 +4,7 @@
 import { useMonitor } from "@owanturist/signal-react"
 import { useState } from "react"
 
-import { Booking } from "./booking/state"
+import { Booking } from "./booking"
 import { Stay } from "./stay"
 import { Summary } from "./summary"
 import { RenderBoundary } from "/render-boundary"
