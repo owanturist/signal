@@ -23,7 +23,7 @@ export function RenderBoundary({ name, style, children, ...rest }) {
         backgroundColor: "var(--rb-bg)",
         border: "1px solid var(--rb-border)",
         borderRadius: 4,
-        padding: "16px 12px 12px",
+        padding: "16px 8px 8px",
         marginTop: 4,
         ...style,
       }}

@@ -24,6 +24,12 @@ const sandpackTemplates = import.meta.glob("/src/components/sandpack/*.example.t
   import: "default",
 }) as Record<string, string>
 
+const sandpackStyles = import.meta.glob("/src/components/sandpack/*.example.css", {
+  eager: true,
+  query: "?raw",
+  import: "default",
+}) as Record<string, string>
+
 const indexTemplate = sandpackTemplates["/src/components/sandpack/index.example.tsx"] ?? ""
 const renderBoundaryTemplate =
   sandpackTemplates["/src/components/sandpack/render-boundary.example.tsx"] ?? ""
@@ -32,6 +38,9 @@ const localFiles: SandpackFiles = {
   "/index.tsx": {
     hidden: true,
     code: stripExampleMeta(indexTemplate),
+  },
+  "/styles.css": {
+    code: sandpackStyles["/src/components/sandpack/styles.example.css"] ?? "",
   },
   "/render-boundary.tsx": {
     code: stripExampleMeta(renderBoundaryTemplate),

@@ -1,0 +1,98 @@
+---
+title: Composing Signals
+description: Learn how to organise signal state into self-contained modules that compose into a tree mirroring your component hierarchy
+---
+
+In this tutorial you'll build the state layer for a text editor toolbar. Each control owns its state, the toolbar composes them into a single tree, and a text preview consumes that tree without knowing how the controls work.
+
+## What you'll build
+
+<Sandpack entry="/app.tsx" height={700} codeHeight={390} />
+
+<Callout>The live example wraps components in `RenderBoundary{:ts}` only to demonstrate rendering: it flashes pink whenever a component re-renders. It is not part of the library, so the code blocks below show plain elements instead. Nothing here relies on `React.memo{:ts}` either - components re-render only when the Signals they read change.</Callout>
+
+Explore the file tabs - you'll build these files step by step.
+
+## The alignment state
+
+The alignment control has one piece of state: which alignment is active, held in a single `Signal{:ts}`.
+
+<include lang="ts" meta='title="align/state.ts"'>./align/state.example.ts#code</include>
+
+## The font state
+
+The font control tracks two independent Signals.
+
+<include lang="ts" meta='title="font/state.ts"'>./font/state.example.ts#code</include>
+
+Changing `family{:ts}` doesn't affect `size{:ts}`, and a component that only reads `size{:ts}` won't re-render when `family{:ts}` changes.
+
+## The toolbar state
+
+The toolbar composes the state of both controls.
+
+<include lang="ts" meta='title="toolbar/state.ts"'>./toolbar/state.example.ts#code</include>
+
+The tree of state modules mirrors the component hierarchy, and each node is independently changeable.
+
+## Testing state in isolation
+
+Because each state module is a plain object of Signals, you can unit-test it without mounting React.
+
+```ts title="align/state.test.ts"
+import { initState } from "./state"
+
+it("starts with left alignment", ({ monitor }) => {
+  const { alignment } = initState()
+  expect(alignment.read(monitor)).toBe("left")
+})
+
+it("updates alignment", ({ monitor }) => {
+  const { alignment } = initState()
+  alignment.write("center")
+  expect(alignment.read(monitor)).toBe("center")
+})
+```
+
+<Callout>How the `monitor` fixture is configured is covered in [Testing Signals](/docs/tutorials/testing-signals).</Callout>
+
+## Wiring React components
+
+The React components are thin: each receives the piece of state it needs as props.
+
+`Align{:ts}` reads `state.alignment{:ts}` with [`useComputed`](/docs/api/use-computed) and writes it on click - that one `Signal{:ts}` is all it knows about.
+
+<include lang="tsx" meta='title="align/index.tsx"'>./align/index.example.tsx#code</include>
+
+`Font{:ts}` reads both `family{:ts}` and `size{:ts}` through a single monitor from [`useMonitor`](/docs/api/use-monitor).
+
+<include lang="tsx" meta='title="font/index.tsx"'>./font/index.example.tsx#code</include>
+
+`Toolbar{:ts}` doesn't know what's inside each state - it hands the right piece to each child.
+
+<include lang="tsx" meta='title="toolbar/index.tsx"'>./toolbar/index.example.tsx#code</include>
+
+`App{:ts}` creates the whole tree once: passing `initState{:ts}` itself to `useState{:ts}` lets React call it as a lazy initialiser.
+
+<include lang="tsx" meta='title="app.tsx"'>./app.example.tsx#code</include>
+
+`TextPreview{:ts}` is a consumer of the whole toolbar state: it reads Signals from two levels deep and re-renders only when those change.
+
+<include lang="tsx" meta='title="text-preview/index.tsx"'>./text-preview/index.example.tsx#code</include>
+
+## What you've built
+
+- Three state modules that compose into a tree mirroring the component hierarchy
+- State that needs no React to test
+- React components that stay thin and re-render only when the Signals they read change
+
+## What's next
+
+<Cards>
+  <Card title="Using Signals in React" href="/docs/guides/using-signals-in-react" description="Learn how useComputed and useMonitor work under the hood" />
+  <Card title="Reading and Writing Signals" href="/docs/guides/reading-and-writing-signals" description="All the ways to read from and write to a Signal" />
+  <Card title="Signals in Data Structures" href="/docs/tutorials/signals-in-data-structures" description="Encapsulate signals inside classes or closures" />
+  <Card title="Testing Signals" href="/docs/tutorials/testing-signals" description="Set up the monitor fixture and test state modules without React" />
+</Cards>
+
+<Callout>If you'd rather encapsulate state inside a class with methods than expose a plain object of Signals, that works too - see [Signals in Data Structures](/docs/tutorials/signals-in-data-structures).</Callout>

@@ -1,0 +1,107 @@
+/* Demo styles only - they have nothing to do with Signals. */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 16px;
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+  color: #1f2937;
+}
+
+/* layout */
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.row.tight {
+  gap: 4px;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.title {
+  margin: 0;
+  font-size: 14px;
+}
+
+.preview {
+  min-height: 80px;
+  margin: 0;
+}
+
+/* controls */
+
+.btn,
+.input {
+  padding: 4px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  font: inherit;
+  color: inherit;
+}
+
+.btn {
+  position: relative;
+  cursor: pointer;
+}
+
+.btn:hover:not(:disabled, :has(input:checked)) {
+  background: #f3f4f6;
+}
+
+.btn:has(input:checked) {
+  border-color: #1f2937;
+  background: #1f2937;
+  color: #fff;
+}
+
+.btn:has(input:focus-visible) {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* a radio or checkbox inside a .btn is hidden - the button face is the control */
+.btn input[type="radio"],
+.btn input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.input {
+  padding: 4px 8px;
+}
+
+.input.narrow {
+  width: 64px;
+}
+
+.stack > .btn {
+  align-self: flex-start;
+}

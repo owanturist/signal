@@ -1,4 +1,4 @@
 {
   "title": "Tutorials",
-  "pages": ["composing-state", "signals-in-data-structures", "test-signals"]
+  "pages": ["composing-signals", "nesting-signals", "signals-in-data-structures", "testing-signals"]
 }

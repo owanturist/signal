@@ -20,13 +20,8 @@ export function TextPreview({ state }: Props) {
   return (
     <RenderBoundary
       name="TextPreview"
-      style={{
-        textAlign: alignment,
-        fontFamily: family,
-        fontSize: size,
-        minHeight: 80,
-        margin: 0,
-      }}
+      className="preview"
+      style={{ textAlign: alignment, fontFamily: family, fontSize: size }}
     >
       The quick brown fox jumps over the lazy dog.
     </RenderBoundary>

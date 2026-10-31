@@ -16,11 +16,11 @@ export function Font({ state }: Props) {
   const size = state.size.read(monitor)
 
   return (
-    <RenderBoundary name="Font" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+    <RenderBoundary name="Font" className="row">
       <select
         value={family}
         onChange={(e) => state.family.write(e.target.value)}
-        style={{ border: "1px solid #ccc", padding: "2px 4px" }}
+        className="input"
       >
         <option value="serif">serif</option>
         <option value="sans-serif">sans-serif</option>
@@ -32,7 +32,7 @@ export function Font({ state }: Props) {
         min={8}
         max={72}
         onChange={(e) => state.size.write(Number(e.target.value))}
-        style={{ width: 60, border: "1px solid #ccc", padding: "2px 4px" }}
+        className="input narrow"
       />
       <span>px</span>
     </RenderBoundary>
