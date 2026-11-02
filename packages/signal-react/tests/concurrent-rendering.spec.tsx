@@ -17,13 +17,11 @@ import {
 
 import { useComputed, useMonitor } from "../src"
 
-type UseValue = (signal: ReadableSignal<number>) => number
-
 /**
  * Long enough for React to split a render into several time slices,
  * so a write can land in the middle of the render.
  */
-const SLOW_READERS = Array.from({ length: 8 }, (_, index) => index)
+const SLOW_READERS = [0, 1, 2, 3, 4, 5, 6, 7] as const
 const SLOW_READER_MS = 4
 
 function blockThread(ms: number): void {
@@ -39,8 +37,9 @@ function readDisplayedValues(): ReadonlyArray<null | string> {
 }
 
 /**
- * Collects what all the readers display at the moment of every commit.
- * Readers displaying different values at the same commit (tearing) join into something like `0,1`.
+ * Collects what all the readers display at the moment of every commit, skipping repeated entries:
+ * - no tearing: all the readers display the same value, so the entry is that value, e.g. `1`
+ * - tearing: the readers display different values, so the entry lists all of them, e.g. `0,1`
  */
 function createCommitLog(): {
   commit: VoidFunction
@@ -117,7 +116,7 @@ const OpenInTransition: FC<{
 describe.each<{
   name: string
   derive: boolean
-  useValue: UseValue
+  useValue: (signal: ReadableSignal<number>) => number
 }>([
   {
     name: "useComputed(signal)",
