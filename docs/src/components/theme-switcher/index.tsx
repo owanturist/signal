@@ -2,10 +2,9 @@ import { Monitor, Moon, Sun } from "@/components/icons"
 
 import "./styles.css"
 
+import { type Theme, useTheme } from "./use-theme"
 import { cx } from "@/tools/cx"
 import { useIsMounted } from "@/tools/use-is-mounted"
-
-import { type Theme, useTheme } from "./use-theme"
 
 const THEMES = ["light", "dark", "system"] as const
 

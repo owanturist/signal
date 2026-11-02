@@ -4,8 +4,8 @@
 import type { ReadableSignal } from "@owanturist/signal"
 import { useComputed } from "@owanturist/signal-react"
 
-import type { State as ItemState } from "./item/state"
 import { RenderBoundary } from "/render-boundary"
+import type { State as ItemState } from "./item/state"
 
 interface Props {
   items: ReadableSignal<ReadonlyArray<ItemState>>

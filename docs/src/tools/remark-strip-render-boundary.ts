@@ -4,11 +4,11 @@ interface MdastNode {
   children?: Array<MdastNode>
 }
 
-const IMPORT_LINE = /^import \{ RenderBoundary \} from "\/render-boundary"\n/m
+const IMPORT_LINE = /^import \{ RenderBoundary \} from "\/render-boundary"\n/mu
 
 const NAME = String.raw`name=(?:"[^"]*"|\{[^}]*\})`
-const NAME_ONLY = new RegExp(String.raw`<RenderBoundary\s+${NAME}\s*>`, "g")
-const NAME_THEN_PROPS = new RegExp(String.raw`<RenderBoundary(\s+)${NAME}\s+`, "g")
+const NAME_ONLY = new RegExp(String.raw`<RenderBoundary\s+${NAME}\s*>`, "gu")
+const NAME_THEN_PROPS = new RegExp(String.raw`<RenderBoundary(\s+)${NAME}\s+`, "gu")
 
 function strip(node: MdastNode): void {
   if (node.type === "code" && node.value?.includes("RenderBoundary")) {
@@ -16,7 +16,7 @@ function strip(node: MdastNode): void {
       .replace(IMPORT_LINE, "")
       .replace(NAME_ONLY, "<div>")
       .replace(NAME_THEN_PROPS, "<div$1")
-      .replace(/<\/RenderBoundary>/g, "</div>")
+      .replace(/<\/RenderBoundary>/gu, "</div>")
   }
 
   node.children?.forEach(strip)

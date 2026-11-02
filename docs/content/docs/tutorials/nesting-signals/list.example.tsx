@@ -5,8 +5,8 @@ import type { Signal } from "@owanturist/signal"
 import { useMonitor } from "@owanturist/signal-react"
 
 import { Item } from "./item"
-import { type State as ItemState, initState as initItemState } from "./item/state"
 import { RenderBoundary } from "/render-boundary"
+import { type State as ItemState, initState as initItemState } from "./item/state"
 
 interface Props {
   items: Signal<ReadonlyArray<ItemState>>

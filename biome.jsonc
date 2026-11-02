@@ -441,9 +441,9 @@
       "linter": {
         "rules": {
           "correctness": {
-            "noNodejsModules": "off" // docs are nextjs app - it can use nodejs modules for server code
+            "noNodejsModules": "off" // docs app can use nodejs modules for server code
           },
-          "nursery": {
+          "style": {
             "noJsxLiterals": "off" // landing page and docs components use literal strings
           }
         }
@@ -456,13 +456,11 @@
       "linter": {
         "rules": {
           "style": {
-            "noMagicNumbers": "off" // example code uses inline values for clarity
+            "noMagicNumbers": "off", // example code uses inline values for clarity
+            "noJsxLiterals": "off" // example code uses literal strings in JSX
           },
           "correctness": {
             "noUndeclaredDependencies": "off" // examples import from packages not in docs/package.json
-          },
-          "nursery": {
-            "noJsxLiterals": "off" // example code uses literal strings in JSX
           }
         }
       }

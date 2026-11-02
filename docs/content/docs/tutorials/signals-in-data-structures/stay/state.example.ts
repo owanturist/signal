@@ -6,8 +6,8 @@ import type { Monitor } from "@owanturist/signal"
 import { Counter } from "../counter/state"
 
 export interface StayParent {
-  canRemoveStay(monitor: Monitor): boolean
-  removeStay(stay: Stay): void
+  canRemoveStay: (monitor: Monitor) => boolean
+  removeStay: (stay: Stay) => void
 }
 
 export class Stay {

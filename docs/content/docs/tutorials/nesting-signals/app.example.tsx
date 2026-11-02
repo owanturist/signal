@@ -4,10 +4,10 @@
 import { Signal } from "@owanturist/signal"
 import { useState } from "react"
 
-import { type State as ItemState, initState as initItemState } from "./item/state"
 import { List } from "./list"
 import { Summary } from "./summary"
 import { RenderBoundary } from "/render-boundary"
+import { type State as ItemState, initState as initItemState } from "./item/state"
 
 export default function App() {
   const [items] = useState(() =>
