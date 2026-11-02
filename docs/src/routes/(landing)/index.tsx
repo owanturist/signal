@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock"
 import { Tab, Tabs } from "fumadocs-ui/components/tabs"
 import { HomeLayout } from "fumadocs-ui/layouts/home"
+import type { FC } from "react"
 
 import ComposeExample from "./compose-nested-example.mdx"
 import BothExample from "./reactive-js-both-example.mdx"
@@ -15,11 +16,7 @@ import TypeInferenceExample from "./type-inference-example.mdx"
 import { MDXComponents } from "@/components/mdx-components"
 import { ThemeSwitcher } from "@/components/theme-switcher"
 
-export const Route = createFileRoute("/(landing)/")({
-  component: HomePage,
-})
-
-function HomePage() {
+const HomePage: FC = () => {
   return (
     <HomeLayout
       nav={{
@@ -141,3 +138,7 @@ npm install @owanturist/signal-react # ~0.5 kB
     </HomeLayout>
   )
 }
+
+export const Route = createFileRoute("/(landing)/")({
+  component: HomePage,
+})

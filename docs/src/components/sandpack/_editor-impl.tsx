@@ -5,12 +5,13 @@ import {
   SandpackPreview,
   SandpackProvider,
 } from "@codesandbox/sandpack-react"
+import type { FC } from "react"
 import { Group, Panel, Separator } from "react-resizable-panels"
 
 import type { SandpackEditorProps } from "./_editor"
 import { useTheme } from "@/components/theme-switcher/use-theme"
 
-export function Editor({ files, entry, codeHeight, localFiles }: SandpackEditorProps) {
+export const Editor: FC<SandpackEditorProps> = ({ files, entry, codeHeight, localFiles }) => {
   const { resolvedTheme } = useTheme()
 
   return (

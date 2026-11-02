@@ -1,7 +1,8 @@
 // @ts-nocheck
 
-//#region code
 import { useMonitor } from "@owanturist/signal-react"
+//#region code
+import type { FC } from "react"
 
 import type { State } from "./state"
 import { RenderBoundary } from "/render-boundary"
@@ -10,7 +11,7 @@ interface Props {
   state: State
 }
 
-export function Font({ state }: Props) {
+export const Font: FC<Props> = ({ state }) => {
   const monitor = useMonitor()
   const family = state.family.read(monitor)
   const size = state.size.read(monitor)

@@ -496,21 +496,6 @@
       }
     },
 
-    // docs components - route files reference components before their definitions
-    {
-      "includes": ["docs/**/*.{ts,tsx}"],
-      "linter": {
-        "rules": {
-          "nursery": {
-            "useReactFunctionComponentDefinition": {
-              "level": "error",
-              "options": { "namedComponents": "functionDeclaration" }
-            }
-          }
-        }
-      }
-    },
-
     // docs vite config - runs in node at build time
     {
       "includes": ["docs/vite.config.ts"],

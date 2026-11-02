@@ -1,9 +1,34 @@
 import { Link, Outlet, createFileRoute } from "@tanstack/react-router"
 import { DocsLayout } from "fumadocs-ui/layouts/docs"
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "fumadocs-ui/page"
+import type { FC } from "react"
 
 import { ThemeSwitcher } from "@/components/theme-switcher"
 import { source } from "@/source"
+
+const DocsLayoutRoute: FC = () => (
+  <DocsLayout
+    tree={source.pageTree}
+    nav={{ title: "@owanturist/signal" }}
+    slots={{
+      themeSwitch: ThemeSwitcher,
+    }}
+  >
+    <Outlet />
+  </DocsLayout>
+)
+
+const DocsNotFound: FC = () => (
+  <DocsPage tableOfContent={{ style: "clerk" }} toc={[]}>
+    <DocsTitle>Page not found</DocsTitle>
+    <DocsDescription>The page you're looking for doesn't exist or has been moved.</DocsDescription>
+    <DocsBody>
+      <p>
+        Return to the <Link to="/docs">docs home page</Link>.
+      </p>
+    </DocsBody>
+  </DocsPage>
+)
 
 export const Route = createFileRoute("/docs")({
   component: DocsLayoutRoute,
@@ -12,33 +37,3 @@ export const Route = createFileRoute("/docs")({
   // still wraps the 404 for visual consistency.
   notFoundComponent: DocsNotFound,
 })
-
-function DocsLayoutRoute() {
-  return (
-    <DocsLayout
-      tree={source.pageTree}
-      nav={{ title: "@owanturist/signal" }}
-      slots={{
-        themeSwitch: ThemeSwitcher,
-      }}
-    >
-      <Outlet />
-    </DocsLayout>
-  )
-}
-
-function DocsNotFound() {
-  return (
-    <DocsPage tableOfContent={{ style: "clerk" }} toc={[]}>
-      <DocsTitle>Page not found</DocsTitle>
-      <DocsDescription>
-        The page you're looking for doesn't exist or has been moved.
-      </DocsDescription>
-      <DocsBody>
-        <p>
-          Return to the <Link to="/docs">docs home page</Link>.
-        </p>
-      </DocsBody>
-    </DocsPage>
-  )
-}

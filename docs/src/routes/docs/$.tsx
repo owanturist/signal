@@ -1,14 +1,11 @@
 import { createFileRoute, notFound } from "@tanstack/react-router"
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "fumadocs-ui/page"
+import type { FC } from "react"
 
 import { createMDXComponents } from "@/components/mdx-components"
 import { source } from "@/source"
 
-export const Route = createFileRoute("/docs/$")({
-  component: DocPage,
-})
-
-function DocPage() {
+const DocPage: FC = () => {
   const { _splat } = Route.useParams()
   const slug = _splat ? _splat.split("/").filter(Boolean) : []
   const page = source.getPage(slug)
@@ -29,3 +26,7 @@ function DocPage() {
     </DocsPage>
   )
 }
+
+export const Route = createFileRoute("/docs/$")({
+  component: DocPage,
+})

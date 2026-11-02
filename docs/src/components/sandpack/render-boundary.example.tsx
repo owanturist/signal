@@ -3,7 +3,7 @@
 //#region code
 import { useEffect, useRef } from "react"
 
-export function RenderBoundary({ name, style, children, ...rest }) {
+export const RenderBoundary = ({ name, style, children, ...rest }) => {
   const ref = useRef(null)
 
   useEffect(() => {

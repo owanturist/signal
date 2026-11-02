@@ -1,14 +1,14 @@
 // @ts-nocheck
 
 //#region code
-import { useState } from "react"
+import { type FC, useState } from "react"
 
 import { TextPreview } from "./text-preview"
 import { Toolbar } from "./toolbar"
 import { RenderBoundary } from "/render-boundary"
 import { initState } from "./toolbar/state"
 
-export default function App() {
+const App: FC = () => {
   const [state] = useState(initState)
 
   return (
@@ -18,4 +18,6 @@ export default function App() {
     </RenderBoundary>
   )
 }
+
+export default App
 //#endregion code

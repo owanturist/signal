@@ -1,6 +1,8 @@
 // @ts-nocheck
 
 //#region code
+import type { FC } from "react"
+
 import { Align } from "../align"
 import { Font } from "../font"
 
@@ -11,12 +13,10 @@ interface Props {
   state: State
 }
 
-export function Toolbar({ state }: Props) {
-  return (
-    <RenderBoundary name="Toolbar" className="row">
-      <Align state={state.align} />
-      <Font state={state.font} />
-    </RenderBoundary>
-  )
-}
+export const Toolbar: FC<Props> = ({ state }) => (
+  <RenderBoundary name="Toolbar" className="row">
+    <Align state={state.align} />
+    <Font state={state.font} />
+  </RenderBoundary>
+)
 //#endregion code

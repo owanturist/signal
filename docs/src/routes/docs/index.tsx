@@ -1,14 +1,11 @@
 import { createFileRoute, notFound } from "@tanstack/react-router"
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "fumadocs-ui/page"
+import type { FC } from "react"
 
 import { createMDXComponents } from "@/components/mdx-components"
 import { source } from "@/source"
 
-export const Route = createFileRoute("/docs/")({
-  component: DocsIndexPage,
-})
-
-function DocsIndexPage() {
+const DocsIndexPage: FC = () => {
   const page = source.getPage([])
 
   if (!page) {
@@ -27,3 +24,7 @@ function DocsIndexPage() {
     </DocsPage>
   )
 }
+
+export const Route = createFileRoute("/docs/")({
+  component: DocsIndexPage,
+})

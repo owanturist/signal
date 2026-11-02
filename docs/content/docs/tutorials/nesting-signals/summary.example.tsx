@@ -1,8 +1,9 @@
 // @ts-nocheck
 
-//#region code
 import type { ReadableSignal } from "@owanturist/signal"
 import { useComputed } from "@owanturist/signal-react"
+//#region code
+import type { FC } from "react"
 
 import { RenderBoundary } from "/render-boundary"
 import type { State as ItemState } from "./item/state"
@@ -11,7 +12,7 @@ interface Props {
   items: ReadableSignal<ReadonlyArray<ItemState>>
 }
 
-export function Summary({ items }: Props) {
+export const Summary: FC<Props> = ({ items }) => {
   const summary = useComputed(
     (monitor) => {
       const states = items.read(monitor)

@@ -1,7 +1,8 @@
 // @ts-nocheck
 
-//#region code
 import { useMonitor } from "@owanturist/signal-react"
+//#region code
+import type { FC } from "react"
 
 import { Counter } from "../counter"
 
@@ -12,7 +13,7 @@ interface Props {
   stay: StayState
 }
 
-export function Stay({ title, stay }: Props) {
+export const Stay: FC<Props> = ({ title, stay }) => {
   const monitor = useMonitor()
 
   return (

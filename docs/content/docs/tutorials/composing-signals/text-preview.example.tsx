@@ -1,7 +1,8 @@
 // @ts-nocheck
 
-//#region code
 import { useMonitor } from "@owanturist/signal-react"
+//#region code
+import type { FC } from "react"
 
 import { RenderBoundary } from "/render-boundary"
 import type { State as ToolbarState } from "./toolbar/state"
@@ -10,7 +11,7 @@ interface Props {
   state: ToolbarState
 }
 
-export function TextPreview({ state }: Props) {
+export const TextPreview: FC<Props> = ({ state }) => {
   const monitor = useMonitor()
   const alignment = state.align.alignment.read(monitor)
   const family = state.font.family.read(monitor)

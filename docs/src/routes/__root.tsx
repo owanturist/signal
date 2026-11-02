@@ -1,5 +1,6 @@
 import { HeadContent, Outlet, Scripts, createRootRoute } from "@tanstack/react-router"
 import { RootProvider } from "fumadocs-ui/provider/tanstack"
+import type { FC } from "react"
 
 import "@/app.css"
 
@@ -19,11 +20,7 @@ const initTheme = `
   .trim()
   .replace(/\s+/gu, " ")
 
-export const Route = createRootRoute({
-  component: RootComponent,
-})
-
-function RootComponent() {
+const RootComponent: FC = () => {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -42,3 +39,7 @@ function RootComponent() {
     </html>
   )
 }
+
+export const Route = createRootRoute({
+  component: RootComponent,
+})

@@ -1,3 +1,5 @@
+import type { FC } from "react"
+
 import { Monitor, Moon, Sun } from "@/components/icons"
 
 import "./styles.css"
@@ -28,7 +30,7 @@ function normalizeTheme(theme: string): string {
   return theme
 }
 
-export function ThemeSwitcher({ className }: { className?: string }) {
+export const ThemeSwitcher: FC<{ className?: string }> = ({ className }) => {
   const { theme, setTheme } = useTheme()
   const isMounted = useIsMounted()
 

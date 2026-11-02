@@ -1,7 +1,8 @@
 // @ts-nocheck
 
-//#region code
 import { useMonitor } from "@owanturist/signal-react"
+//#region code
+import type { FC } from "react"
 
 import type { Booking } from "./booking"
 import { RenderBoundary } from "/render-boundary"
@@ -10,7 +11,7 @@ interface Props {
   booking: Booking
 }
 
-export function Summary({ booking }: Props) {
+export const Summary: FC<Props> = ({ booking }) => {
   const monitor = useMonitor()
   const rooms = booking.totalRooms(monitor)
   const nights = booking.totalNights(monitor)

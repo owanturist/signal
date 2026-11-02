@@ -1,7 +1,8 @@
 // @ts-nocheck
 
-//#region code
 import { useComputed } from "@owanturist/signal-react"
+//#region code
+import type { FC } from "react"
 
 import type { Alignment, State } from "./state"
 import { RenderBoundary } from "/render-boundary"
@@ -12,7 +13,7 @@ interface Props {
   state: State
 }
 
-export function Align({ state }: Props) {
+export const Align: FC<Props> = ({ state }) => {
   const alignment = useComputed(state.alignment)
 
   return (

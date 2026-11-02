@@ -1,5 +1,5 @@
 import type { SandpackFiles } from "@codesandbox/sandpack-react"
-import { Suspense, lazy } from "react"
+import { type FC, Suspense, lazy } from "react"
 
 export interface SandpackEditorProps {
   files: SandpackFiles
@@ -16,10 +16,8 @@ const LazyEditor = lazy(async () => {
   return { default: Editor }
 })
 
-export function SandpackEditor(props: SandpackEditorProps) {
-  return (
-    <Suspense fallback={<div className="h-(--sp-height) rounded-xl border bg-fd-background" />}>
-      <LazyEditor {...props} />
-    </Suspense>
-  )
-}
+export const SandpackEditor: FC<SandpackEditorProps> = (props) => (
+  <Suspense fallback={<div className="h-(--sp-height) rounded-xl border bg-fd-background" />}>
+    <LazyEditor {...props} />
+  </Suspense>
+)

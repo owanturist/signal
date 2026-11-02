@@ -1,8 +1,9 @@
 // @ts-nocheck
 
-//#region code
 import type { Signal } from "@owanturist/signal"
 import { useMonitor } from "@owanturist/signal-react"
+//#region code
+import type { FC } from "react"
 
 import { Item } from "./item"
 import { RenderBoundary } from "/render-boundary"
@@ -12,7 +13,7 @@ interface Props {
   items: Signal<ReadonlyArray<ItemState>>
 }
 
-export function List({ items }: Props) {
+export const List: FC<Props> = ({ items }) => {
   const monitor = useMonitor()
 
   return (

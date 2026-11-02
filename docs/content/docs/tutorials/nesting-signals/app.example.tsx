@@ -2,14 +2,14 @@
 
 //#region code
 import { Signal } from "@owanturist/signal"
-import { useState } from "react"
+import { type FC, useState } from "react"
 
 import { List } from "./list"
 import { Summary } from "./summary"
 import { RenderBoundary } from "/render-boundary"
 import { type State as ItemState, initState as initItemState } from "./item/state"
 
-export default function App() {
+const App: FC = () => {
   const [items] = useState(() =>
     Signal<ReadonlyArray<ItemState>>([initItemState("Passport"), initItemState("Sunscreen")]),
   )
@@ -21,4 +21,6 @@ export default function App() {
     </RenderBoundary>
   )
 }
+
+export default App
 //#endregion code

@@ -1,5 +1,5 @@
 import type { SandpackFiles } from "@codesandbox/sandpack-react"
-import type { CSSProperties } from "react"
+import type { CSSProperties, FC } from "react"
 
 import { SandpackEditor, type SandpackEditorProps } from "./_editor"
 import localPackageFiles from "virtual:local-packages"
@@ -75,7 +75,12 @@ export interface SandpackProps extends Omit<SandpackEditorProps, "localFiles" | 
   files?: SandpackFiles
 }
 
-export function Sandpack({ height = 600, dir, files: explicitFiles, ...props }: SandpackProps) {
+export const Sandpack: FC<SandpackProps> = ({
+  height = 600,
+  dir,
+  files: explicitFiles,
+  ...props
+}) => {
   let files: SandpackFiles = {}
 
   if (dir) {

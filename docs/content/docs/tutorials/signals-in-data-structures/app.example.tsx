@@ -2,14 +2,14 @@
 
 //#region code
 import { useMonitor } from "@owanturist/signal-react"
-import { useState } from "react"
+import { type FC, useState } from "react"
 
 import { Booking } from "./booking"
 import { Stay } from "./stay"
 import { Summary } from "./summary"
 import { RenderBoundary } from "/render-boundary"
 
-export default function App() {
+const App: FC = () => {
   const monitor = useMonitor()
   const [booking] = useState(() => new Booking())
 
@@ -25,4 +25,6 @@ export default function App() {
     </RenderBoundary>
   )
 }
+
+export default App
 //#endregion code

@@ -1,7 +1,8 @@
 // @ts-nocheck
 
-//#region code
 import { useMonitor } from "@owanturist/signal-react"
+//#region code
+import type { FC } from "react"
 
 import type { Counter as CounterState } from "./state"
 import { RenderBoundary } from "/render-boundary"
@@ -11,7 +12,7 @@ interface Props {
   counter: CounterState
 }
 
-export function Counter({ label, counter }: Props) {
+export const Counter: FC<Props> = ({ label, counter }) => {
   const monitor = useMonitor()
 
   return (

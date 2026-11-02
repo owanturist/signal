@@ -1,7 +1,8 @@
 // @ts-nocheck
 
-//#region code
 import { useMonitor } from "@owanturist/signal-react"
+//#region code
+import type { FC } from "react"
 
 import type { State } from "./state"
 import { RenderBoundary } from "/render-boundary"
@@ -11,7 +12,7 @@ interface Props {
   onRemove: () => void
 }
 
-export function Item({ state, onRemove }: Props) {
+export const Item: FC<Props> = ({ state, onRemove }) => {
   const monitor = useMonitor()
 
   return (
