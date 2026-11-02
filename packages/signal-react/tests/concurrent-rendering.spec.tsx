@@ -89,7 +89,12 @@ const WriteOnRender: FC<{
 }
 
 /**
- * Renders nothing until the button click opens the children in a transition.
+ * Renders a button and the `prefix`, while the `children` stay unmounted until the button click.
+ * The click mounts them inside `startTransition`, so their first render is a concurrent one:
+ * it can be interrupted, and React checks at its end whether an external store has changed meanwhile.
+ *
+ * @param props.children readers that mount in the transition, so they are not subscribed during its render.
+ * @param props.prefix readers that mount immediately, so they are subscribed before the transition starts.
  */
 const OpenInTransition: FC<{
   children: ReactNode
