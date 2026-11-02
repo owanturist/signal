@@ -15,6 +15,7 @@ import StringPropExample from "./skip-rerenders-string-prop-example.mdx"
 import TypeInferenceExample from "./type-inference-example.mdx"
 import { MDXComponents } from "@/components/mdx-components"
 import { ThemeSwitcher } from "@/components/theme-switcher"
+import { SITE_NAME, createPageHead } from "@/tools/page-head"
 
 const HomePage: FC = () => {
   return (
@@ -140,5 +141,9 @@ npm install @owanturist/signal-react # ~0.5 kB
 }
 
 export const Route = createFileRoute("/(landing)/")({
+  head: () =>
+    createPageHead({
+      title: `${SITE_NAME} - fine-grained reactive state for JavaScript and React`,
+    }),
   component: HomePage,
 })

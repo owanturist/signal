@@ -4,6 +4,7 @@ import type { FC } from "react"
 
 import { createMDXComponents } from "@/components/mdx-components"
 import { source } from "@/source"
+import { createPageHead, docTitle } from "@/tools/page-head"
 
 const DocsIndexPage: FC = () => {
   const page = source.getPage([])
@@ -26,5 +27,13 @@ const DocsIndexPage: FC = () => {
 }
 
 export const Route = createFileRoute("/docs/")({
+  head: () => {
+    const page = source.getPage([])
+
+    return createPageHead({
+      title: docTitle(page?.data.title ?? "Documentation"),
+      description: page?.data.description,
+    })
+  },
   component: DocsIndexPage,
 })

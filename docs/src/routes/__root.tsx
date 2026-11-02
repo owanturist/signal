@@ -3,6 +3,7 @@ import { RootProvider } from "fumadocs-ui/provider/tanstack"
 import type { FC } from "react"
 
 import "@/app.css"
+import { SITE_NAME, createPageHead } from "@/tools/page-head"
 
 const initTheme = `
 (() => {
@@ -41,5 +42,17 @@ const RootComponent: FC = () => {
 }
 
 export const Route = createRootRoute({
+  head: () => {
+    const { meta } = createPageHead({ title: SITE_NAME })
+
+    return {
+      meta: [
+        ...meta,
+        { property: "og:site_name", content: SITE_NAME },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary" },
+      ],
+    }
+  },
   component: RootComponent,
 })

@@ -4,6 +4,7 @@ import type { FC } from "react"
 
 import { createMDXComponents } from "@/components/mdx-components"
 import { source } from "@/source"
+import { createPageHead, docTitle } from "@/tools/page-head"
 
 const DocPage: FC = () => {
   const { _splat } = Route.useParams()
@@ -28,5 +29,13 @@ const DocPage: FC = () => {
 }
 
 export const Route = createFileRoute("/docs/$")({
+  head: ({ params }) => {
+    const page = source.getPage(params._splat ? params._splat.split("/").filter(Boolean) : [])
+
+    return createPageHead({
+      title: docTitle(page?.data.title ?? "Page not found"),
+      description: page?.data.description,
+    })
+  },
   component: DocPage,
 })
