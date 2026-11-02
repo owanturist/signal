@@ -1,4 +1,4 @@
-import { type Monitor, type ReadableSignal, Signal, effect, untracked } from "@owanturist/signal"
+import { type ReadableSignal, Signal, effect, untracked } from "@owanturist/signal"
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import {
   type FC,
@@ -81,9 +81,8 @@ function createSuspended(): [FC, VoidFunction] {
  */
 const WriteOnRender: FC<{
   source: Signal<number>
-  monitor: Monitor
-}> = ({ source, monitor }) => {
-  if (source.read(monitor) === 0) {
+}> = ({ source }) => {
+  if (untracked(source) === 0) {
     source.write(1)
   }
 
@@ -167,9 +166,7 @@ describe.each<{
   }
 
   describe("transitions", () => {
-    it("re-renders readers mounting in a transition when a write lands between them", ({
-      monitor,
-    }) => {
+    it("re-renders readers mounting in a transition when a write lands between them", () => {
       const { source, signal } = setup()
       const log = createCommitLog()
       const onRender = vi.fn()
@@ -177,7 +174,7 @@ describe.each<{
       render(
         <OpenInTransition>
           <Reader signal={signal} onCommit={log.commit} onRender={onRender} />
-          <WriteOnRender source={source} monitor={monitor} />
+          <WriteOnRender source={source} />
           <Reader signal={signal} onCommit={log.commit} onRender={onRender} />
         </OpenInTransition>,
       )
@@ -197,13 +194,13 @@ describe.each<{
       expect(readDisplayedValues()).toStrictEqual(["2", "2"])
     })
 
-    it("lets a discarded render be garbage collected", async ({ monitor }) => {
+    it("lets a discarded render be garbage collected", async () => {
       const { source, signal } = setup()
 
       const { unmount } = render(
         <OpenInTransition>
           <Reader signal={signal} />
-          <WriteOnRender source={source} monitor={monitor} />
+          <WriteOnRender source={source} />
           <Reader signal={signal} />
         </OpenInTransition>,
       )
@@ -220,13 +217,13 @@ describe.each<{
       expect(signal).toHaveEmittersSize(0)
     })
 
-    it("detaches a discarded render on the next write", ({ monitor }) => {
+    it("detaches a discarded render on the next write", () => {
       const { source, signal } = setup()
 
       render(
         <OpenInTransition>
           <Reader signal={signal} />
-          <WriteOnRender source={source} monitor={monitor} />
+          <WriteOnRender source={source} />
           <Reader signal={signal} />
         </OpenInTransition>,
       )
@@ -665,7 +662,7 @@ describe.each<{
  */
 describe("control: a hook without useSyncExternalStore", () => {
   function useNaiveValue(signal: ReadableSignal<number>): number {
-    const [value, setValue] = useState(() => untracked((monitor) => signal.read(monitor)))
+    const [value, setValue] = useState(() => untracked(signal))
 
     useEffect(
       () =>
@@ -689,14 +686,14 @@ describe("control: a hook without useSyncExternalStore", () => {
     return <span data-testid="reader">{value}</span>
   }
 
-  it("tears when a write lands between the readers", ({ monitor }) => {
+  it("tears when a write lands between the readers", () => {
     const source = Signal(0)
     const log = createCommitLog()
 
     render(
       <OpenInTransition>
         <NaiveReader signal={source} onCommit={log.commit} />
-        <WriteOnRender source={source} monitor={monitor} />
+        <WriteOnRender source={source} />
         <NaiveReader signal={source} onCommit={log.commit} />
       </OpenInTransition>,
     )
