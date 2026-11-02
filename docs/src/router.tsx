@@ -2,9 +2,13 @@ import { createRouter } from "@tanstack/react-router"
 
 import { routeTree } from "./route-tree.gen"
 
+// `BASE_URL` is `/` or `/<base>/`, the router wants no trailing slash
+const basepath = import.meta.env.BASE_URL.replace(/\/$/u, "") || "/"
+
 export function createAppRouter() {
   return createRouter({
     routeTree,
+    basepath,
     // Preload route code + data on link hover/focus. Fumadocs already sets
     // this on its internal `<Link>`s; the router-level default extends the
     // same behaviour to any custom `<Link>` we add later.

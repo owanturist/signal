@@ -1,0 +1,72 @@
+name: Docs
+
+# Publishes the documentation website to GitHub Pages at https://owanturist.me/signal/
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - docs/**
+      - packages/*/src/**
+      - packages/*/package.json
+      - .github/workflows/docs.yml
+
+  # lets to publish manually from the Actions tab
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# do not interrupt a deployment in progress, the latest queued one runs next
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  CI: true
+  # the website lives under owanturist.me/signal
+  DOCS_BASE: /signal
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Setup environment
+        uses: ./.github/actions/setup-env
+
+      # builds the packages first, the live examples run against their dist files
+      - name: Build
+        run: pnpm build
+
+      - name: Assemble the site
+        run: |
+          mkdir _site
+          cp docs/index.html docs/404.html _site/
+          cp -r docs/dist/client _site/signal
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v5.0.0
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5.0.1

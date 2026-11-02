@@ -1,6 +1,7 @@
 import fs from "node:fs"
 import { mkdir, writeFile } from "node:fs/promises"
 import path from "node:path"
+import process from "node:process"
 import { pathToFileURL } from "node:url"
 import tailwindcss from "@tailwindcss/vite"
 import { tanstackStart } from "@tanstack/react-start/plugin/vite"
@@ -16,6 +17,8 @@ const appDir = path.resolve(import.meta.dirname)
 const MDX_EXT_RE = /\.mdx$/u
 const NODE_BUILTIN_RE = /^node:(?:path|fs\/promises)$/u
 const ANY_RE = /./u
+const TRAILING_SLASH_RE = /\/$/u
+const SURROUNDING_SLASHES_RE = /^\/+|\/+$/gu
 
 function flattenExports(
   input: Record<string, string | Record<string, string>>,
@@ -225,6 +228,7 @@ function staticFilesPlugin(): Plugin {
       await build({
         configFile: false,
         root: appDir,
+        base: getBase(),
         logLevel: "warn",
         build: {
           ssr: true,
@@ -277,6 +281,7 @@ function staticFilesPlugin(): Plugin {
       }
 
       // /llms.txt
+      const prefix = getBase().replace(TRAILING_SLASH_RE, "")
       const llmsTxt = [
         "# @owanturist/signal Documentation",
         "",
@@ -286,12 +291,12 @@ function staticFilesPlugin(): Plugin {
         "",
         ...pages.map(({ data, url }) => {
           const description = data.description ? `: ${data.description}` : ""
-          return `- [${data.title}](${url}.md)${description}`
+          return `- [${data.title}](${prefix}${url}.md)${description}`
         }),
         "",
         "## Full documentation",
         "",
-        "- [llms-full.txt](/llms-full.txt)",
+        `- [llms-full.txt](${prefix}/llms-full.txt)`,
       ].join("\n")
       await writeFile(path.join(clientDir, "llms.txt"), llmsTxt)
 
@@ -330,12 +335,21 @@ function searchIndexDevPlugin(): Plugin {
   }
 }
 
+// The site is published under a sub-path (e.g. `/signal`), set it through `DOCS_BASE`.
+// It is served from the root when the variable is not set.
+function getBase(): string {
+  const base = (process.env.DOCS_BASE ?? "").replace(SURROUNDING_SLASHES_RE, "")
+
+  return base ? `/${base}/` : "/"
+}
+
 export default defineConfig(async () => {
   const contentDir = path.resolve(appDir, "content/docs")
   const mdxRoutes = getMdxRoutes(contentDir, "/docs")
   const prerenderPaths = ["/", ...mdxRoutes]
 
   return {
+    base: getBase(),
     plugins: [
       nodePathPolyfillPlugin(),
       await mdx({ docs, default: sourceConfigDefault }),

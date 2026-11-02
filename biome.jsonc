@@ -507,6 +507,9 @@
           "nursery": {
             "noUnsafeTypeAssertion": "off" // JSON and dynamic imports are untyped at the boundary
           },
+          "style": {
+            "noProcessEnv": "off" // the base path of the build comes from the environment
+          },
           "suspicious": {
             "noConsole": "off" // reports progress of the static export
           }

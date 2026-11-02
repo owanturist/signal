@@ -34,7 +34,9 @@ const RootComponent: FC = () => {
       <body>
         <RootProvider
           theme={{ enabled: false }}
-          search={{ options: { type: "static", api: "/search-index.json" } }}
+          search={{
+            options: { type: "static", api: `${import.meta.env.BASE_URL}search-index.json` },
+          }}
         >
           <Outlet />
         </RootProvider>
