@@ -1,4 +1,4 @@
-import { type Monitor, type ReadableSignal, Signal } from "@owanturist/signal"
+import { type Monitor, type ReadableSignal, Signal, effect, untracked } from "@owanturist/signal"
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import {
   type FC,
@@ -9,6 +9,7 @@ import {
   memo,
   startTransition,
   useDeferredValue,
+  useEffect,
   useLayoutEffect,
   useState,
   useTransition,
@@ -58,7 +59,7 @@ function createCommitLog(): {
 /**
  * Creates a lazy component that stays suspended until revealed.
  */
-function createSuspended(): { Suspended: FC; reveal: VoidFunction } {
+function createSuspended(): [FC, VoidFunction] {
   let reveal: VoidFunction = () => undefined
 
   const loaded = new Promise<{ default: FC }>((resolve) => {
@@ -67,12 +68,51 @@ function createSuspended(): { Suspended: FC; reveal: VoidFunction } {
     }
   })
 
-  return {
-    Suspended: lazy(() => loaded),
-    reveal: () => {
+  return [
+    lazy(() => loaded),
+    () => {
       reveal()
     },
+  ]
+}
+
+/**
+ * Writes in the middle of a render, so the readers rendered before it have seen the previous value.
+ */
+const WriteOnRender: FC<{
+  source: Signal<number>
+  monitor: Monitor
+}> = ({ source, monitor }) => {
+  if (source.read(monitor) === 0) {
+    source.write(1)
   }
+
+  return null
+}
+
+/**
+ * Renders nothing until the button click opens the children in a transition.
+ */
+const OpenInTransition: FC<{
+  children: ReactNode
+  prefix?: ReactNode
+}> = ({ children, prefix }) => {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => {
+          startTransition(() => {
+            setIsOpen(true)
+          })
+        }}
+      />
+      {prefix}
+      {isOpen && children}
+    </>
+  )
 }
 
 describe.each<{
@@ -124,45 +164,6 @@ describe.each<{
     })
 
     return <span data-testid="reader">{value}</span>
-  }
-
-  /**
-   * Writes in the middle of a render, so the readers rendered before it have seen the previous value.
-   */
-  const WriteOnRender: FC<{
-    source: Signal<number>
-    monitor: Monitor
-  }> = ({ source, monitor }) => {
-    if (source.read(monitor) === 0) {
-      source.write(1)
-    }
-
-    return null
-  }
-
-  /**
-   * Renders nothing until the button click opens the children in a transition.
-   */
-  const OpenInTransition: FC<{
-    children: ReactNode
-    prefix?: ReactNode
-  }> = ({ children, prefix }) => {
-    const [isOpen, setIsOpen] = useState(false)
-
-    return (
-      <>
-        <button
-          type="button"
-          onClick={() => {
-            startTransition(() => {
-              setIsOpen(true)
-            })
-          }}
-        />
-        {prefix}
-        {isOpen && children}
-      </>
-    )
   }
 
   describe("transitions", () => {
@@ -455,7 +456,7 @@ describe.each<{
   describe("Suspense", () => {
     it("keeps mounted readers updating while a transition is suspended", async () => {
       const { source, signal } = setup()
-      const { Suspended, reveal } = createSuspended()
+      const [Suspended, reveal] = createSuspended()
 
       const Component: FC = () => {
         const [isPending, start] = useTransition()
@@ -515,7 +516,7 @@ describe.each<{
 
     it("reveals the latest value after a write made behind a fallback", async () => {
       const { source, signal } = setup()
-      const { Suspended, reveal } = createSuspended()
+      const [Suspended, reveal] = createSuspended()
 
       render(
         <Suspense fallback={<span data-testid="fallback" />}>
@@ -544,7 +545,7 @@ describe.each<{
 
     it("keeps a mounted reader up to date while a fallback hides it", async () => {
       const { source, signal } = setup()
-      const { Suspended, reveal } = createSuspended()
+      const [Suspended, reveal] = createSuspended()
 
       const Component: FC = () => {
         const [isOpen, setIsOpen] = useState(false)
@@ -655,5 +656,53 @@ describe.each<{
       })
       expect(readDisplayedValues()).toStrictEqual(["1"])
     })
+  })
+})
+
+/**
+ * Proves the commit log can see tearing at all. Without it, the tests above
+ * would keep passing for the wrong reason if the log stopped recording torn commits.
+ */
+describe("control: a hook without useSyncExternalStore", () => {
+  function useNaiveValue(signal: ReadableSignal<number>): number {
+    const [value, setValue] = useState(() => untracked((monitor) => signal.read(monitor)))
+
+    useEffect(
+      () =>
+        effect((monitor) => {
+          setValue(signal.read(monitor))
+        }),
+      [signal],
+    )
+
+    return value
+  }
+
+  const NaiveReader: FC<{
+    signal: ReadableSignal<number>
+    onCommit: VoidFunction
+  }> = ({ signal, onCommit }) => {
+    const value = useNaiveValue(signal)
+
+    useLayoutEffect(onCommit)
+
+    return <span data-testid="reader">{value}</span>
+  }
+
+  it("tears when a write lands between the readers", ({ monitor }) => {
+    const source = Signal(0)
+    const log = createCommitLog()
+
+    render(
+      <OpenInTransition>
+        <NaiveReader signal={source} onCommit={log.commit} />
+        <WriteOnRender source={source} monitor={monitor} />
+        <NaiveReader signal={source} onCommit={log.commit} />
+      </OpenInTransition>,
+    )
+
+    fireEvent.click(screen.getByRole("button"))
+
+    expect(log.read()).toStrictEqual(["0,1", "1"])
   })
 })
