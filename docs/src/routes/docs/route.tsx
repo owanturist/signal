@@ -18,9 +18,8 @@ function DocsLayoutRoute() {
     <DocsLayout
       tree={source.pageTree}
       nav={{ title: "@owanturist/signal" }}
-      themeSwitch={{
-        mode: "light-dark-system",
-        component: <ThemeSwitcher className="ms-auto p-0" />,
+      slots={{
+        themeSwitch: ThemeSwitcher,
       }}
     >
       <Outlet />
