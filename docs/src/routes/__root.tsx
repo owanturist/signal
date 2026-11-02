@@ -32,7 +32,10 @@ const RootComponent: FC = () => {
         <HeadContent />
       </head>
       <body>
-        <RootProvider theme={{ enabled: false }}>
+        <RootProvider
+          theme={{ enabled: false }}
+          search={{ options: { type: "static", api: "/search-index.json" } }}
+        >
           <Outlet />
         </RootProvider>
         <Scripts />

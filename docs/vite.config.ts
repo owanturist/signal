@@ -206,6 +206,7 @@ interface SourceLike {
 // - `/docs.md` for the docs index
 // - `/llms.txt` with a flat link list
 // - `/llms-full.txt` with concatenated LLM text for every page
+// - `/search-index.json` with the static search index the search dialog downloads
 function staticFilesPlugin(): Plugin {
   return {
     name: "static-files",
@@ -252,8 +253,9 @@ function staticFilesPlugin(): Plugin {
       const mod = (await import(pathToFileURL(builtPath).href)) as {
         source: SourceLike
         getLLMText: (page: SourcePage) => Promise<string>
+        getSearchIndex: () => Promise<unknown>
       }
-      const { source, getLLMText } = mod
+      const { source, getLLMText, getSearchIndex } = mod
       const pages = source.getPages()
 
       // Per-page .md files (skip the docs root - that's written as /docs.md)
@@ -297,9 +299,33 @@ function staticFilesPlugin(): Plugin {
       const llmsFull = (await Promise.all(pages.map((p) => getLLMText(p)))).join("\n\n")
       await writeFile(path.join(clientDir, "llms-full.txt"), llmsFull)
 
-      console.info(
-        `[static-files] Wrote ${pages.length} .md files + /docs.md + /llms.txt + /llms-full.txt`,
+      // /search-index.json
+      await writeFile(
+        path.join(clientDir, "search-index.json"),
+        JSON.stringify(await getSearchIndex()),
       )
+
+      console.info(
+        `[static-files] Wrote ${pages.length} .md files + /docs.md + /llms.txt + /llms-full.txt + /search-index.json`,
+      )
+    },
+  }
+}
+
+// Serves `/search-index.json` in dev, where `staticFilesPlugin` does not run.
+function searchIndexDevPlugin(): Plugin {
+  return {
+    name: "search-index-dev",
+    apply: "serve",
+    configureServer(server) {
+      server.middlewares.use("/search-index.json", async (_request, response) => {
+        const mod = (await server.ssrLoadModule("/src/tools/get-search-index.ts")) as {
+          getSearchIndex: () => Promise<unknown>
+        }
+
+        response.setHeader("Content-Type", "application/json")
+        response.end(JSON.stringify(await mod.getSearchIndex()))
+      })
     },
   }
 }
@@ -338,6 +364,7 @@ export default defineConfig(async () => {
       // it's missing. Must be registered AFTER `tanstackStart()`.
       react(),
       staticFilesPlugin(),
+      searchIndexDevPlugin(),
     ],
     resolve: {
       alias: {

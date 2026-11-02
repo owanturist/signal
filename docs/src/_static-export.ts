@@ -12,3 +12,4 @@
 // This file is NOT a TanStack route - it's a private bundling target.
 export { source } from "./source"
 export { getLLMText } from "./tools/get-llm-text"
+export { getSearchIndex } from "./tools/get-search-index"
