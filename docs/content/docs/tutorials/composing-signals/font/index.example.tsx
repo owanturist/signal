@@ -17,11 +17,7 @@ export function Font({ state }: Props) {
 
   return (
     <RenderBoundary name="Font" className="row">
-      <select
-        value={family}
-        onChange={(e) => state.family.write(e.target.value)}
-        className="input"
-      >
+      <select value={family} onChange={(e) => state.family.write(e.target.value)} className="input">
         <option value="serif">serif</option>
         <option value="sans-serif">sans-serif</option>
         <option value="monospace">monospace</option>

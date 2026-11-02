@@ -12,12 +12,15 @@ interface Props {
 }
 
 export function Summary({ items }: Props) {
-  const summary = useComputed((monitor) => {
-    const states = items.read(monitor)
-    const packed = states.filter((state) => state.packed.read(monitor)).length
+  const summary = useComputed(
+    (monitor) => {
+      const states = items.read(monitor)
+      const packed = states.filter((state) => state.packed.read(monitor)).length
 
-    return `${packed} of ${states.length} packed`
-  }, [items])
+      return `${packed} of ${states.length} packed`
+    },
+    [items],
+  )
 
   return <RenderBoundary name="Summary">{summary}</RenderBoundary>
 }
