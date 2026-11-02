@@ -12,23 +12,23 @@ function stripExampleMeta(code: string): string {
   return code.replace(RE_TS_NOCHECK, "").replace(RE_REGION_START, "").replace(RE_REGION_END, "")
 }
 
-const allContentExamples = import.meta.glob("/content/**/*.example.{ts,tsx}", {
+const allContentExamples = import.meta.glob<string>("/content/**/*.example.{ts,tsx}", {
   eager: true,
   query: "?raw",
   import: "default",
-}) as Record<string, string>
+})
 
-const sandpackTemplates = import.meta.glob("/src/components/sandpack/*.example.tsx", {
+const sandpackTemplates = import.meta.glob<string>("/src/components/sandpack/*.example.tsx", {
   eager: true,
   query: "?raw",
   import: "default",
-}) as Record<string, string>
+})
 
-const sandpackStyles = import.meta.glob("/src/components/sandpack/*.example.css", {
+const sandpackStyles = import.meta.glob<string>("/src/components/sandpack/*.example.css", {
   eager: true,
   query: "?raw",
   import: "default",
-}) as Record<string, string>
+})
 
 const indexTemplate = sandpackTemplates["/src/components/sandpack/index.example.tsx"] ?? ""
 const renderBoundaryTemplate =
@@ -47,7 +47,7 @@ const localFiles: SandpackFiles = {
     hidden: true,
     code: stripExampleMeta(renderBoundaryTemplate),
   },
-  ...(localPackageFiles as SandpackFiles),
+  ...localPackageFiles,
 }
 
 function getExampleFiles(dir: string): SandpackFiles {
@@ -88,9 +88,8 @@ export function Sandpack({ height = 600, dir, files: explicitFiles, ...props }: 
     <div
       className="contents"
       style={
-        {
-          "--sp-height": `${height}px`,
-        } as CSSProperties
+        // biome-ignore lint/nursery/noUnsafeTypeAssertion: CSS custom properties are not part of CSSProperties
+        { "--sp-height": `${height}px` } as CSSProperties
       }
     >
       <SandpackEditor localFiles={localFiles} files={files} {...props} />

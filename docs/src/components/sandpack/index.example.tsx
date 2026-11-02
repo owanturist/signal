@@ -7,7 +7,7 @@ import "./styles.css"
 
 import App from "./app"
 
-const root = createRoot(document.getElementById("root"))
+const root = createRoot(document.querySelector("#root"))
 root.render(
   <StrictMode>
     <App />

@@ -464,6 +464,113 @@
           }
         }
       }
+    },
+    // docs sources - routes, components and tools of the website itself
+    {
+      "includes": ["docs/src/**/*.{ts,tsx}"],
+      "linter": {
+        "rules": {
+          "nursery": {
+            "noInlineStyles": "off", // dynamic values (CSS variables) can only be passed inline
+            "noTailwindArbitraryValue": "off" // data attribute variants of the resizable panels separators
+          },
+          "performance": {
+            "noBarrelFile": "off" // docs re-export a few modules on purpose
+          },
+          "style": {
+            "noHeadElement": "off" // TanStack Start root route renders the document head itself
+          }
+        }
+      }
+    },
+
+    // docs route files - names are defined by the TanStack Router file based routing
+    {
+      "includes": ["docs/src/routes/**/*.{ts,tsx}"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useFilenamingConvention": "off" // "$" is a splat route
+          }
+        }
+      }
+    },
+
+    // docs components - route files reference components before their definitions
+    {
+      "includes": ["docs/**/*.{ts,tsx}"],
+      "linter": {
+        "rules": {
+          "nursery": {
+            "useReactFunctionComponentDefinition": {
+              "level": "error",
+              "options": { "namedComponents": "functionDeclaration" }
+            }
+          }
+        }
+      }
+    },
+
+    // docs vite config - runs in node at build time
+    {
+      "includes": ["docs/vite.config.ts"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noNodejsModules": "off"
+          },
+          "nursery": {
+            "noUnsafeTypeAssertion": "off" // JSON and dynamic imports are untyped at the boundary
+          },
+          "suspicious": {
+            "noConsole": "off" // reports progress of the static export
+          }
+        }
+      }
+    },
+
+    // docs tutorial examples - teaching code, kept minimal
+    {
+      "includes": ["docs/content/**/*.example.{ts,tsx}"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useConsistentMemberAccessibility": "off" // classes in tutorials omit the noise of `public`
+          },
+          "suspicious": {
+            "noArrayIndexKey": "off" // tutorial lists have no ids and are never reordered
+          }
+        }
+      }
+    },
+
+    // docs sandpack demo files - styling of the live examples
+    {
+      "includes": ["docs/src/components/sandpack/*.example.{tsx,css}"],
+      "linter": {
+        "rules": {
+          "nursery": {
+            "noInlineStyles": "off",
+            "noReactNativeLiteralColors": "off",
+            "useLogicalProperties": "off"
+          },
+          "style": {
+            "noHexColors": "off"
+          }
+        }
+      }
+    },
+
+    // docs stylesheets - Tailwind imports and plain demo styles live outside of cascade layers
+    {
+      "includes": ["docs/**/*.css"],
+      "linter": {
+        "rules": {
+          "nursery": {
+            "useLayeredStyles": "off"
+          }
+        }
+      }
     }
   ]
 }

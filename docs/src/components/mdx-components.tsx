@@ -24,6 +24,7 @@ export function createMDXComponents(filePath: string) {
   return {
     ...MDXComponents,
     // biome-ignore lint/style/useNamingConvention: component must be PascalCase
+    // biome-ignore lint/nursery/noComponentHookFactories: one component per MDX page, its folder is the default `dir`
     Sandpack: (props: SandpackProps) => <Sandpack dir={fileDir} {...props} />,
   }
 }
