@@ -1,0 +1,62 @@
+---
+title: useMonitor
+description: API reference for the useMonitor hook
+---
+
+The `useMonitor{:dart}` hook provides direct access to a Monitor instance for reading signals in components.
+
+## `useMonitor(){:dart}` [#use-monitor]
+
+```ts
+function useMonitor(): Monitor
+```
+
+Returns a Monitor instance that can be used to read signals. The component subscribes to all signals read through this monitor.
+
+<section className="typedef">
+
+- `@returns Monitor{:dart}` A Monitor instance for reading signals. The monitor is stable across renders.
+
+</section>
+
+```tsx tab="Example"
+import { Signal, type Monitor } from "@owanturist/signal"
+import { useMonitor } from "@owanturist/signal-react"
+
+const count = Signal(0)
+
+function Counter() {
+  const monitor = useMonitor()
+  const value = count.read(monitor)
+
+  return <div>Count: {value}</div>
+}
+```
+
+## Monitor Interface
+
+```ts
+interface Monitor {
+  // Opaque type used internally by signals
+}
+```
+
+The `Monitor{:dart}` type is intentionally opaque. You pass it to `signal.read(monitor){:ts}` to track dependencies. The monitor handles subscription management internally.
+
+## Comparison with useComputed
+
+The `useMonitor{:dart}` hook is the simpler primitive - it returns a Monitor and leaves reading and rendering logic to you. The `useComputed{:dart}` hook builds on top of it, adding memoization, dependency arrays, and custom equality checks.
+
+| Feature | `useMonitor{:dart}` | `useComputed{:dart}` |
+|---------|-------------|---------------|
+| Returns | `Monitor{:dart}` | Computed value |
+| Memoization | None | Optional via dependency array |
+| Custom equality | None | Supported via options |
+| Complexity | Minimal | Higher, with built-in optimizations |
+
+## See Also
+
+<Cards>
+  <Card title="useComputed" description="High-level hook for reading signals" href="/docs/api/use-computed" />
+  <Card title="How Signals Work in React" description="How signals work with React" href="/docs/concepts/how-signals-work-in-react" />
+</Cards>

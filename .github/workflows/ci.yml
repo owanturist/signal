@@ -106,7 +106,7 @@ jobs:
         run: pnpm test:run
 
       - name: Typecheck against react@${{ matrix.version }}
-        run: pnpm typecheck
+        run: pnpm typecheck --exclude=docs
 
   test-signal-support:
     name: Run tests against support signal

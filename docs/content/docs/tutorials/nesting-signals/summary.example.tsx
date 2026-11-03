@@ -1,0 +1,28 @@
+// @ts-nocheck
+
+import type { ReadableSignal } from "@owanturist/signal"
+import { useComputed } from "@owanturist/signal-react"
+//#region code
+import type { FC } from "react"
+
+import { RenderBoundary } from "/render-boundary"
+import type { State as ItemState } from "./item/state"
+
+interface Props {
+  items: ReadableSignal<ReadonlyArray<ItemState>>
+}
+
+export const Summary: FC<Props> = ({ items }) => {
+  const summary = useComputed(
+    (monitor) => {
+      const states = items.read(monitor)
+      const packed = states.filter((state) => state.packed.read(monitor)).length
+
+      return `${packed} of ${states.length} packed`
+    },
+    [items],
+  )
+
+  return <RenderBoundary name="Summary">{summary}</RenderBoundary>
+}
+//#endregion code

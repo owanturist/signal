@@ -1,0 +1,254 @@
+---
+title: Testing Signals
+description: Unit-test signal state modules without mounting React, using the monitor fixture and factory functions
+---
+
+In this tutorial you'll test state made of [Signals](/docs/api/signal) without mounting a single React component. You'll set up a `monitor` fixture once, then use it to test state modules, derived signals, and effects.
+
+The examples use [Vitest](https://vitest.dev), but nothing here is specific to it.
+
+## Why tests need a monitor
+
+Reading a signal requires a [`Monitor`](/docs/concepts/fundamentals#why-monitors-exist) - the argument you receive in [`effect`](/docs/api/effect) and in [derived signal](/docs/api/signal#derived-readonly) getters. In a component, [`useMonitor`](/docs/api/use-monitor) provides one. In a test there is no component and no effect, so you need to get one yourself.
+
+[`untracked`](/docs/api/untracked) gives you exactly that: it hands the callback a monitor that reads values without subscribing to anything. That is what a test wants - read the current value, assert on it, move on.
+
+## Set up the monitor fixture
+
+Create the monitor before every test and attach it to Vitest's [test context](https://vitest.dev/guide/test-context). Every test can then destructure `monitor` from its first argument - this tutorial calls that the monitor fixture.
+
+```ts title="setup-tests.ts"
+import { untracked } from "@owanturist/signal"
+import { beforeEach } from "vitest"
+
+beforeEach((context) => {
+  untracked((monitor) => {
+    context.monitor = monitor
+  })
+})
+```
+
+Tell TypeScript about the new field, so `({ monitor }){:ts}` is typed in every test.
+
+```ts title="globals.d.ts"
+import type { Monitor } from "@owanturist/signal"
+
+declare module "vitest" {
+  export interface TestContext {
+    monitor: Monitor
+  }
+}
+```
+
+Finally, register the setup file in your Vitest config.
+
+```ts title="vitest.config.ts"
+import { defineConfig } from "vitest/config"
+
+export default defineConfig({
+  test: {
+    setupFiles: "./setup-tests.ts",
+  },
+})
+```
+
+<Callout>The monitor from `untracked{:ts}` is not tied to any effect or component, so reading with it never creates a dependency.</Callout>
+
+## Test a state module
+
+Take a font state as an example. It is a factory function returning an object of Signals - nothing to mount.
+
+```ts title="font/state.ts"
+import { Signal } from "@owanturist/signal"
+
+export function initState() {
+  return {
+    family: Signal("serif"),
+    size: Signal(16),
+  }
+}
+```
+
+Each test gets a fresh instance from `initState{:ts}`, reads through the `monitor` fixture and writes directly on the Signal.
+
+```ts title="font/state.test.ts"
+import { describe, expect, it } from "vitest"
+
+import { initState } from "./state"
+
+describe("font state", () => {
+  it("starts with a 16px serif", ({ monitor }) => {
+    const { family, size } = initState()
+
+    expect(family.read(monitor)).toBe("serif")
+    expect(size.read(monitor)).toBe(16)
+  })
+
+  it("changes the size independently of the family", ({ monitor }) => {
+    const { family, size } = initState()
+
+    size.write(24)
+
+    expect(size.read(monitor)).toBe(24)
+    expect(family.read(monitor)).toBe("serif")
+  })
+
+  it("accepts an updater function", ({ monitor }) => {
+    const { size } = initState()
+
+    size.write((current) => current + 2)
+
+    expect(size.read(monitor)).toBe(18)
+  })
+})
+```
+
+## Test derived signals
+
+For a [derived signal](/docs/api/signal#derived-readonly), write to a source and read the derived value.
+
+```ts title="cart/state.ts"
+import { Signal } from "@owanturist/signal"
+
+export function initState() {
+  const price = Signal(100)
+  const quantity = Signal(1)
+  const total = Signal((monitor) => price.read(monitor) * quantity.read(monitor))
+
+  return { price, quantity, total }
+}
+```
+
+```ts title="cart/state.test.ts"
+import { expect, it } from "vitest"
+
+import { initState } from "./state"
+
+it("derives the total from price and quantity", ({ monitor }) => {
+  const { price, quantity, total } = initState()
+
+  expect(total.read(monitor)).toBe(100)
+
+  quantity.write(3)
+  expect(total.read(monitor)).toBe(300)
+
+  price.write(10)
+  expect(total.read(monitor)).toBe(30)
+})
+```
+
+There is nothing to flush or await - a derived signal is always up to date when you read it.
+
+## Test effects
+
+[Effects](/docs/api/effect) are where *when* something runs matters. A `vi.fn(){:ts}` spy makes runs and cleanups observable.
+
+```ts title="cart/effects.test.ts"
+import { effect } from "@owanturist/signal"
+import { expect, it, vi } from "vitest"
+
+import { initState } from "./state"
+
+it("runs immediately and again when a dependency changes", () => {
+  const { quantity } = initState()
+  const spy = vi.fn()
+
+  effect((monitor) => {
+    spy(quantity.read(monitor))
+  })
+
+  expect(spy).toHaveBeenCalledTimes(1)
+  expect(spy).toHaveBeenLastCalledWith(1)
+
+  quantity.write(2)
+
+  expect(spy).toHaveBeenCalledTimes(2)
+  expect(spy).toHaveBeenLastCalledWith(2)
+})
+
+it("cleans up before re-running and when stopped", () => {
+  const { quantity } = initState()
+  const run = vi.fn()
+  const cleanup = vi.fn()
+
+  const stop = effect((monitor) => {
+    run(quantity.read(monitor))
+
+    return cleanup
+  })
+
+  quantity.write(2)
+  expect(cleanup).toHaveBeenCalledTimes(1)
+
+  stop()
+  expect(cleanup).toHaveBeenCalledTimes(2)
+
+  quantity.write(3)
+  expect(run).toHaveBeenCalledTimes(2)
+})
+```
+
+Two writes in a row run the effect twice. Wrap them in [`batch`](/docs/api/batch) and it runs once for the whole group.
+
+```ts title="cart/effects.test.ts"
+import { batch, effect } from "@owanturist/signal"
+import { expect, it, vi } from "vitest"
+
+import { initState } from "./state"
+
+it("runs the effect after every write", () => {
+  const { price, quantity, total } = initState()
+  const spy = vi.fn()
+
+  effect((monitor) => {
+    spy(total.read(monitor))
+  })
+
+  expect(spy).toHaveBeenCalledTimes(1)
+  expect(spy).toHaveBeenLastCalledWith(100)
+
+  price.write(10)
+  quantity.write(2)
+
+  expect(spy).toHaveBeenCalledTimes(3)
+  expect(spy).toHaveBeenLastCalledWith(20)
+})
+
+it("runs the effect once for a batch of writes", () => {
+  const { price, quantity, total } = initState()
+  const spy = vi.fn()
+
+  effect((monitor) => {
+    spy(total.read(monitor))
+  })
+
+  expect(spy).toHaveBeenCalledTimes(1)
+  expect(spy).toHaveBeenLastCalledWith(100)
+
+  batch(() => {
+    price.write(10)
+    quantity.write(2)
+  })
+
+  expect(spy).toHaveBeenCalledTimes(2)
+  expect(spy).toHaveBeenLastCalledWith(20)
+})
+```
+
+<Callout>Effects started in a test keep running until you stop them. Call the function [`effect`](/docs/api/effect) returns at the end of a test - or in `afterEach{:ts}` - when the effect would otherwise outlive it.</Callout>
+
+## What you've built
+
+- A `monitor` fixture - one setup file, one type declaration - that every test can use
+- Fast tests for state modules that need no React, no DOM and no providers
+- Derived signal tests that are just "write a source, read the result"
+- Effect tests that observe runs and cleanups through spies
+
+## What's next
+
+<Cards>
+  <Card title="Composing Signals" href="/docs/tutorials/composing-signals" description="State modules as plain objects of Signals" />
+  <Card title="Reading and Writing Signals" href="/docs/guides/reading-and-writing-signals" description="All the ways to read from and write to a Signal" />
+  <Card title="Side Effects" href="/docs/guides/side-effects" description="Effects, cleanups and when they run" />
+  <Card title="untracked" href="/docs/api/untracked" description="The function behind the monitor fixture" />
+</Cards>

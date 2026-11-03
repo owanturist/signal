@@ -1,0 +1,39 @@
+import { createFileRoute, notFound } from "@tanstack/react-router"
+import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "fumadocs-ui/page"
+import type { FC } from "react"
+
+import { createMDXComponents } from "@/components/mdx-components"
+import { source } from "@/source"
+import { createPageHead, docTitle } from "@/tools/page-head"
+
+const DocsIndexPage: FC = () => {
+  const page = source.getPage([])
+
+  if (!page) {
+    throw notFound()
+  }
+
+  const MarkdownX = page.data.body
+
+  return (
+    <DocsPage tableOfContent={{ style: "clerk" }} toc={page.data.toc}>
+      <DocsTitle>{page.data.title}</DocsTitle>
+      <DocsDescription>{page.data.description}</DocsDescription>
+      <DocsBody>
+        <MarkdownX components={createMDXComponents(`docs/${page.path}`)} />
+      </DocsBody>
+    </DocsPage>
+  )
+}
+
+export const Route = createFileRoute("/docs/")({
+  head: () => {
+    const page = source.getPage([])
+
+    return createPageHead({
+      title: docTitle(page?.data.title ?? "Documentation"),
+      description: page?.data.description,
+    })
+  },
+  component: DocsIndexPage,
+})

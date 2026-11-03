@@ -1,0 +1,9 @@
+{
+  "title": "Guides",
+  "pages": [
+    "using-signals-in-react",
+    "reading-and-writing-signals",
+    "side-effects",
+    "biome-and-eslint"
+  ]
+}

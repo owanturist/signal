@@ -9,6 +9,9 @@ node_modules
 coverage
 .nyc_output
 
+# typescript
+*.tsbuildinfo
+
 # production
 dist
 changeset-status.json
@@ -33,3 +36,8 @@ cypress/videos
 # nx
 .nx/cache
 .nx/workspace-data
+
+# docs
+docs/.source
+docs/.tanstack
+docs/src/route-tree.gen.ts

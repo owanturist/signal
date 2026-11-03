@@ -15,7 +15,9 @@
   "files.readonlyInclude": {
     "pnpm-lock.yaml": true
   },
-  "tailwindCSS.experimental.configFile": null,
+  "tailwindCSS.experimental.configFile": {
+    "docs/src/app.css": "docs/**"
+  },
   "tailwindCSS.experimental.classRegex": [
     "class=\"([^\"]*)", // <div class="..." />
     "className=\"([^\"]*)" // <div className="..." />
