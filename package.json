@@ -44,7 +44,7 @@
     "nx": "^23.3.0",
     "size-limit": "^14.2.0",
     "terser": "^5.51.2",
-    "tsdown": "^0.23.1",
+    "tsdown": "^0.23.2",
     "typescript": "^7.0.2",
     "vite": "catalog:",
     "vitest": "catalog:"
