@@ -41,7 +41,7 @@
     "@size-limit/preset-small-lib": "^14.2.0",
     "@types/node": "^26.6.5",
     "@vitest/coverage-v8": "catalog:",
-    "nx": "^23.3.0",
+    "nx": "^24.0.1",
     "size-limit": "^14.2.0",
     "terser": "^5.51.2",
     "tsdown": "^0.23.1",
