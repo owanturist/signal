@@ -212,8 +212,10 @@ describe.each<{
       fireEvent.click(screen.getByRole("button"))
       expect(readDisplayedValues()).toStrictEqual(["1", "1"])
 
-      // the Object.is spy from setup-tests remembers the compared snapshots, which refer to the emitters
-      vi.clearAllMocks()
+      // the discarded render is still attached next to the 2 live readers...
+      expect(signal).not.toHaveEmittersSize(2)
+
+      // ...until it gets collected
       await globalThis.gc?.({ execution: "async" })
       expect(signal).toHaveEmittersSize(2)
 
@@ -233,7 +235,12 @@ describe.each<{
       )
 
       fireEvent.click(screen.getByRole("button"))
+      expect(readDisplayedValues()).toStrictEqual(["1", "1"])
 
+      // the discarded render is still attached next to the 2 live readers...
+      expect(signal).not.toHaveEmittersSize(2)
+
+      // ...until the next write detaches everything and only the live readers attach back
       act(() => {
         source.write(2)
       })
@@ -374,19 +381,26 @@ describe.each<{
 
       screen.getByRole("button").click()
       await vi.waitFor(() => expect(onRender).toHaveBeenCalled(), { interval: 1 })
+
+      // the transition has started before the write...
+      expect(onRender).toHaveBeenCalledWith(0)
+      onRender.mockClear()
+
       source.write(1)
 
       await waitFor(() => {
         expect(readDisplayedValues()).toHaveLength(SLOW_READERS.length + 1)
       })
 
-      expect(onRender).toHaveBeenCalledWith(0)
+      // ...but no reader renders the previous value after it:
+      // the log alone misses a stale commit, since it collapses into the initial `0`
+      expect(onRender).not.toHaveBeenCalledWith(0)
       expect(log.read()).toStrictEqual(["0", "1"])
     })
 
     it("restarts a slow deferred render when a newer write lands", async () => {
       const { source, signal } = setup()
-      const commits = new Set<string>()
+      const commits: Array<string> = []
       const onRender = vi.fn()
 
       const SlowChild = memo<{ value: number }>(({ value }) => {
@@ -401,7 +415,7 @@ describe.each<{
         const deferred = useDeferredValue(value)
 
         useLayoutEffect(() => {
-          commits.add(`${value}:${deferred}`)
+          commits.push(`${value}:${deferred}`)
         })
 
         return (
@@ -424,7 +438,7 @@ describe.each<{
       })
 
       // the deferred value skips the abandoned 1 and catches up with the latest value
-      expect([...commits]).toStrictEqual(["0:0", "1:0", "2:0", "2:2"])
+      expect(commits).toStrictEqual(["0:0", "1:0", "2:0", "2:2"])
     })
   })
 
@@ -576,6 +590,9 @@ describe.each<{
       act(() => {
         source.write(1)
       })
+
+      expect(screen.getByTestId("fallback")).toBeInTheDocument()
+      expect(readDisplayedValues()).toStrictEqual(["0"])
 
       await act(async () => {
         reveal()
