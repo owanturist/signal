@@ -3,11 +3,7 @@ import { untracked } from "@owanturist/signal"
 
 import { toHaveEmittersSize } from "@owanturist/internals/testing/to-have-emitters-size"
 
-const spy__Object_is = vi.spyOn(Object, "is")
-
 beforeEach((context) => {
-  spy__Object_is.mockClear()
-
   context.monitor = untracked((monitor) => monitor)
 })
 
