@@ -195,6 +195,9 @@ jobs:
         uses: changesets/action@v2.1.2
         with:
           version-script: pnpm run version
-          publish-script: pnpm --recursive publish --access=public --publish-branch=${{ github.ref_name }} --tag=${{ github.ref_name == 'master' && 'latest' || github.ref_name == 'next' && 'next' || github.ref_name == 'alpha' && 'alpha' || github.ref_name == 'beta' && 'beta' || github.ref_name == 'snapshot' && 'snapshot' || 'latest' }} && pnpm exec changeset git-tag
+          # The action runs the script without a shell, so it must be a single command.
+          # changeset publish publishes the packages missing from npm and reports their git tags,
+          # so the action can push the tags and create GitHub releases.
+          publish-script: pnpm exec changeset publish --tag ${{ github.ref_name == 'master' && 'latest' || github.ref_name == 'next' && 'next' || github.ref_name == 'alpha' && 'alpha' || github.ref_name == 'beta' && 'beta' || github.ref_name == 'snapshot' && 'snapshot' || 'latest' }}
         env:
           NPM_CONFIG_PROVENANCE: true
